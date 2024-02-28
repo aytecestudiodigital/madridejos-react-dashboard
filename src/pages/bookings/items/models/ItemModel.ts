@@ -1,0 +1,36 @@
+import { Database } from "../../../../server/supabaseTypes";
+
+export type ItemModel = {
+  address?: string | null;
+  apply_cupons?: boolean | null;
+  avalaible_seats?: number | null;
+  calendar_days?: number | null;
+  calendar_weeks?: number | null;
+  courtesy_time?: number | null;
+  created_at?: string;
+  created_by?: string | null;
+  description?: string | null;
+  free?: boolean;
+  id?: string;
+  image?: string | null;
+  installation_id: string;
+  max_selected_time?: number | null;
+  max_sessions?: number | null;
+  next_booking?: number | null;
+  order: number;
+  payments_account_id?: string | null;
+  position?: number[] | null;
+  price_item?: number | null;
+  price_light?: number | null;
+  session_type?: Database["public"]["Enums"]["bookings_session_type"] | null;
+  state?: boolean;
+  time_cancel?: number | null;
+  time_check_in?: string | null;
+  time_check_out?: string | null;
+  time_limit?: number | null;
+  title: string;
+  updated_at?: string;
+  updated_by?: string | null;
+  valuable_limit?: string | null;
+  legal_text_id?: string | null;
+};
