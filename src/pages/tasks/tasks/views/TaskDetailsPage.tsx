@@ -5,7 +5,7 @@ import { supabase } from "../../../../server/supabase"
 import { Wrapper } from "@googlemaps/react-wrapper"
 import Marker from "../../../content/articles/components/MapMarkerComponent"
 import GoogleMaps from "../../../content/articles/components/MapComponent"
-import { Button, Card, Label, Select, Spinner, Tabs, TextInput, Textarea } from "flowbite-react"
+import { Button, Card, Label, Select, Spinner, TextInput, Textarea } from "flowbite-react"
 import ModalImage from "react-modal-image"
 import { HeaderItemPageComponent } from "../../../../components/ListPage/HeaderItemPage"
 import { CategoryTechniciansModal } from "../components/CategoryTechniciansModal"
@@ -429,8 +429,10 @@ export const TaskDetailsPage = () => {
 
                                                 </>
                                             ) : (
-                                                <div className="flex items-center justify-center">
-                                                    <p className="text-center bg-blue-200 py-2 px-4 rounded-full font-semibold">No hay técnicos asignados a esta tarea</p>
+                                                <div className="flex justify-center items-center h-full md:mb-6">
+                                                    <div className="flex">
+                                                        <HiOutlineInformationCircle className="mt-1 mr-2" />No hay técnicos asignados a esta tarea
+                                                    </div>
                                                 </div>
                                             )}
                                         </div>

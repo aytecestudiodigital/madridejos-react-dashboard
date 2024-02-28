@@ -103,7 +103,7 @@ export default function EditContentPage() {
   const [deletedFiles, setDeletedFiles] = useState<any[]>([]);
   const { openAlert } = useContext(AlertContext);
 
-  const { register, formState, handleSubmit } = useForm<Content>({
+  const { register, formState, getValues } = useForm<Content>({
     values: item ?? undefined,
     mode: "all",
     reValidateMode: "onSubmit",
@@ -125,8 +125,9 @@ export default function EditContentPage() {
     }
   }, [user]);
 
-  const onSubmit: SubmitHandler<Content> = async (data) => {
+  const onSubmit = async () => {
     let state: any = {};
+    const data = getValues()
     const content: any = {
       title: data.title,
       state: data.state,
@@ -146,10 +147,10 @@ export default function EditContentPage() {
         newAddress == null
           ? null
           : {
-              address: newAddress,
-              latitude: newMapPosition!.lat,
-              longitude: newMapPosition!.lng,
-            },
+            address: newAddress,
+            latitude: newMapPosition!.lat,
+            longitude: newMapPosition!.lng,
+          },
       contact_info:
         newContactValues !== null ? { contact: newContactValues } : null,
       content_category_id: data.content_category_id,
@@ -390,7 +391,7 @@ export default function EditContentPage() {
               </h1>
 
               <div className="flex flex-grow justify-end gap-x-4">
-                <Button color="primary" disabled={!isValid} type="submit">
+                <Button color="primary" onClick={onSubmit} disabled={!isValid} type="submit">
                   {t("SAVE")}
                 </Button>
                 {item && (
@@ -406,7 +407,7 @@ export default function EditContentPage() {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form>
         <div className="p-4 dark:bg-gray-900">
           <div className="xl:col-auto order-last xl:order-first">
             <Card>

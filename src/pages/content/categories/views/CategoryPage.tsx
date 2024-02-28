@@ -103,6 +103,7 @@ export default function CategoryPage() {
         content_type: data.content_type,
         order: data.order,
         notifiable: data.notifiable,
+        org_id: "30f3a4ed-0b43-4489-85a8-244ac94019f5"
       };
       if (data.tags !== "") {
         tags = data.tags?.split(",");

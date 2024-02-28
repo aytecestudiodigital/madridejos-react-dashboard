@@ -2,7 +2,6 @@ import classNames from "classnames";
 import { Sidebar } from "flowbite-react";
 
 import {
-  HiOutlineCreditCard,
   HiOutlineHome,
   HiOutlinePencilAlt,
   HiOutlineUsers,
@@ -10,11 +9,7 @@ import {
 
 import { useTranslation } from "react-i18next";
 import {
-  LuCalendarClock,
   LuCheckCircle,
-  LuClipboardSignature,
-  LuTicket,
-  LuUnlock,
 } from "react-icons/lu";
 import { useSidebarContext } from "../context/SidebarContext";
 import isSmallScreen from "../helpers/is-small-screen";
@@ -48,9 +43,9 @@ export default function SidebarComponent() {
                   </Sidebar.Item>
                 ) : null}
                 {user &&
-                (user.users_roles.rules.content.contents.access_module ||
-                  user.users_roles.rules.content.categories.access_module ||
-                  user.users_roles.rules.content.entities.access_module) ? (
+                  (user.users_roles.rules.content.contents.access_module ||
+                    user.users_roles.rules.content.categories.access_module ||
+                    user.users_roles.rules.content.entities.access_module) ? (
                   <Sidebar.Collapse
                     icon={HiOutlinePencilAlt}
                     label={t("CONTENT_TYPE")}
@@ -72,9 +67,9 @@ export default function SidebarComponent() {
                 ) : null}
 
                 {user &&
-                (user.users_roles.rules.mod_users.users.access_module ||
-                  user.users_roles.rules.mod_users.groups.access_module ||
-                  user.users_roles.rules.mod_users.roles.access_module) ? (
+                  (user.users_roles.rules.mod_users.users.access_module ||
+                    user.users_roles.rules.mod_users.groups.access_module ||
+                    user.users_roles.rules.mod_users.roles.access_module) ? (
                   <Sidebar.Collapse
                     icon={HiOutlineUsers}
                     label={t("USERS")}
@@ -92,7 +87,7 @@ export default function SidebarComponent() {
                   </Sidebar.Collapse>
                 ) : null}
 
-                {user &&
+                {/* {user &&
                 (user.users_roles.rules.bookings.bookings.access_module ||
                   user.users_roles.rules.bookings.installations
                     .access_module) ? (
@@ -108,28 +103,30 @@ export default function SidebarComponent() {
                       {t("INSTALLATIONS")}
                     </Sidebar.Item>
                   </Sidebar.Collapse>
-                ) : null}
+                ) : null} */}
 
-                {user &&
-                user.users_roles.rules.inscriptions.inscriptions
-                  .access_module ? (
-                  <Sidebar.Collapse
-                    icon={LuClipboardSignature}
-                    label={t("INSCRIPTIONS")}
-                    open={false}
-                  >
-                    <Sidebar.Item as={Link} to="/inscriptions/normal">
-                      {t("NORMAL_INSCRIPTION")}
-                    </Sidebar.Item>
-                    {/* <Sidebar.Item as={Link} to="/inscriptions/normal">
+                {/* {user &&
+                  user.users_roles.rules.inscriptions.inscriptions
+                    .access_module ? (
+                  <>
+                    <Sidebar.Collapse
+                      icon={LuClipboardSignature}
+                      label={t("INSCRIPTIONS")}
+                      open={false}
+                    >
+                      <Sidebar.Item as={Link} to="/inscriptions/normal">
+                        {t("NORMAL_INSCRIPTION")}
+                      </Sidebar.Item>
+                      <Sidebar.Item as={Link} to="/inscriptions/normal">
                     {t("FORMATIVE_INSCRIPTION")}
-                  </Sidebar.Item> */}
-                  </Sidebar.Collapse>
-                ) : null}
+                  </Sidebar.Item>
+                    </Sidebar.Collapse>
+                  </>
+                ) : null} */}
 
                 {user &&
-                (user.users_roles.rules.tasks.tasks.access_module ||
-                  user.users_roles.rules.tasks.projects.access_module) ? (
+                  (user.users_roles.rules.tasks.tasks.access_module ||
+                    user.users_roles.rules.tasks.projects.access_module) ? (
                   <Sidebar.Collapse
                     icon={LuCheckCircle}
                     label="Incidencias y tareas"
@@ -144,9 +141,9 @@ export default function SidebarComponent() {
                   </Sidebar.Collapse>
                 ) : null}
 
-                {user &&
-                (user.users_roles.rules.tickets.tickets.access_module ||
-                  user.users_roles.rules.tickets.events.access_module) ? (
+                {/* {user &&
+                  (user.users_roles.rules.tickets.tickets.access_module ||
+                    user.users_roles.rules.tickets.events.access_module) ? (
                   <Sidebar.Collapse
                     icon={LuTicket}
                     label="Entradas y abonos"
@@ -159,21 +156,21 @@ export default function SidebarComponent() {
                       Eventos
                     </Sidebar.Item>
                   </Sidebar.Collapse>
-                ) : null}
+                ) : null} */}
 
-                {user &&
-                user.users_roles.rules.access_control.devices.access_module ? (
+                {/* {user &&
+                  user.users_roles.rules.access_control.devices.access_module ? (
                   <Sidebar.Item as={Link} to="/access-control" icon={LuUnlock}>
                     {t("ACCESS_CONTROL")}
                   </Sidebar.Item>
-                ) : null}
+                ) : null} */}
 
-                {user &&
-                (user.users_roles.rules.payments.payments.access_module ||
-                  user.users_roles.rules.payments.method_payments
-                    .access_module ||
-                  user.users_roles.rules.payments.payments_accounts
-                    .access_module) ? (
+                {/* {user &&
+                  (user.users_roles.rules.payments.payments.access_module ||
+                    user.users_roles.rules.payments.method_payments
+                      .access_module ||
+                    user.users_roles.rules.payments.payments_accounts
+                      .access_module) ? (
                   <Sidebar.Collapse
                     icon={HiOutlineCreditCard}
                     label={t("PAYMENTS")}
@@ -189,7 +186,7 @@ export default function SidebarComponent() {
                       {t("PAYMENTS_ACCOUNTS")}
                     </Sidebar.Item>
                   </Sidebar.Collapse>
-                ) : null}
+                ) : null} */}
               </Sidebar.ItemGroup>
             </Sidebar.Items>
           </div>

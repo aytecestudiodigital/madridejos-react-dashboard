@@ -78,15 +78,6 @@ export default function ContentPage() {
     }
   }, [user]);
 
-  console.log({
-    1: user,
-    2: user.users_roles,
-    3: user.users_roles.rules,
-    4: user.users_roles.rules.content,
-    5: user.users_roles.rules.content.contents,
-    6: user.users_roles.rules.content.contents.access_module,
-  });
-
   useEffect(() => {
     getCategories().then((result: any) => {
       setTotalCategories(result ? result : []);

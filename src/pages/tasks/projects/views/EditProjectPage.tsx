@@ -250,7 +250,7 @@ export default function EditProjectPage() {
       title: formValues.title,
       description: formValues.description,
       enable: formValues.enable,
-      org_id: "043ec7c2-572a-4199-9aa1-af6af822e76a",
+      org_id: "30f3a4ed-0b43-4489-85a8-244ac94019f5",
     };
     if (!project) {
       const createdProject = await insertRow(projectToSave, "tasks_projects");

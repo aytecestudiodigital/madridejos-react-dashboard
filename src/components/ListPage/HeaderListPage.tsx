@@ -169,7 +169,6 @@ export function HeaderListPageComponent(props: HeaderListPageProps) {
     props.onClearSearch();
   };
 
-  console.log("props.showButtonSave: ", props.showButtonSave)
   return (
     <>
       <div className="mb-4">
