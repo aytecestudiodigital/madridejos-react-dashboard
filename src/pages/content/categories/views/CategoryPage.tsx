@@ -24,8 +24,6 @@ import {
 } from "../../../../server/supabaseQueries";
 import { DeleteCategoryModal } from "../components/DeleteCategoryModal";
 import { Category } from "../models/Category";
-import { RootState } from "../../../../store/store";
-import { useSelector } from "react-redux";
 
 export default function CategoryPage() {
   const { id } = useParams();
@@ -49,7 +47,7 @@ export default function CategoryPage() {
   });
   const { errors, isValid } = formState;
 
-  const user = useSelector((state: RootState) => state.auth.user);
+  const user = JSON.parse(localStorage.getItem("userLogged")!);
 
   useEffect(() => {
     if (user) {
@@ -103,7 +101,8 @@ export default function CategoryPage() {
         content_type: data.content_type,
         order: data.order,
         notifiable: data.notifiable,
-        org_id: "30f3a4ed-0b43-4489-85a8-244ac94019f5"
+        org_id: "30f3a4ed-0b43-4489-85a8-244ac94019f5",
+        group_id: user.group_id,
       };
       if (data.tags !== "") {
         tags = data.tags?.split(",");

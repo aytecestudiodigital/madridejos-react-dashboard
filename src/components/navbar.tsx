@@ -1,6 +1,4 @@
-/* eslint-disable jsx-a11y/anchor-is-valid */
 import {
-  Avatar,
   DarkThemeToggle,
   Dropdown,
   Navbar,
@@ -108,12 +106,14 @@ export function UserDropdown() {
       label={
         <span>
           <span className="sr-only">User menu</span>
-          <Avatar
+          <img src="/public/images/logos/logo-vector-ayuntamiento-de-madridejos.jpg" className="h-10 w-auto rounded-3xl" alt="" />
+          {/* <Avatar
             alt=""
-            img="https://firebasestorage.googleapis.com/v0/b/aymo-platform.appspot.com/o/organizations%2Fkb9GTidAQ4vIbJ6FZ4Ig%2F1683713346378_mini-logoAyuntamientoNuevo.jpg?alt=media&token=88f01dc7-961f-4121-a584-76ab9c6c8685"
+            img="/public/images/logos/logo-vector-ayuntamiento-de-madridejos.jpg"
             rounded
             size="sm"
-          />
+            className="bg-cover"
+          /> */}
         </span>
       }
     >

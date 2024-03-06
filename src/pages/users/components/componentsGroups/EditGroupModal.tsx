@@ -34,6 +34,8 @@ export function EditGroupModal({
   const [totalAccess, setTotalAccess] = useState(false);
   const tableName = import.meta.env.VITE_TABLE_USER_GROUPS;
 
+  const user = JSON.parse(localStorage.getItem("userLogged")!);
+
   useEffect(() => {
     if (item) {
       setTotalAccess(item?.access_all);
@@ -54,6 +56,7 @@ export function EditGroupModal({
   const onSubmit: SubmitHandler<GroupUsers> = async (data) => {
     if (isValid) {
       setLoading(true);
+      data.group_id = user.group_id;
       const groupUpdated = data.id
         ? ((await updateRow(data, tableName)) as GroupUsers)
         : ((await insertRow(data, tableName)) as GroupUsers);
@@ -86,16 +89,6 @@ export function EditGroupModal({
             )}
           </Modal.Header>
           <Modal.Body>
-            {item && item.id && (
-              <div className="flex justify-end items-center text-gray-800">
-                <DeleteGroupModal
-                  item={item}
-                  closeModal={closeAfterDelete}
-                  onDeleteItem={onGroup}
-                />
-              </div>
-            )}
-
             <div>
               <div className="pb-4">
                 <Label htmlFor="name" color={errors.title && "failure"}>
@@ -129,16 +122,64 @@ export function EditGroupModal({
               </div>
             </div>
           </Modal.Body>
-          <Modal.Footer className="flex place-content-end">
-            <Button
-              disabled={!isValid}
-              color="primary"
-              type="submit"
-              isProcessing={loading}
-            >
-              {loading ? t("LOADING") : "Guardar grupo"}
-            </Button>
-          </Modal.Footer>
+          {item && item.id ? (
+            <Modal.Footer className="flex justify-between">
+              <div>
+                <DeleteGroupModal
+                  item={item}
+                  closeModal={closeAfterDelete}
+                  onDeleteItem={onGroup}
+                  disableButton={
+                    (!user.users_roles.rules.mod_users.groups.delete_all &&
+                      !user.users_roles.rules.mod_users.groups.delete_group &&
+                      !user.users_roles.rules.mod_users.groups.delete_own) ||
+                    (!user.users_roles.rules.mod_users.groups.delete_all &&
+                      user.users_roles.rules.mod_users.groups.delete_group &&
+                      user.group_id !== item.group_id) ||
+                    (!user.users_roles.rules.mod_users.groups.delete_all &&
+                      !user.users_roles.rules.mod_users.groups.delete_group &&
+                      user.users_roles.rules.mod_users.groups.delete_own &&
+                      user.id !== item.created_by)
+                  }
+                />
+              </div>
+              <div>
+                <Button
+                  disabled={
+                    !isValid ||
+                    (!user.users_roles.rules.mod_users.groups.update_all &&
+                      !user.users_roles.rules.mod_users.groups.update_group &&
+                      !user.users_roles.rules.mod_users.groups.update_own) ||
+                    (!user.users_roles.rules.mod_users.groups.update_all &&
+                      user.users_roles.rules.mod_users.groups.update_group &&
+                      user.group_id !== item.group_id) ||
+                    (!user.users_roles.rules.mod_users.groups.update_all &&
+                      !user.users_roles.rules.mod_users.groups.update_group &&
+                      user.users_roles.rules.mod_users.groups.update_own &&
+                      user.id !== item.created_by)
+                  }
+                  color="primary"
+                  type="submit"
+                  isProcessing={loading}
+                >
+                  {loading ? t("LOADING") : "Guardar grupo"}
+                </Button>
+              </div>
+            </Modal.Footer>
+          ) : (
+            <Modal.Footer className="flex place-content-end">
+              <Button
+                disabled={
+                  !isValid || !user.users_roles.rules.mod_users.groups.create
+                }
+                color="primary"
+                type="submit"
+                isProcessing={loading}
+              >
+                {loading ? t("LOADING") : "Guardar grupoe"}
+              </Button>
+            </Modal.Footer>
+          )}
         </form>
       </Modal>
     </>

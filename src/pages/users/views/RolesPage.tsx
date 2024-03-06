@@ -6,8 +6,6 @@ import { getEntities } from "../../../server/supabaseQueries";
 import { AddRoleModal } from "../components/componentsRoles/AddRoleModal";
 import { t } from "i18next";
 import { AlertContext } from "../../../context/AlertContext";
-import { RootState } from "../../../store/store";
-import { useSelector } from "react-redux";
 
 export default function RolePage() {
   const navigate = useNavigate();
@@ -53,7 +51,7 @@ export default function RolePage() {
   const [alertMsg] = useState("");
   const [actionAlert] = useState("");
   const { openAlert } = useContext(AlertContext);
-  const user = useSelector((state: RootState) => state.auth.user);
+  const user = JSON.parse(localStorage.getItem("userLogged")!);
 
   useEffect(() => {
     if (user) {
@@ -176,6 +174,7 @@ export default function RolePage() {
         isOpen={openAlert}
         alertMsg={alertMsg}
         action={actionAlert}
+        disableAddButton={!user.users_roles.rules.mod_users.roles.create}
       />
       {showAddModal ? (
         <AddRoleModal

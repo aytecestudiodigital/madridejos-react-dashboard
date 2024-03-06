@@ -35,15 +35,9 @@ export const UserRol = {
   tasks: {
     tasks: {
       create: false,
-      read_all: false,
-      read_own: false,
-      delete_all: false,
-      delete_own: false,
-      read_group: false,
-      update_all: false,
-      update_own: false,
-      delete_group: false,
-      update_group: false,
+      read: false,
+      delete: false,
+      update: false,
     },
     projects: {
       create: false,
@@ -206,15 +200,9 @@ export const UserRol = {
     },
     payments: {
       create: false,
-      read_all: false,
-      read_own: false,
-      delete_all: false,
-      delete_own: false,
-      read_group: false,
-      update_all: false,
-      update_own: false,
-      delete_group: false,
-      update_group: false,
+      read: false,
+      delete: false,
+      update: false,
     },
     access_module: false,
     method_payments: {
@@ -265,15 +253,9 @@ export const UserRol = {
   inscriptions: {
     records: {
       create: false,
-      read_all: false,
-      read_own: false,
-      delete_all: false,
-      delete_own: false,
-      read_group: false,
-      update_all: false,
-      update_own: false,
-      delete_group: false,
-      update_group: false,
+      read: false,
+      delete: false,
+      update: false,
     },
     inscriptions: {
       create: false,

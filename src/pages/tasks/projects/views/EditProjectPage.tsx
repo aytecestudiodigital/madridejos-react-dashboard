@@ -11,7 +11,6 @@ import {
   Textarea,
   ToggleSwitch,
 } from "flowbite-react";
-import { ItemResponsiblesModal } from "../../../bookings/items/components/ItemResposiblesModal";
 import { LuPlus, LuUserCog2, LuUserPlus2 } from "react-icons/lu";
 import { t } from "i18next";
 import { ProjectCategoryModal } from "../components/ProjectCategoryModal";
@@ -26,8 +25,7 @@ import {
 import { supabase } from "../../../../server/supabase";
 import { DeleteModal } from "../../../../components/DeleteModal";
 import { AlertContext } from "../../../../context/AlertContext";
-import { RootState } from "../../../../store/store";
-import { useSelector } from "react-redux";
+import { ItemResponsiblesModal } from "../../../bookings/items/components/ItemResposiblesModal";
 
 export default function EditProjectPage() {
   const breadcrumb = [
@@ -80,7 +78,7 @@ export default function EditProjectPage() {
 
   const { errors, isValid } = formState;
 
-  const user = useSelector((state: RootState) => state.auth.user);
+  const user = JSON.parse(localStorage.getItem("userLogged")!);
 
   useEffect(() => {
     if (user) {
@@ -251,6 +249,7 @@ export default function EditProjectPage() {
       description: formValues.description,
       enable: formValues.enable,
       org_id: "30f3a4ed-0b43-4489-85a8-244ac94019f5",
+      group_id: user.group_id,
     };
     if (!project) {
       const createdProject = await insertRow(projectToSave, "tasks_projects");
@@ -329,7 +328,7 @@ export default function EditProjectPage() {
           for await (const admin of admins) {
             if (
               defaultAdminsDb[
-                defaultAdminsDb.findIndex((e) => e.id === admin.id)
+              defaultAdminsDb.findIndex((e) => e.id === admin.id)
               ] === undefined
             ) {
               const newAdmin = {
@@ -345,7 +344,7 @@ export default function EditProjectPage() {
             if (technician.id) {
               if (
                 technicians[
-                  technicians.findIndex((e) => e.id === technician.id)
+                technicians.findIndex((e) => e.id === technician.id)
                 ] === undefined
               ) {
                 await supabase
@@ -361,7 +360,7 @@ export default function EditProjectPage() {
           for await (const technician of technicians) {
             if (
               defaultTechniciansDb[
-                defaultTechniciansDb.findIndex((e) => e.id === technician.id)
+              defaultTechniciansDb.findIndex((e) => e.id === technician.id)
               ] === undefined
             ) {
               const newTech = {
@@ -423,9 +422,9 @@ export default function EditProjectPage() {
                   for await (const tech of category.techniciansSelected) {
                     if (
                       defaultProjectCategoryTechnicians[
-                        defaultProjectCategoryTechnicians.findIndex(
-                          (e) => e === tech,
-                        )
+                      defaultProjectCategoryTechnicians.findIndex(
+                        (e) => e === tech,
+                      )
                       ] === undefined
                     ) {
                       const newTech = {
@@ -443,9 +442,9 @@ export default function EditProjectPage() {
                   for await (const tech of defaultProjectCategoryTechnicians) {
                     if (
                       category.techniciansSelected[
-                        category.techniciansSelected.findIndex(
-                          (e: any) => e === tech,
-                        )
+                      category.techniciansSelected.findIndex(
+                        (e: any) => e === tech,
+                      )
                       ] === undefined
                     ) {
                       await supabase
@@ -673,6 +672,26 @@ export default function EditProjectPage() {
                   toastSuccessMsg={"Proyecto eliminado correctamente"}
                   toastErrorMsg={"Error al eliminar el proyecto"}
                   title="Eliminar proyecto"
+                  disableButton={
+                    (!user.users_roles.rules.tasks.projects
+                      .delete_all &&
+                      !user.users_roles.rules.tasks.projects
+                        .delete_group &&
+                      !user.users_roles.rules.tasks.projects
+                        .delete_own) ||
+                    (!user.users_roles.rules.tasks.projects
+                      .delete_all &&
+                      user.users_roles.rules.tasks.projects
+                        .delete_group &&
+                      user.group_id !== project.group_id) ||
+                    (!user.users_roles.rules.tasks.projects
+                      .delete_all &&
+                      !user.users_roles.rules.tasks.projects
+                        .delete_group &&
+                      user.users_roles.rules.tasks.projects
+                        .delete_own &&
+                      user.id !== project.created_by)
+                  }
                 />
               ) : null}
             </div>

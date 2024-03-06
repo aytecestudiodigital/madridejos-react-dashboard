@@ -985,67 +985,25 @@ export const permissions = {
           id: 111,
         },
         {
-          action: "read_all",
-          label: "Ver todo",
+          action: "read",
+          label: "Leer",
           description:
             "Este permiso habilita para consultar todos los registros",
           id: 112,
         },
         {
-          action: "read_own",
-          label: "Ver propios",
-          description:
-            "Este permiso habilita sólo para consultar los registros creados por el propio usuario",
-          id: 113,
-        },
-        {
-          action: "read_group",
-          label: "Ver mi grupo",
-          description:
-            "Este permiso habilita para consultar los registros creados por usuarios del mismo grupo al que pertenece el usuario",
-          id: 114,
-        },
-        {
-          action: "update_all",
-          label: "Actualizar todos",
+          action: "update",
+          label: "Actualizar",
           description:
             "Este permiso habilita para modificar todos los registros",
           id: 115,
         },
         {
-          action: "update_own",
-          label: "Actualizar propios",
-          description:
-            "Este permiso habilita sólo para editar los registros creados por el propio usuario",
-          id: 116,
-        },
-        {
-          action: "update_group",
-          label: "Actualizar mi grupo",
-          description:
-            "Este permiso habilita para editar los registros creados por usuarios del mismo grupo al que pertenece el usuario",
-          id: 117,
-        },
-        {
-          action: "delete_all",
-          label: "Borrar todos",
+          action: "delete",
+          label: "Borrar",
           description:
             "Este permiso habilita para eliminar todos los registros",
           id: 118,
-        },
-        {
-          action: "delete_own",
-          label: "Borrar propios",
-          description:
-            "Este permiso habilita sólo para eliminar los registros creados por el propio usuario",
-          id: 119,
-        },
-        {
-          action: "delete_group",
-          label: "Borrar mi grupo",
-          description:
-            "Este permiso habilita para eliminar los registros creados por usuarios del mismo grupo al que pertenece el usuario",
-          id: 120,
         },
       ],
     },
@@ -1232,64 +1190,22 @@ export const permissions = {
           id: 141,
         },
         {
-          action: "read_all",
-          label: "Ver todo",
+          action: "read",
+          label: "Ver",
           description: "Este permiso habilita para consultar todos los tareas",
           id: 142,
         },
         {
-          action: "read_own",
-          label: "Ver propios",
-          description:
-            "Este permiso habilita sólo para consultar los tareas creados por el propio usuario",
-          id: 143,
-        },
-        {
-          action: "read_group",
-          label: "Ver mi grupo",
-          description:
-            "Este permiso habilita para consultar los tareas creados por usuarios del mismo grupo al que pertenece el usuario",
-          id: 144,
-        },
-        {
-          action: "update_all",
+          action: "update",
           label: "Actualizar todos",
           description: "Este permiso habilita para modificar todos los tareas",
           id: 145,
         },
         {
-          action: "update_own",
-          label: "Actualizar propios",
-          description:
-            "Este permiso habilita sólo para editar los tareas creados por el propio usuario",
-          id: 146,
-        },
-        {
-          action: "update_group",
-          label: "Actualizar mi grupo",
-          description:
-            "Este permiso habilita para editar los tareas creados por usuarios del mismo grupo al que pertenece el usuario",
-          id: 147,
-        },
-        {
-          action: "delete_all",
-          label: "Borrar todos",
+          action: "delete",
+          label: "Borrar",
           description: "Este permiso habilita para eliminar todos los tareas",
           id: 148,
-        },
-        {
-          action: "delete_own",
-          label: "Borrar propios",
-          description:
-            "Este permiso habilita sólo para eliminar los tareas creados por el propio usuario",
-          id: 149,
-        },
-        {
-          action: "delete_group",
-          label: "Borrar mi grupo",
-          description:
-            "Este permiso habilita para eliminar los tareas creados por usuarios del mismo grupo al que pertenece el usuario",
-          id: 150,
         },
       ],
     },
@@ -1312,64 +1228,22 @@ export const permissions = {
           id: 151,
         },
         {
-          action: "read_all",
+          action: "read",
           label: "Ver todo",
           description: "Este permiso habilita para consultar todos los pagos",
           id: 152,
         },
         {
-          action: "read_own",
-          label: "Ver propios",
-          description:
-            "Este permiso habilita sólo para consultar los pagos creados por el propio usuario",
-          id: 153,
-        },
-        {
-          action: "read_group",
-          label: "Ver mi grupo",
-          description:
-            "Este permiso habilita para consultar los pagos creados por usuarios del mismo grupo al que pertenece el usuario",
-          id: 154,
-        },
-        {
-          action: "update_all",
+          action: "update",
           label: "Actualizar todos",
           description: "Este permiso habilita para modificar todos los pagos",
           id: 155,
         },
         {
-          action: "update_own",
-          label: "Actualizar propios",
-          description:
-            "Este permiso habilita sólo para editar los pagos creados por el propio usuario",
-          id: 156,
-        },
-        {
-          action: "update_group",
-          label: "Actualizar mi grupo",
-          description:
-            "Este permiso habilita para editar los pagos creados por usuarios del mismo grupo al que pertenece el usuario",
-          id: 157,
-        },
-        {
-          action: "delete_all",
+          action: "delete",
           label: "Borrar todos",
           description: "Este permiso habilita para eliminar todos los pagos",
           id: 158,
-        },
-        {
-          action: "delete_own",
-          label: "Borrar propios",
-          description:
-            "Este permiso habilita sólo para eliminar los pagos creados por el propio usuario",
-          id: 159,
-        },
-        {
-          action: "delete_group",
-          label: "Borrar mi grupo",
-          description:
-            "Este permiso habilita para eliminar los pagos creados por usuarios del mismo grupo al que pertenece el usuario",
-          id: 160,
         },
       ],
     },

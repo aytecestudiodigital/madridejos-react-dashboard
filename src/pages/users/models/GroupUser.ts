@@ -6,4 +6,5 @@ export type GroupUsers = {
   title?: string;
   updated_at?: string;
   updated_by?: string;
+  group_id?: string
 };

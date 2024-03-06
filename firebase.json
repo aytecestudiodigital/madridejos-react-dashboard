@@ -1,8 +1,12 @@
 {
   "hosting": {
-    "site": "aymo-tomelloso-admin",
+    "site": "aymo-madridejos-admin",
     "public": "dist",
-    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
     "rewrites": [
       {
         "source": "**",

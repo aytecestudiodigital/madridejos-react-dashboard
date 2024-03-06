@@ -11,15 +11,13 @@ import { UserRol } from "../models/UserRol";
 import { useForm } from "react-hook-form";
 import { DeleteRoleModal } from "../components/componentsRoles/deleteRoleModal";
 import { AlertContext } from "../../../context/AlertContext";
-import { RootState } from "../../../store/store";
-import { useSelector } from "react-redux";
 
 export default function PermissionsPage() {
   const navigate = useNavigate();
   const [panel, setPanel] = useState("organization");
   const [title, setTitle] = useState("");
   const [permission, setPermission] = useState<any>(UserRol);
-  const [role, setRole] = useState();
+  const [role, setRole] = useState<any>(null);
   const { id } = useParams();
   const { openAlert } = useContext(AlertContext);
 
@@ -31,7 +29,7 @@ export default function PermissionsPage() {
   });
   const tableName = import.meta.env.VITE_TABLE_USER_ROLES;
 
-  const user = useSelector((state: RootState) => state.auth.user);
+  const user = JSON.parse(localStorage.getItem("userLogged")!);
 
   useEffect(() => {
     if (user) {
@@ -101,6 +99,7 @@ export default function PermissionsPage() {
       title: title,
       rules: permission,
       id: id,
+      group_id: user.group_id,
     };
 
     updateRow(role, tableName).then(() => {
@@ -147,18 +146,55 @@ export default function PermissionsPage() {
               </h1>
 
               <div className="flex flex-grow justify-end gap-x-4">
-                <Button color="primary" onClick={() => handleSave()}>
-                  <div className="flex items-center gap-x-3">{t("SAVE")}</div>
-                </Button>
-                <DeleteRoleModal
-                  role={role}
-                  closeModal={closeAfterDelete}
-                  onRoleDelete={() =>
-                    navigate("/users/roles/", {
-                      state: { delete: "Rol eliminado con éxito" },
-                    })
-                  }
-                />
+              {role ? (
+                  <>
+                    <Button
+                      disabled={
+                        (!user.users_roles.rules.mod_users.roles.update_all &&
+                          !user.users_roles.rules.mod_users.roles
+                            .update_group &&
+                          !user.users_roles.rules.mod_users.roles.update_own) ||
+                        (!user.users_roles.rules.mod_users.roles.update_all &&
+                          user.users_roles.rules.mod_users.roles.update_group &&
+                          user.group_id !== role.group_id) ||
+                        (!user.users_roles.rules.mod_users.roles.update_all &&
+                          !user.users_roles.rules.mod_users.roles
+                            .update_group &&
+                          user.users_roles.rules.mod_users.roles.update_own &&
+                          user.id !== role.created_by)
+                      }
+                      color="primary"
+                      onClick={() => handleSave()}
+                    >
+                      <div className="flex items-center gap-x-3">
+                        {t("SAVE")}
+                      </div>
+                    </Button>
+                    <DeleteRoleModal
+                      role={role}
+                      closeModal={closeAfterDelete}
+                      onRoleDelete={() =>
+                        navigate("/users/roles/", {
+                          state: { delete: "Rol eliminado con éxito" },
+                        })
+                      }
+                      disableButton={
+                        (!user.users_roles.rules.mod_users.roles.delete_all &&
+                          !user.users_roles.rules.mod_users.roles
+                            .delete_group &&
+                          !user.users_roles.rules.mod_users.roles.delete_own) ||
+                        (!user.users_roles.rules.mod_users.roles.delete_all &&
+                          user.users_roles.rules.mod_users.roles.delete_group &&
+                          user.group_id !== role.group_id) ||
+                        (!user.users_roles.rules.mod_users.roles.delete_all &&
+                          !user.users_roles.rules.mod_users.roles
+                            .delete_group &&
+                          user.users_roles.rules.mod_users.roles.delete_own &&
+                          user.id !== role.created_by)
+                      }
+                    />
+                  </>
+                ) : null}
               </div>
             </div>
           </div>

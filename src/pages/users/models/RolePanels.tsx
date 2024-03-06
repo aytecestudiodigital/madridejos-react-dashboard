@@ -18,14 +18,14 @@ export const panels = [
     title: "Usuarios",
     description: "Permisos de gestión de usuarios, roles y grupos.",
   },
-  {
+  /* {
     id: "communication",
     icon: "heroicons_outline:bell",
     title: "Comunicaciones",
     description:
       "Permisos de gestión de notificaciones push, emails y alertas.",
-  },
-  {
+  }, */
+  /* {
     id: "design",
     icon: "heroicons_outline:pencil",
     title: "Diseño",
@@ -42,14 +42,14 @@ export const panels = [
     icon: "heroicons_outline:pencil-alt",
     title: "Módulo de Inscripciones",
     description: "Permisos de gestión del módulo de inscripciones",
-  },
+  }, */
   {
     id: "tasks",
     icon: "mat_outline:add_task",
     title: "Módulo de Tareas",
     description: "Permisos de gestión del módulo de tareas e incidencias",
   },
-  {
+  /* {
     id: "payments",
     icon: "heroicons_outline:currency-euro",
     title: "Módulo de Pagos y Cobros",
@@ -60,8 +60,8 @@ export const panels = [
     icon: "heroicons_outline:ticket",
     title: "Módulo de Entradas y Abonos",
     description: "Permisos de gestión del módulo de entradas y abonos",
-  },
-  {
+  }, */
+  /* {
     id: "access_control",
     icon: "heroicons_outline:lock-open",
     title: "Módulo de Control de acceso",
@@ -72,5 +72,5 @@ export const panels = [
     icon: "mat_outline:sports_baseball",
     title: "Módulo de Competiciones",
     description: "Permisos de gestión del módulo de competiciones",
-  },
+  }, */
 ];

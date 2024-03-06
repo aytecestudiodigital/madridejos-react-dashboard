@@ -15,8 +15,6 @@ import { UploadArea } from "../../../../components/UploadFilesArea/UploadFilesAr
 import { HiOutlineInformationCircle, HiTrash } from "react-icons/hi"
 import { useForm } from "react-hook-form"
 import { t } from "i18next"
-import { RootState } from "../../../../store/store"
-import { useSelector } from "react-redux"
 import { ErrorMessage } from "@hookform/error-message"
 import { DeleteModal } from "../../../../components/DeleteModal"
 
@@ -48,7 +46,7 @@ export const TaskDetailsPage = () => {
     const [images, setImages] = useState<any[]>([]);
     const [documents, setDocuments] = useState<any[]>([]);
     //const [user, setUser] = useState<AymoUser | null>()
-    const user = useSelector((state: RootState) => state.auth.user);
+    const user = JSON.parse(localStorage.getItem("userLogged")!);
 
     useEffect(() => {
         if (user) {
@@ -137,6 +135,9 @@ export const TaskDetailsPage = () => {
                                 setCategoryTechnicians(techs.data);
                             }
                         }
+                    }
+                    if(taskDb.data[0].images){
+                        setImages(taskDb.data[0].images)
                     }
                     const assignedTechs = await supabase
                         .from("tasks_assigned_technician")
@@ -290,7 +291,7 @@ export const TaskDetailsPage = () => {
                         showBackButton={true}
                         showButtonSave={true}
                         showButtonSaveAndClose={true}
-                        saveButtonDisabled={!id ? !isValid : false}
+                        saveButtonDisabled={!id ? (!isValid || !user.users_roles.rules.tasks.tasks.update) : false}
                         onBack={() => history.back()}
                         onSave={onSave} />
                 </div>
@@ -359,7 +360,7 @@ export const TaskDetailsPage = () => {
                                                 <div className="w-full flex md:w-1/2 px-4 gap-4">
                                                     <div className="w-full">
                                                         <Label className=" font-semibold text-base">Cambiar prioridad</Label>
-                                                        <Select value={actualTask.priority} onChange={(e) => handleChangePriority(e.currentTarget.value)}>
+                                                        <Select value={actualTask.priority ? actualTask.priority : "0"} onChange={(e) => handleChangePriority(e.currentTarget.value)}>
                                                             <option value="0">Baja</option>
                                                             <option value="1">Normal</option>
                                                             <option value="2">Alta</option>
@@ -515,6 +516,9 @@ export const TaskDetailsPage = () => {
                                                 toastSuccessMsg={"Incidencia eliminada correctamente"}
                                                 toastErrorMsg={"Error al eliminar la incidencia"}
                                                 title='Eliminar incidencia'
+                                                disableButton={
+                                                    !user.users_roles.rules.tasks.tasks.delete
+                                                  }
                                             />
                                         </div>
                                     </Card>

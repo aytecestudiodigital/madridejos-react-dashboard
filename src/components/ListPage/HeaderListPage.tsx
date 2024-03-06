@@ -25,6 +25,8 @@ interface HeaderListPageProps {
   secondDataDropdown?: any[];
   columnsThirdDropdown?: string[];
   thirdDataDropdown?: any[];
+  columnsFourthDropdown?: string[];
+  fourthDataDropdown?: any[];
   data?: any[];
   onSearch: (
     searchTerm: string,
@@ -33,11 +35,13 @@ interface HeaderListPageProps {
     filteredItems?: string[] | boolean[],
     secondFilteredItems?: string[],
     thirdFilteredItems?: any[],
+    fourthFilteredItems?: any[],
   ) => void;
   onClearSearch: () => void;
   onAddButton: () => void;
   dataToExport?: any[];
   showButtonSave?: boolean;
+  disableAddButton?: boolean;
 }
 
 export function HeaderListPageComponent(props: HeaderListPageProps) {
@@ -57,6 +61,9 @@ export function HeaderListPageComponent(props: HeaderListPageProps) {
   const [selectedProjectCategories, setSelectedProjectCategories] = useState<
     any[]
   >([]);
+  const [selectedProject, setSelectedProject] = useState<any[]>([]);
+  const [selectedState, setSelectedState] = useState<any[]>([]);
+  const [selectedPriority, setSelectedPriority] = useState<any[]>([]);
 
   const handleCategoryChange = (selectedCategories: string[]) => {
     setSelectedCategories(selectedCategories);
@@ -82,23 +89,44 @@ export function HeaderListPageComponent(props: HeaderListPageProps) {
     setSelectedProjectCategories(selectedCategories);
   };
 
+  const handleProjectChange = (selectedProject: string[]) => {
+    setSelectedProject(selectedProject);
+  };
+
+  const handleStateChange = (selectedState: string[]) => {
+    setSelectedState(selectedState);
+  };
+
+  const handlePriorityChange = (selectedPriority: number[]) => {
+    setSelectedPriority(selectedPriority);
+  };
+
   useEffect(() => {
     props.onSearch(searchTerm, orderBy, orderDir, selectedEnable);
   }, [orderBy, orderDir, selectedEnable]);
+
+  useEffect(() => {
+    props.onSearch(searchTerm, orderBy, orderDir, selectedCategories);
+  }, [orderBy, orderDir, selectedCategories]);
 
   useEffect(() => {
     props.onSearch(
       searchTerm,
       orderBy,
       orderDir,
-      selectedCategories,
       selectedProjectCategories,
+      selectedProject,
+      selectedState,
+      selectedPriority,
     );
-  }, [orderBy, orderDir, selectedCategories]);
-
-  useEffect(() => {
-    props.onSearch(searchTerm, orderBy, orderDir, selectedProjectCategories);
-  }, [orderBy, orderDir, selectedProjectCategories]);
+  }, [
+    orderBy,
+    orderDir,
+    selectedProjectCategories,
+    selectedProject,
+    selectedState,
+    selectedPriority,
+  ]);
 
   useEffect(() => {
     props.onSearch(
@@ -171,7 +199,7 @@ export function HeaderListPageComponent(props: HeaderListPageProps) {
 
   return (
     <>
-      <div className="mb-4">
+      <div className="mb-4 overflow-auto">
         <Breadcrumb className="mb-4 mt-2">
           <Breadcrumb.Item href="/">
             <div className="flex items-center gap-x-3">
@@ -239,12 +267,14 @@ export function HeaderListPageComponent(props: HeaderListPageProps) {
                         props.dataDropdown ? props.dataDropdown : []
                       }
                       onCategoryChange={handleCategoryChange}
+                      title={"CATEGORIES_TITLE"}
                     />
                   </div>
                 ) : (
                   <SelectCategoryFilter
                     dataDropdown={props.dataDropdown ? props.dataDropdown : []}
                     onCategoryChange={handleCategoryChange}
+                    title={"CATEGORIES_TITLE"}
                   />
                 )}
               </div>
@@ -309,7 +339,7 @@ export function HeaderListPageComponent(props: HeaderListPageProps) {
               </div>
             </div>
           ) : props.columnsDropdown &&
-            props.columnsDropdown.includes("tasks_category_id") ? (
+            props.columnsDropdown.includes("category_title") ? (
             <div className="lg:pr-3 flex flex-col">
               <Label htmlFor="selectedEnable">Filtrar por</Label>
               <div className="mt-1">
@@ -321,12 +351,14 @@ export function HeaderListPageComponent(props: HeaderListPageProps) {
                         props.dataDropdown ? props.dataDropdown : []
                       }
                       onCategoryChange={handleProjectCategoryChange}
+                      title={"CATEGORIES_TITLE"}
                     />
                   </div>
                 ) : (
                   <SelectCategoryFilter
                     dataDropdown={props.dataDropdown ? props.dataDropdown : []}
                     onCategoryChange={handleProjectCategoryChange}
+                    title={"CATEGORIES_TITLE"}
                   />
                 )}
               </div>
@@ -359,6 +391,32 @@ export function HeaderListPageComponent(props: HeaderListPageProps) {
                 )}
               </div>
             </div>
+          ) : props.columnsSecondDropdown &&
+            props.columnsSecondDropdown.includes("project_title") ? (
+            <div className="lg:pr-3 flex flex-col">
+              <div className="mt-6">
+                {props.columnsSecondDropdown &&
+                props.columnsThirdDropdown === undefined ? (
+                  <div className="border-r-2 border-slate-300 pr-6 mr-3">
+                    <SelectCategoryFilter
+                      dataDropdown={
+                        props.secondDataDropdown ? props.secondDataDropdown : []
+                      }
+                      onCategoryChange={handleProjectChange}
+                      title={"PROJECT_TITLE"}
+                    />
+                  </div>
+                ) : (
+                  <SelectCategoryFilter
+                    dataDropdown={
+                      props.secondDataDropdown ? props.secondDataDropdown : []
+                    }
+                    onCategoryChange={handleProjectChange}
+                    title={"PROJECT_TITLE"}
+                  />
+                )}
+              </div>
+            </div>
           ) : null}
 
           {props.columnsThirdDropdown &&
@@ -373,6 +431,51 @@ export function HeaderListPageComponent(props: HeaderListPageProps) {
                     }
                     onMethodChange={handleMethodChange}
                     selectTitle={t("METHOD_TITLE")}
+                  />
+                </div>
+              </div>
+            </div>
+          ) : props.columnsThirdDropdown &&
+            props.columnsThirdDropdown.includes("state") ? (
+            <div className="lg:pr-3 flex flex-col">
+              {/* <Label htmlFor="orderBy">Filtrar por</Label> */}
+              <div className="mt-6">
+                {props.columnsThirdDropdown &&
+                props.columnsFourthDropdown === undefined ? (
+                  <div className="border-r-2 border-slate-300 pr-6 mr-3">
+                    <SelectTypeFilter
+                      dataDropdown={
+                        props.thirdDataDropdown ? props.thirdDataDropdown : []
+                      }
+                      onTypeChange={handleStateChange}
+                      selectTitle={t("STATE")}
+                    />
+                  </div>
+                ) : (
+                  <SelectTypeFilter
+                    dataDropdown={
+                      props.thirdDataDropdown ? props.thirdDataDropdown : []
+                    }
+                    onTypeChange={handleStateChange}
+                    selectTitle={t("STATE")}
+                  />
+                )}
+              </div>
+            </div>
+          ) : null}
+
+          {props.columnsFourthDropdown &&
+          props.columnsFourthDropdown.includes("priority") ? (
+            <div className="lg:pr-3 flex flex-col">
+              {/* <Label htmlFor="orderBy">Filtrar por</Label> */}
+              <div className="mt-6">
+                <div className="border-r-2 border-slate-300 pr-6 mr-3">
+                  <SelectCategoryFilter
+                    dataDropdown={
+                      props.fourthDataDropdown ? props.fourthDataDropdown : []
+                    }
+                    onCategoryChange={handlePriorityChange}
+                    title={"PRIORITY"}
                   />
                 </div>
               </div>
@@ -413,15 +516,16 @@ export function HeaderListPageComponent(props: HeaderListPageProps) {
         </div>
 
         <div className="ml-auto flex items-center space-x-1 sm:space-x-3">
-        {props.showButtonSave !== undefined  && props.showButtonSave === false ? null
-        : <Button color="primary" onClick={props.onAddButton}>
-          <div className="flex items-center gap-x-1">
-            <HiPlus className="text-xl" />
-            {t("ADD_BTN")}
-          </div>
-        </Button>
-      }
-          
+          {props.showButtonSave !== undefined &&
+          props.showButtonSave === false ? null : (
+            <Button color="primary" disabled={props.disableAddButton} onClick={props.onAddButton}>
+              <div className="flex items-center gap-x-1">
+                <HiPlus className="text-xl" />
+                {t("ADD_BTN")}
+              </div>
+            </Button>
+          )}
+
           {props.dataToExport && props.dataToExport?.length > 0 && (
             <div className="flex">
               <Button

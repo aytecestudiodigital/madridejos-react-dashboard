@@ -5199,6 +5199,20 @@ export interface Database {
         };
         Returns: { data: any[]; count: number };
       };
+      tasks_with_project_and_category: {
+        Args: {
+          init_range: number;
+          end_range: number;
+          p_order_by?: string;
+          p_order_dir?: string;
+          p_search_term?: string;
+          filters_categories?: string[];
+          filters_projects?: string[];
+          filters_status?: string[];
+          filters_priority?: number[];
+        };
+        Returns: { data: any[]; count: number };
+      };
     };
     Enums: {
       authorization_type: "TEXT" | "ARTICLE";

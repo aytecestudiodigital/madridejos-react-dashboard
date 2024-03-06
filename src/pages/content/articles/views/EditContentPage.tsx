@@ -14,7 +14,7 @@ import {
   ToggleSwitch,
 } from "flowbite-react";
 import { useContext, useEffect, useState } from "react";
-import { SubmitHandler, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import {
   HiHome,
@@ -51,8 +51,6 @@ import CustomModalImage from "../components/CustomModalImageComponent";
 import { DragDropContext, Draggable, Droppable } from "@hello-pangea/dnd";
 import { supabase } from "../../../../server/supabase";
 import { AlertContext } from "../../../../context/AlertContext";
-import { RootState } from "../../../../store/store";
-import { useSelector } from "react-redux";
 
 //TODO - cuando metamos entidades, los campos no iran fijos en el form, dependerá de los campos de la entidad
 
@@ -114,7 +112,7 @@ export default function EditContentPage() {
   const tableNameContentCategoryTags = import.meta.env
     .VITE_TABLE_CONTENT_CATEGORIES_TAGS;
 
-  const user = useSelector((state: RootState) => state.auth.user);
+  const user = JSON.parse(localStorage.getItem("userLogged")!);
 
   useEffect(() => {
     if (user) {
@@ -154,6 +152,7 @@ export default function EditContentPage() {
       contact_info:
         newContactValues !== null ? { contact: newContactValues } : null,
       content_category_id: data.content_category_id,
+      group_id: user.group_id,
     };
     if (data.id) {
       content.id = data.id;

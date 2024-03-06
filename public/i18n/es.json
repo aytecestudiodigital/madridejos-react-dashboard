@@ -192,6 +192,7 @@
   "TASKS": "Tareas",
 
   "PROJECTS": "Proyectos",
+  "PROJECT_TITLE": "Proyecto",
 
   "COUPONS": "Cupones",
   "MANDATES": "Mandatos",
@@ -561,6 +562,10 @@
   "TASKS_PANEL": "Panel de incidencias",
   "TASKS_CATEGORY_ID": "ID de categoría de proyecto",
   "CREATED": "Creada",
+  "ASSIGNED": "Asignada",
+  "VALIDATED": "Validada",
+  "REOPEN": "Reabierta",
+  "CLOSED": "Cerrada",
   "PRIORITY": "Prioridad",
   "CONSULT_TASK": "Consultar incidencia",
   "NEW_TASK": "Nueva incidencia",

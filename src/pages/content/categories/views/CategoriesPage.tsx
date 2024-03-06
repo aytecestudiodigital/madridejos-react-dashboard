@@ -1,9 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getEntities } from "../../../../server/supabaseQueries";
 import ListPageWithPagination from "../../../../components/ListPage/ListPageWithPagination";
-import { RootState } from "../../../../store/store";
-import { useSelector } from "react-redux";
 import { AlertContext } from "../../../../context/AlertContext";
 
 export default function CategoriesPage() {
@@ -45,7 +44,7 @@ export default function CategoriesPage() {
   const [alertMsg] = useState("");
   const [actionAlert] = useState("");
 
-  const user = useSelector((state: RootState) => state.auth.user);
+  const user = JSON.parse(localStorage.getItem("userLogged")!);
   const { openAlert } = useContext(AlertContext);
 
   useEffect(() => {

@@ -7,8 +7,6 @@ import { EditGroupModal } from "../components/componentsGroups/EditGroupModal";
 import { GroupUsers } from "../models/GroupUser";
 import { AlertContext } from "../../../context/AlertContext";
 import { t } from "i18next";
-import { RootState } from "../../../store/store";
-import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 export default function GroupsPage() {
@@ -60,7 +58,7 @@ export default function GroupsPage() {
   const [alertMsg] = useState("");
   const [actionAlert] = useState("");
 
-  const user = useSelector((state: RootState) => state.auth.user);
+  const user = JSON.parse(localStorage.getItem("userLogged")!);
 
   useEffect(() => {
     if (user) {
@@ -187,6 +185,7 @@ export default function GroupsPage() {
         isOpen={openAlert}
         alertMsg={alertMsg}
         action={actionAlert}
+        disableAddButton={!user.users_roles.rules.mod_users.groups.create}
       />
       {showEditModal ? (
         <EditGroupModal

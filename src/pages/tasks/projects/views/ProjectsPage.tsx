@@ -3,8 +3,6 @@ import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ListPageWithPagination from "../../../../components/ListPage/ListPageWithPagination";
 import { getEntities } from "../../../../server/supabaseQueries";
-import { RootState } from "../../../../store/store";
-import { useSelector } from "react-redux";
 import { AlertContext } from "../../../../context/AlertContext";
 
 export default function ProjectsPage() {
@@ -50,7 +48,7 @@ export default function ProjectsPage() {
 
   const [filteredSearchItems, setFilteredSearchItems] = useState<string[]>([]);
 
-  const user = useSelector((state: RootState) => state.auth.user);
+  const user = JSON.parse(localStorage.getItem("userLogged")!);
   const { openAlert } = useContext(AlertContext);
 
   useEffect(() => {
@@ -182,6 +180,7 @@ export default function ProjectsPage() {
         action={actionAlert}
         columnsDropdown={columnsDropdown}
         dataDropdown={["Habilitado", "Deshabilitado"]}
+        disableAddButton={!user.users_roles.rules.tasks.projects.create}
       />
     </>
   );

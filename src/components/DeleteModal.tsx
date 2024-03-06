@@ -13,6 +13,7 @@ interface DeleteModalProps {
   toastSuccessMsg: string;
   toastErrorMsg: string;
   title?: string;
+  disableButton: boolean;
 }
 
 export function DeleteModal({
@@ -22,6 +23,7 @@ export function DeleteModal({
   toastSuccessMsg,
   toastErrorMsg,
   title,
+  disableButton
 }: DeleteModalProps) {
   const { t } = useTranslation();
   const { openAlert } = useContext(AlertContext);
@@ -39,7 +41,7 @@ export function DeleteModal({
 
   return (
     <>
-      <Button size="xs" color="light" onClick={() => setOpen(true)}>
+      <Button size="xs" color="light" disabled={disableButton} onClick={() => setOpen(true)}>
         <div className="flex items-center gap-x-2 text-red-500">
           <HiTrash className="text-sm text-red-500" />
           {!onlyIcon && title}

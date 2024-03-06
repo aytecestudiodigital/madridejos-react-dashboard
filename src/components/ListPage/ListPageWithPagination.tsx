@@ -13,6 +13,7 @@ interface ListPageProps {
   columnsDropdown?: string[];
   columnsSecondDropdown?: string[];
   columnsThirdDropdown?: any[];
+  columnsFourthDropdown?: any[];
   breadcrumb: BreadcrumbItem[];
   onSearch: (
     searchTerm: string,
@@ -38,14 +39,16 @@ interface ListPageProps {
   dataDropdown?: any[] | null;
   secondDataDropdown?: any[] | null;
   thirdDataDropdown?: any[] | null;
+  fourthDataDropdown?: any[] | null;
   showButtonSave?: boolean;
+  disableAddButton: boolean;
 }
 export default function ListPageWithPagination(props: ListPageProps) {
   const { t } = useTranslation();
   const [dataToExport, setDataToExport] = useState<any>([]);
   return (
     <>
-      <div className="block items-center justify-between border-b border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800 sm:flex">
+      <div className="block items-center justify-between border-b border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800 sm:flex overflow-auto max-h-[70vh]">
         <div className="mb-1 w-full">
           <HeaderListPageComponent
             title={props.page_title}
@@ -64,10 +67,15 @@ export default function ListPageWithPagination(props: ListPageProps) {
             thirdDataDropdown={
               props.thirdDataDropdown ? props.thirdDataDropdown : []
             }
+            columnsFourthDropdown={props.columnsFourthDropdown}
+            fourthDataDropdown={
+              props.fourthDataDropdown ? props.fourthDataDropdown : []
+            }
             dataToExport={dataToExport}
             showButtonSave={
               props.showButtonSave != undefined ? props.showButtonSave : true
             }
+            disableAddButton={props.disableAddButton}
           />
         </div>
       </div>

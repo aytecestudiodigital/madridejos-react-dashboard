@@ -11,11 +11,13 @@ interface DeleteRoleModalProps {
   role: any;
   closeModal: Function;
   onRoleDelete: (role: any) => void;
+  disableButton: boolean;
 }
 
 export function DeleteRoleModal({
   role: role,
   onRoleDelete,
+  disableButton
 }: DeleteRoleModalProps) {
   const { t } = useTranslation();
   const [isOpen, setOpen] = useState(false);
@@ -29,7 +31,7 @@ export function DeleteRoleModal({
 
   return (
     <>
-      <Button size="xs" color="failure" onClick={() => setOpen(true)}>
+      <Button size="xs" color="failure" disabled={disableButton} onClick={() => setOpen(true)}>
         <div className="flex items-end gap-x-2 text-white">
           <HiTrash className="text-sm text-white" />
           {t("DELETE")}

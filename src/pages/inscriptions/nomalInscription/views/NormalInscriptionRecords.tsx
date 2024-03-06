@@ -111,7 +111,7 @@ export default function NormalInscriptionRecords() {
         .range(initRangeRecords, endRangeRecords);
       if (recordsDb.data && recordsDb.data?.length > 0) {
         setRecords(recordsDb.data);
-        setDataToExport(recordsDb.data);
+        //setDataToExport(recordsDb.data);
         setTotalItemsRecords(recordsDb.count ? recordsDb.count : 0);
         setTotalPagesRecords(Math.ceil(recordsDb.count! / pageSizeRecords));
         const recordsProductsDb: any[] = [];
@@ -295,7 +295,7 @@ export default function NormalInscriptionRecords() {
             </div>
             <div className="p-4">
                 <Card>
-                    <Tabs.Group onActiveTabChange={(e) => setActiveTabIndex(e)}>
+                    <Tabs.Group onActiveTabChange={() => null/* setActiveTabIndex(e) */}>
                         <Tabs.Item title="Registros">
                             {records.length > 0 ? (
                                 <><div className="flex gap-4 items-center mb-4">

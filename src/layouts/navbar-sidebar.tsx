@@ -31,7 +31,7 @@ function MainContent({
   return (
     <main
       className={classNames(
-        "overflow-y-auto relative w-full h-full bg-gray-50 dark:bg-gray-900",
+        "overflow-y-auto relative w-full min-h-[70vh] bg-gray-50 dark:bg-gray-900",
         isSidebarOpen ? "lg:ml-16" : "lg:ml-64",
       )}
     >

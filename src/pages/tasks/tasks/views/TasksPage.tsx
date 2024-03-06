@@ -1,23 +1,42 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useContext, useEffect, useState } from "react";
-import ListPageWithPagination from "../../../../components/ListPage/ListPageWithPagination";
-import { getAll, getEntities } from "../../../../server/supabaseQueries";
-import { AlertContext } from "../../../../context/AlertContext";
 import { useNavigate } from "react-router-dom";
-import { RootState } from "../../../../store/store";
-import { useSelector } from "react-redux";
+import ListPageWithPagination from "../../../../components/ListPage/ListPageWithPagination";
+import { AlertContext } from "../../../../context/AlertContext";
+import { getAll } from "../../../../server/supabaseQueries";
+import { getTasks } from "../data/TasksProvider";
 
 export const TasksPage = () => {
   const navigate = useNavigate();
   const entity_table = "tasks";
   const columns = [
     "title",
-    "tasks_category_id",
     "state",
     "priority",
+    "category_title",
+    "project_title",
     "created_at",
   ];
-  const columnsDropdown = ["tasks_category_id"];
+  const columnsDropdown = ["category_title"];
+  const sencondDolumnsDropdown = ["project_title"];
+  const thirdDolumnsDropdown = ["state"];
+  const thirdDataDropdown = [
+    "CREATED",
+    "ASSIGNED",
+    "OPEN",
+    "IN_PROGRESS",
+    "VALIDATED",
+    "REOPEN",
+    "CANCELLED",
+    "CLOSED",
+  ];
+  const fourthColumnsDropdown = ["priority"];
+  const fourthDataDropdown = [
+    { title: "Baja", id: 0 },
+    { title: "Normal", id: 1 },
+    { title: "Alta", id: 2 },
+    { title: "Urgente", id: 3 },
+  ];
   const page_title = "TASKS_PANEL";
   const breadcrumb = [
     {
@@ -53,9 +72,13 @@ export const TasksPage = () => {
   const [alertMsg] = useState("");
   const [actionAlert] = useState("");
   const [totalTasksCategories, setTotalTasksCategories] = useState<any[]>([]);
-  const [filteredSearchItems, setFilteredSearchItems] = useState<string[]>([]);
+  const [totalTasksProjects, setTotalTasksProjects] = useState<any[]>([]);
+  const [categoryFilters, setCategoryFilters] = useState<string[]>([]);
+  const [statusFilters, setStatusFilters] = useState<string[]>([]);
+  const [projectFilters, setProjectFilters] = useState<string[]>([]);
+  const [priorityFilters, setPriorityFilters] = useState<number[]>([]);
 
-  const user = useSelector((state: RootState) => state.auth.user);
+  const user = JSON.parse(localStorage.getItem("userLogged")!);
 
   useEffect(() => {
     if (user) {
@@ -70,22 +93,45 @@ export const TasksPage = () => {
     setInitRange((currentPage - 1) * pageSize + 1);
     setEndRange(currentPage * pageSize);
     setLoading(true);
-    if (itemSearch) {
+    if (
+      itemSearch ||
+      categoryFilters.length > 0 ||
+      projectFilters.length > 0 ||
+      statusFilters.length > 0 ||
+      priorityFilters.length > 0
+    ) {
       search(currentPage);
     } else {
       const fetchData = async () => {
         getDataFromServer(orderBy, orderDir, currentPage, pageSize);
         const categoriesDb = await getAll("tasks_projects_categories");
+        const projectsDb = await getAll("tasks_projects");
         if (categoriesDb) {
           if (categoriesDb.data && categoriesDb.data.length > 0) {
             setTotalTasksCategories(categoriesDb.data);
+          }
+        }
+        if (projectsDb) {
+          if (projectsDb.data && projectsDb.data.length > 0) {
+            setTotalTasksProjects(projectsDb.data);
           }
         }
       };
       fetchData();
     }
     setLoading(false);
-  }, [orderBy, orderDir, itemSearch, searchTerm, currentPage, pageSize]);
+  }, [
+    orderBy,
+    orderDir,
+    itemSearch,
+    searchTerm,
+    currentPage,
+    pageSize,
+    categoryFilters,
+    projectFilters,
+    statusFilters,
+    priorityFilters,
+  ]);
 
   const changeSize = (count: number) => {
     setCurrentPage(1);
@@ -99,29 +145,34 @@ export const TasksPage = () => {
     size: number,
   ) => {
     setLoading(true);
-    getEntities(entity_table, page, size, orderBy, orderDir, "").then(
-      (result) => {
-        const { totalItems, data } = result;
-        setData(data ? data : []);
-        setTotalItems(totalItems);
-        setTotalPages(Math.ceil(totalItems / pageSize));
-        if (currentPage == totalPages) setEndRange(totalItems);
-        setLoading(false);
-      },
-    );
+    getTasks(page, size, orderBy, orderDir, "").then((result) => {
+      const { totalItems, data } = result;
+      setData(data ? data : []);
+      setTotalItems(totalItems);
+      setTotalPages(Math.ceil(totalItems / pageSize));
+      if (currentPage == totalPages) setEndRange(totalItems);
+      setLoading(false);
+    });
     setItemSearch(false);
   };
 
   const search = async (page: number) => {
     setInitRange((page - 1) * pageSize + 1);
     setEndRange(page * pageSize);
-    const { totalItems, data } = await getEntities(
-      entity_table,
+    setCategoryFilters(categoryFilters ? categoryFilters : []);
+    setProjectFilters(projectFilters ? projectFilters : []);
+    setStatusFilters(statusFilters ? statusFilters : []);
+    setPriorityFilters(priorityFilters ? priorityFilters : []);
+    const { totalItems, data } = await getTasks(
       currentPage,
       pageSize,
       orderBy,
       orderDir,
       searchTerm,
+      categoryFilters,
+      projectFilters,
+      statusFilters,
+      priorityFilters,
     );
 
     setData(data ? data : []);
@@ -141,11 +192,17 @@ export const TasksPage = () => {
     searchTerm: string,
     orderBy: string,
     orderDir: string,
-    filteredSearchItems?: string[],
+    categoryFilters?: string[],
+    projectFilters?: string[],
+    statusFilters?: string[],
+    priorityFilters?: number[],
   ) => {
     setCurrentPage(1);
     setSearchTerm(searchTerm);
-    setFilteredSearchItems(filteredSearchItems ? filteredSearchItems : []);
+    setCategoryFilters(categoryFilters ? categoryFilters : []);
+    setProjectFilters(projectFilters ? projectFilters : []);
+    setStatusFilters(statusFilters ? statusFilters : []);
+    setPriorityFilters(priorityFilters ? priorityFilters : []);
     setItemSearch(searchTerm !== "" ? true : false);
     setOrderBy(orderBy);
     setOrderDir(orderDir);
@@ -185,6 +242,13 @@ export const TasksPage = () => {
         action={actionAlert}
         columnsDropdown={columnsDropdown}
         dataDropdown={totalTasksCategories}
+        columnsSecondDropdown={sencondDolumnsDropdown}
+        secondDataDropdown={totalTasksProjects}
+        columnsThirdDropdown={thirdDolumnsDropdown}
+        thirdDataDropdown={thirdDataDropdown}
+        columnsFourthDropdown={fourthColumnsDropdown}
+        fourthDataDropdown={fourthDataDropdown}
+        disableAddButton={!user.users_roles.rules.tasks.tasks.create}
       />
     </>
   );

@@ -10,8 +10,6 @@ import { GroupUsers } from "../models/GroupUser";
 import { AddUserModal } from "../components/componentsUsers/AddUserModal";
 import { AlertContext } from "../../../context/AlertContext";
 import { t } from "i18next";
-import { RootState } from "../../../store/store";
-import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 export default function UserListPage() {
@@ -71,7 +69,7 @@ export default function UserListPage() {
   const [alertMsg] = useState("");
   const [actionAlert] = useState("");
 
-  const user = useSelector((state: RootState) => state.auth.user);
+  const user = JSON.parse(localStorage.getItem("userLogged")!);
 
   useEffect(() => {
     if (user) {
@@ -198,6 +196,7 @@ export default function UserListPage() {
         isOpen={openAlert}
         alertMsg={alertMsg}
         action={actionAlert}
+        disableAddButton={!user.users_roles.rules.mod_users.users.create}
       />
       {showEditModal ? (
         <EditUserModal

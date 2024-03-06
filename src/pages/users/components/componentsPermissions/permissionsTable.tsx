@@ -4968,15 +4968,9 @@ export function PermissionsTable({
                             [
                               "access_module",
                               "create",
-                              "read_all",
-                              "read_own",
-                              "read_group",
-                              "update_all",
-                              "update_own",
-                              "update_group",
-                              "delete_all",
-                              "delete_own",
-                              "delete_group",
+                              "read",
+                              "update",
+                              "delete",
                             ],
                             false,
                           );
@@ -4997,15 +4991,9 @@ export function PermissionsTable({
                             [
                               "access_module",
                               "create",
-                              "read_all",
-                              "read_own",
-                              "read_group",
-                              "update_all",
-                              "update_own",
-                              "update_group",
-                              "delete_all",
-                              "delete_own",
-                              "delete_group",
+                              "read",
+                              "update",
+                              "delete",
                             ],
                             true,
                           );
@@ -5089,12 +5077,12 @@ export function PermissionsTable({
                         <Table.Cell>
                           <div className="flex flex-col">
                             <ToggleSwitch
-                              checked={permission.inscriptions.records.read_all}
+                              checked={permission.inscriptions.records.read}
                               onChange={() =>
                                 handleSubSubPermissionChange(
                                   "inscriptions",
                                   "records",
-                                  "read_all",
+                                  "read",
                                 )
                               }
                             />
@@ -5114,12 +5102,12 @@ export function PermissionsTable({
                         <Table.Cell>
                           <div className="flex flex-col">
                             <ToggleSwitch
-                              checked={permission.inscriptions.records.read_own}
+                              checked={permission.inscriptions.records.update}
                               onChange={() =>
                                 handleSubSubPermissionChange(
                                   "inscriptions",
                                   "records",
-                                  "read_own",
+                                  "update",
                                 )
                               }
                             />
@@ -5139,176 +5127,12 @@ export function PermissionsTable({
                         <Table.Cell>
                           <div className="flex flex-col">
                             <ToggleSwitch
-                              checked={
-                                permission.inscriptions.records.read_group
-                              }
+                              checked={permission.inscriptions.records.delete}
                               onChange={() =>
                                 handleSubSubPermissionChange(
                                   "inscriptions",
                                   "records",
-                                  "read_group",
-                                )
-                              }
-                            />
-                          </div>
-                        </Table.Cell>
-                      </Table.Row>
-                      <Table.Row>
-                        <Table.Cell>
-                          {permissions.inscriptions.records.actions[5].label}
-                        </Table.Cell>
-                        <Table.Cell>
-                          {
-                            permissions.inscriptions.records.actions[5]
-                              .description
-                          }
-                        </Table.Cell>
-                        <Table.Cell>
-                          <div className="flex flex-col">
-                            <ToggleSwitch
-                              checked={
-                                permission.inscriptions.records.update_all
-                              }
-                              onChange={() =>
-                                handleSubSubPermissionChange(
-                                  "inscriptions",
-                                  "records",
-                                  "update_all",
-                                )
-                              }
-                            />
-                          </div>
-                        </Table.Cell>
-                      </Table.Row>
-                      <Table.Row>
-                        <Table.Cell>
-                          {permissions.inscriptions.records.actions[6].label}
-                        </Table.Cell>
-                        <Table.Cell>
-                          {
-                            permissions.inscriptions.records.actions[6]
-                              .description
-                          }
-                        </Table.Cell>
-                        <Table.Cell>
-                          <div className="flex flex-col">
-                            <ToggleSwitch
-                              checked={
-                                permission.inscriptions.records.update_own
-                              }
-                              onChange={() =>
-                                handleSubSubPermissionChange(
-                                  "inscriptions",
-                                  "records",
-                                  "update_own",
-                                )
-                              }
-                            />
-                          </div>
-                        </Table.Cell>
-                      </Table.Row>
-                      <Table.Row>
-                        <Table.Cell>
-                          {permissions.inscriptions.records.actions[7].label}
-                        </Table.Cell>
-                        <Table.Cell>
-                          {
-                            permissions.inscriptions.records.actions[7]
-                              .description
-                          }
-                        </Table.Cell>
-                        <Table.Cell>
-                          <div className="flex flex-col">
-                            <ToggleSwitch
-                              checked={
-                                permission.inscriptions.records.update_group
-                              }
-                              onChange={() =>
-                                handleSubSubPermissionChange(
-                                  "inscriptions",
-                                  "records",
-                                  "update_group",
-                                )
-                              }
-                            />
-                          </div>
-                        </Table.Cell>
-                      </Table.Row>
-                      <Table.Row>
-                        <Table.Cell>
-                          {permissions.inscriptions.records.actions[8].label}
-                        </Table.Cell>
-                        <Table.Cell>
-                          {
-                            permissions.inscriptions.records.actions[8]
-                              .description
-                          }
-                        </Table.Cell>
-                        <Table.Cell>
-                          <div className="flex flex-col">
-                            <ToggleSwitch
-                              checked={
-                                permission.inscriptions.records.delete_all
-                              }
-                              onChange={() =>
-                                handleSubSubPermissionChange(
-                                  "inscriptions",
-                                  "records",
-                                  "delete_all",
-                                )
-                              }
-                            />
-                          </div>
-                        </Table.Cell>
-                      </Table.Row>
-                      <Table.Row>
-                        <Table.Cell>
-                          {permissions.inscriptions.records.actions[9].label}
-                        </Table.Cell>
-                        <Table.Cell>
-                          {
-                            permissions.inscriptions.records.actions[9]
-                              .description
-                          }
-                        </Table.Cell>
-                        <Table.Cell>
-                          <div className="flex flex-col">
-                            <ToggleSwitch
-                              checked={
-                                permission.inscriptions.records.delete_own
-                              }
-                              onChange={() =>
-                                handleSubSubPermissionChange(
-                                  "inscriptions",
-                                  "records",
-                                  "delete_own",
-                                )
-                              }
-                            />
-                          </div>
-                        </Table.Cell>
-                      </Table.Row>
-                      <Table.Row>
-                        <Table.Cell>
-                          {permissions.inscriptions.records.actions[10].label}
-                        </Table.Cell>
-                        <Table.Cell>
-                          {
-                            permissions.inscriptions.records.actions[10]
-                              .description
-                          }
-                        </Table.Cell>
-                        <Table.Cell>
-                          <div className="flex flex-col">
-                            <ToggleSwitch
-                              checked={
-                                permission.inscriptions.records.delete_group
-                              }
-                              onChange={() =>
-                                handleSubSubPermissionChange(
-                                  "inscriptions",
-                                  "records",
-                                  "delete_group",
+                                  "delete",
                                 )
                               }
                             />
@@ -5342,15 +5166,9 @@ export function PermissionsTable({
                             [
                               "access_module",
                               "create",
-                              "read_all",
-                              "read_own",
-                              "read_group",
-                              "update_all",
-                              "update_own",
-                              "update_group",
-                              "delete_all",
-                              "delete_own",
-                              "delete_group",
+                              "read",
+                              "update",
+                              "delete",
                             ],
                             false,
                           );
@@ -5371,15 +5189,9 @@ export function PermissionsTable({
                             [
                               "access_module",
                               "create",
-                              "read_all",
-                              "read_own",
-                              "read_group",
-                              "update_all",
-                              "update_own",
-                              "update_group",
-                              "delete_all",
-                              "delete_own",
-                              "delete_group",
+                              "read",
+                              "update",
+                              "delete",
                             ],
                             true,
                           );
@@ -5452,12 +5264,12 @@ export function PermissionsTable({
                         <Table.Cell>
                           <div className="flex flex-col">
                             <ToggleSwitch
-                              checked={permission.tasks.tasks.read_all}
+                              checked={permission.tasks.tasks.read}
                               onChange={() =>
                                 handleSubSubPermissionChange(
                                   "tasks",
                                   "tasks",
-                                  "read_all",
+                                  "read",
                                 )
                               }
                             />
@@ -5474,12 +5286,12 @@ export function PermissionsTable({
                         <Table.Cell>
                           <div className="flex flex-col">
                             <ToggleSwitch
-                              checked={permission.tasks.tasks.read_own}
+                              checked={permission.tasks.tasks.update}
                               onChange={() =>
                                 handleSubSubPermissionChange(
                                   "tasks",
                                   "tasks",
-                                  "read_own",
+                                  "update",
                                 )
                               }
                             />
@@ -5496,144 +5308,12 @@ export function PermissionsTable({
                         <Table.Cell>
                           <div className="flex flex-col">
                             <ToggleSwitch
-                              checked={permission.tasks.tasks.read_group}
+                              checked={permission.tasks.tasks.delete}
                               onChange={() =>
                                 handleSubSubPermissionChange(
                                   "tasks",
                                   "tasks",
-                                  "read_group",
-                                )
-                              }
-                            />
-                          </div>
-                        </Table.Cell>
-                      </Table.Row>
-                      <Table.Row>
-                        <Table.Cell>
-                          {permissions.tasks.tasks.actions[5].label}
-                        </Table.Cell>
-                        <Table.Cell>
-                          {permissions.tasks.tasks.actions[5].description}
-                        </Table.Cell>
-                        <Table.Cell>
-                          <div className="flex flex-col">
-                            <ToggleSwitch
-                              checked={permission.tasks.tasks.update_all}
-                              onChange={() =>
-                                handleSubSubPermissionChange(
-                                  "tasks",
-                                  "tasks",
-                                  "update_all",
-                                )
-                              }
-                            />
-                          </div>
-                        </Table.Cell>
-                      </Table.Row>
-                      <Table.Row>
-                        <Table.Cell>
-                          {permissions.tasks.tasks.actions[6].label}
-                        </Table.Cell>
-                        <Table.Cell>
-                          {permissions.tasks.tasks.actions[6].description}
-                        </Table.Cell>
-                        <Table.Cell>
-                          <div className="flex flex-col">
-                            <ToggleSwitch
-                              checked={permission.tasks.tasks.update_own}
-                              onChange={() =>
-                                handleSubSubPermissionChange(
-                                  "tasks",
-                                  "tasks",
-                                  "update_own",
-                                )
-                              }
-                            />
-                          </div>
-                        </Table.Cell>
-                      </Table.Row>
-                      <Table.Row>
-                        <Table.Cell>
-                          {permissions.tasks.tasks.actions[7].label}
-                        </Table.Cell>
-                        <Table.Cell>
-                          {permissions.tasks.tasks.actions[7].description}
-                        </Table.Cell>
-                        <Table.Cell>
-                          <div className="flex flex-col">
-                            <ToggleSwitch
-                              checked={permission.tasks.tasks.update_group}
-                              onChange={() =>
-                                handleSubSubPermissionChange(
-                                  "tasks",
-                                  "tasks",
-                                  "update_group",
-                                )
-                              }
-                            />
-                          </div>
-                        </Table.Cell>
-                      </Table.Row>
-                      <Table.Row>
-                        <Table.Cell>
-                          {permissions.tasks.tasks.actions[8].label}
-                        </Table.Cell>
-                        <Table.Cell>
-                          {permissions.tasks.tasks.actions[8].description}
-                        </Table.Cell>
-                        <Table.Cell>
-                          <div className="flex flex-col">
-                            <ToggleSwitch
-                              checked={permission.tasks.tasks.delete_all}
-                              onChange={() =>
-                                handleSubSubPermissionChange(
-                                  "tasks",
-                                  "tasks",
-                                  "delete_all",
-                                )
-                              }
-                            />
-                          </div>
-                        </Table.Cell>
-                      </Table.Row>
-                      <Table.Row>
-                        <Table.Cell>
-                          {permissions.tasks.tasks.actions[9].label}
-                        </Table.Cell>
-                        <Table.Cell>
-                          {permissions.tasks.tasks.actions[9].description}
-                        </Table.Cell>
-                        <Table.Cell>
-                          <div className="flex flex-col">
-                            <ToggleSwitch
-                              checked={permission.tasks.tasks.delete_own}
-                              onChange={() =>
-                                handleSubSubPermissionChange(
-                                  "tasks",
-                                  "tasks",
-                                  "delete_own",
-                                )
-                              }
-                            />
-                          </div>
-                        </Table.Cell>
-                      </Table.Row>
-                      <Table.Row>
-                        <Table.Cell>
-                          {permissions.tasks.tasks.actions[10].label}
-                        </Table.Cell>
-                        <Table.Cell>
-                          {permissions.tasks.tasks.actions[10].description}
-                        </Table.Cell>
-                        <Table.Cell>
-                          <div className="flex flex-col">
-                            <ToggleSwitch
-                              checked={permission.tasks.tasks.delete_group}
-                              onChange={() =>
-                                handleSubSubPermissionChange(
-                                  "tasks",
-                                  "tasks",
-                                  "delete_group",
+                                  "delete",
                                 )
                               }
                             />
@@ -6487,15 +6167,9 @@ export function PermissionsTable({
                             [
                               "access_module",
                               "create",
-                              "read_all",
-                              "read_own",
-                              "read_group",
-                              "update_all",
-                              "update_own",
-                              "update_group",
-                              "delete_all",
-                              "delete_own",
-                              "delete_group",
+                              "read",
+                              "update",
+                              "delete",
                             ],
                             false,
                           );
@@ -6516,15 +6190,9 @@ export function PermissionsTable({
                             [
                               "access_module",
                               "create",
-                              "read_all",
-                              "read_own",
-                              "read_group",
-                              "update_all",
-                              "update_own",
-                              "update_group",
-                              "delete_all",
-                              "delete_own",
-                              "delete_group",
+                              "read",
+                              "update",
+                              "delete",
                             ],
                             true,
                           );
@@ -6599,12 +6267,12 @@ export function PermissionsTable({
                         <Table.Cell>
                           <div className="flex flex-col">
                             <ToggleSwitch
-                              checked={permission.payments.payments.read_all}
+                              checked={permission.payments.payments.read}
                               onChange={() =>
                                 handleSubSubPermissionChange(
                                   "payments",
                                   "payments",
-                                  "read_all",
+                                  "read",
                                 )
                               }
                             />
@@ -6621,12 +6289,12 @@ export function PermissionsTable({
                         <Table.Cell>
                           <div className="flex flex-col">
                             <ToggleSwitch
-                              checked={permission.payments.payments.read_own}
+                              checked={permission.payments.payments.update}
                               onChange={() =>
                                 handleSubSubPermissionChange(
                                   "payments",
                                   "payments",
-                                  "read_own",
+                                  "update",
                                 )
                               }
                             />
@@ -6643,151 +6311,12 @@ export function PermissionsTable({
                         <Table.Cell>
                           <div className="flex flex-col">
                             <ToggleSwitch
-                              checked={permission.payments.payments.read_group}
+                              checked={permission.payments.payments.delete}
                               onChange={() =>
                                 handleSubSubPermissionChange(
                                   "payments",
                                   "payments",
-                                  "read_group",
-                                )
-                              }
-                            />
-                          </div>
-                        </Table.Cell>
-                      </Table.Row>
-                      <Table.Row>
-                        <Table.Cell>
-                          {permissions.payments.payments.actions[5].label}
-                        </Table.Cell>
-                        <Table.Cell>
-                          {permissions.payments.payments.actions[5].description}
-                        </Table.Cell>
-                        <Table.Cell>
-                          <div className="flex flex-col">
-                            <ToggleSwitch
-                              checked={permission.payments.payments.update_all}
-                              onChange={() =>
-                                handleSubSubPermissionChange(
-                                  "payments",
-                                  "payments",
-                                  "update_all",
-                                )
-                              }
-                            />
-                          </div>
-                        </Table.Cell>
-                      </Table.Row>
-                      <Table.Row>
-                        <Table.Cell>
-                          {permissions.payments.payments.actions[6].label}
-                        </Table.Cell>
-                        <Table.Cell>
-                          {permissions.payments.payments.actions[6].description}
-                        </Table.Cell>
-                        <Table.Cell>
-                          <div className="flex flex-col">
-                            <ToggleSwitch
-                              checked={permission.payments.payments.update_own}
-                              onChange={() =>
-                                handleSubSubPermissionChange(
-                                  "payments",
-                                  "payments",
-                                  "update_own",
-                                )
-                              }
-                            />
-                          </div>
-                        </Table.Cell>
-                      </Table.Row>
-                      <Table.Row>
-                        <Table.Cell>
-                          {permissions.payments.payments.actions[7].label}
-                        </Table.Cell>
-                        <Table.Cell>
-                          {permissions.payments.payments.actions[7].description}
-                        </Table.Cell>
-                        <Table.Cell>
-                          <div className="flex flex-col">
-                            <ToggleSwitch
-                              checked={
-                                permission.payments.payments.update_group
-                              }
-                              onChange={() =>
-                                handleSubSubPermissionChange(
-                                  "payments",
-                                  "payments",
-                                  "update_group",
-                                )
-                              }
-                            />
-                          </div>
-                        </Table.Cell>
-                      </Table.Row>
-                      <Table.Row>
-                        <Table.Cell>
-                          {permissions.payments.payments.actions[8].label}
-                        </Table.Cell>
-                        <Table.Cell>
-                          {permissions.payments.payments.actions[8].description}
-                        </Table.Cell>
-                        <Table.Cell>
-                          <div className="flex flex-col">
-                            <ToggleSwitch
-                              checked={permission.payments.payments.delete_all}
-                              onChange={() =>
-                                handleSubSubPermissionChange(
-                                  "payments",
-                                  "payments",
-                                  "delete_all",
-                                )
-                              }
-                            />
-                          </div>
-                        </Table.Cell>
-                      </Table.Row>
-                      <Table.Row>
-                        <Table.Cell>
-                          {permissions.payments.payments.actions[9].label}
-                        </Table.Cell>
-                        <Table.Cell>
-                          {permissions.payments.payments.actions[9].description}
-                        </Table.Cell>
-                        <Table.Cell>
-                          <div className="flex flex-col">
-                            <ToggleSwitch
-                              checked={permission.payments.payments.delete_own}
-                              onChange={() =>
-                                handleSubSubPermissionChange(
-                                  "payments",
-                                  "payments",
-                                  "delete_own",
-                                )
-                              }
-                            />
-                          </div>
-                        </Table.Cell>
-                      </Table.Row>
-                      <Table.Row>
-                        <Table.Cell>
-                          {permissions.payments.payments.actions[10].label}
-                        </Table.Cell>
-                        <Table.Cell>
-                          {
-                            permissions.payments.payments.actions[10]
-                              .description
-                          }
-                        </Table.Cell>
-                        <Table.Cell>
-                          <div className="flex flex-col">
-                            <ToggleSwitch
-                              checked={
-                                permission.payments.payments.delete_group
-                              }
-                              onChange={() =>
-                                handleSubSubPermissionChange(
-                                  "payments",
-                                  "payments",
-                                  "delete_group",
+                                  "delete",
                                 )
                               }
                             />

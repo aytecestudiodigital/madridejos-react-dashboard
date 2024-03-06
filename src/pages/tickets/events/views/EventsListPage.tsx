@@ -44,7 +44,7 @@ export const EventsListPage = () => {
 
   const [alertMsg] = useState("");
   const [actionAlert] = useState("");
-  const [filteredSearchItems, setFilteredSearchItems] = useState<string[]>([]);
+  /* const [filteredSearchItems, setFilteredSearchItems] = useState<string[]>([]); */
 
   const user = useSelector((state: RootState) => state.auth.user);
 
@@ -114,7 +114,7 @@ export const EventsListPage = () => {
     setTotalPages(Math.ceil(totalItems / pageSize));
   };
 
-  const clickOnItem = (item: any) => {
+  const clickOnItem = () => {
     //navigate(`/tasks/${item.id}`)
   };
 
@@ -126,11 +126,10 @@ export const EventsListPage = () => {
     searchTerm: string,
     orderBy: string,
     orderDir: string,
-    filteredSearchItems?: string[],
+    /* filteredSearchItems?: string[], */
   ) => {
     setCurrentPage(1);
     setSearchTerm(searchTerm);
-    setFilteredSearchItems(filteredSearchItems ? filteredSearchItems : []);
     setItemSearch(searchTerm !== "" ? true : false);
     setOrderBy(orderBy);
     setOrderDir(orderDir);

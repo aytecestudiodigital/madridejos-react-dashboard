@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ErrorMessage } from "@hookform/error-message";
 import * as EmailValidator from "email-validator";
 import {
@@ -62,6 +63,8 @@ export function EditUserModal({
 
   const mobileRegex = /^(\+34|0034|34)?[ -]*(6|7)[ -]*([0-9][ -]*){8}/;
   const tableName = import.meta.env.VITE_TABLE_USERS;
+
+  const userActive = JSON.parse(localStorage.getItem("userLogged")!);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -467,16 +470,46 @@ export function EditUserModal({
               </>
             )}
           </Modal.Body>
-          <Modal.Footer className="flex place-content-end">
-            <Button
-              disabled={!isValid}
-              color="primary"
-              type="submit"
-              isProcessing={loading}
-            >
-              {loading ? t("LOADING") : t("EDIT_USER_FORM_BUTTON_SAVE_LABEL")}
-            </Button>
-          </Modal.Footer>
+          {user && user.id ? (
+            <Modal.Footer className="flex justify-between">
+              <div>
+                <DeleteUserModal
+                  user={user}
+                  closeModal={closeAfterDelete}
+                  onUserDelete={onUser}
+                />
+              </div>
+              <div>
+                <Button
+                  disabled={
+                    !isValid ||
+                    !userActive.users_roles.rules.mod_users.users.update
+                  }
+                  color="primary"
+                  type="submit"
+                  isProcessing={loading}
+                >
+                  {loading
+                    ? t("LOADING")
+                    : t("EDIT_USER_FORM_BUTTON_SAVE_LABEL")}
+                </Button>
+              </div>
+            </Modal.Footer>
+          ) : (
+            <Modal.Footer className="flex place-content-end">
+              <Button
+                disabled={
+                  !isValid ||
+                  !userActive.users_roles.rules.mod_users.users.create
+                }
+                color="primary"
+                type="submit"
+                isProcessing={loading}
+              >
+                {loading ? t("LOADING") : t("EDIT_USER_FORM_BUTTON_SAVE_LABEL")}
+              </Button>
+            </Modal.Footer>
+          )}
         </form>
       </Modal>
     </>
