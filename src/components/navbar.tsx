@@ -106,10 +106,10 @@ export function UserDropdown() {
       label={
         <span>
           <span className="sr-only">User menu</span>
-          <img src="/public/images/logos/logo-vector-ayuntamiento-de-madridejos.jpg" className="h-10 w-auto rounded-3xl" alt="" />
+          <img src="/images/logos/logo-vector-ayuntamiento-de-madridejos.jpg" className="h-10 w-auto rounded-3xl" alt="" />
           {/* <Avatar
             alt=""
-            img="/public/images/logos/logo-vector-ayuntamiento-de-madridejos.jpg"
+            img="/images/logos/logo-vector-ayuntamiento-de-madridejos.jpg"
             rounded
             size="sm"
             className="bg-cover"

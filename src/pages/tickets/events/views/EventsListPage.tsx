@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+/* import { useContext, useEffect, useState } from "react";
 import ListPageWithPagination from "../../../../components/ListPage/ListPageWithPagination";
 import { getEntities } from "../../../../server/supabaseQueries";
 import { AlertContext } from "../../../../context/AlertContext";
@@ -17,16 +17,10 @@ export const EventsListPage = () => {
     },
   ];
 
-  /**
-   * Definición de datos
-   */
   const { openAlert } = useContext(AlertContext);
   const [loading, setLoading] = useState<boolean>(false);
   const [data, setData] = useState<any[]>([]);
 
-  /**
-   * Buscador y ordenación
-   */
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [itemSearch, setItemSearch] = useState(false);
 
@@ -44,7 +38,6 @@ export const EventsListPage = () => {
 
   const [alertMsg] = useState("");
   const [actionAlert] = useState("");
-  /* const [filteredSearchItems, setFilteredSearchItems] = useState<string[]>([]); */
 
   const user = useSelector((state: RootState) => state.auth.user);
 
@@ -115,18 +108,15 @@ export const EventsListPage = () => {
   };
 
   const clickOnItem = () => {
-    //navigate(`/tasks/${item.id}`)
   };
 
   const newItem = () => {
-    //navigate(`/tasks/new`)
   };
 
   const onSearch = async (
     searchTerm: string,
     orderBy: string,
     orderDir: string,
-    /* filteredSearchItems?: string[], */
   ) => {
     setCurrentPage(1);
     setSearchTerm(searchTerm);
@@ -173,3 +163,4 @@ export const EventsListPage = () => {
     </>
   );
 };
+ */

@@ -122,6 +122,8 @@ export const TaskDetailsPage = () => {
                             lat: taskDb.data[0].position[0],
                             lng: taskDb.data[0].position[1],
                         });
+                    }else{
+                        getMapAddress({ lat: 39.1577, lng: -3.02081 })
                     }
                     if (taskDb.data[0].tasks_category_id) {
                         const techs = await supabase
@@ -136,7 +138,7 @@ export const TaskDetailsPage = () => {
                             }
                         }
                     }
-                    if(taskDb.data[0].images){
+                    if (taskDb.data[0].images) {
                         setImages(taskDb.data[0].images)
                     }
                     const assignedTechs = await supabase
@@ -447,7 +449,7 @@ export const TaskDetailsPage = () => {
                                                     <div className="px-2 py-2">
                                                         <Wrapper apiKey={import.meta.env.VITE_GOOGLE_MAPS}>
                                                             <GoogleMaps>
-                                                                <Marker position={{ lat: actualTask.position[0], lng: actualTask.position[1] }} />
+                                                                <Marker position={{ lat: actualTask.position ? actualTask.position[0] : 39.1577, lng: actualTask.position ? actualTask.position[1] : -3.02081 }} />
                                                             </GoogleMaps>
                                                         </Wrapper>
                                                     </div>
@@ -518,7 +520,7 @@ export const TaskDetailsPage = () => {
                                                 title='Eliminar incidencia'
                                                 disableButton={
                                                     !user.users_roles.rules.tasks.tasks.delete
-                                                  }
+                                                }
                                             />
                                         </div>
                                     </Card>

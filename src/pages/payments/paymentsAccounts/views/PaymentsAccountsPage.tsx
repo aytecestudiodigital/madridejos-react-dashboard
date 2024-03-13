@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+/* import { useContext, useEffect, useState } from "react";
 import ListPageWithPagination from "../../../../components/ListPage/ListPageWithPagination";
 import { getEntities } from "../../../../server/supabaseQueries";
 import { EditPaymentAccountModal } from "../components/EditPaymentAccountModal";
@@ -10,9 +10,6 @@ import { AlertContext } from "../../../../context/AlertContext";
 
 export default function PaymentsAccountPage() {
   const navigate = useNavigate();
-  /**
-   * Configuración de la página
-   */
   const entity_table = import.meta.env.VITE_TABLE_PAYMENTS_ACC;
   const columns = ["title", "enable", "created_at"];
   const page_title = "PAYMENTS_ACCOUNTS";
@@ -22,15 +19,9 @@ export default function PaymentsAccountPage() {
     },
   ];
 
-  /**
-   * Definición de datos
-   */
   const [loading, setLoading] = useState<boolean>(false);
   const [data, setData] = useState<any[]>([]);
   const [account, setAccount] = useState<PaymentsAccount | null>(null);
-  /**
-   * Buscador y ordenación
-   */
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [itemSearch, setItemSearch] = useState(false);
 
@@ -205,3 +196,4 @@ export default function PaymentsAccountPage() {
     </>
   );
 }
+ */

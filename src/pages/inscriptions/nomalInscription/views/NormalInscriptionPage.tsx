@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+/* 
 import { Dropdown, Pagination, Select, Table } from "flowbite-react";
 import { t } from "i18next";
 import { useContext, useEffect, useState } from "react";
@@ -17,10 +17,6 @@ import { AlertContext } from "../../../../context/AlertContext";
 
 export default function NormalInscriptionPage() {
   const navigate = useNavigate();
-  /**
-   * Configuración de la página
-   */
-  //const entity_table = import.meta.env.VITE_TABLE_INSCRIPTIONS;
   const columns = ["title", "enable", "created_at"];
   const columnsDropdown = ["enable"];
   const page_title = "NORMAL_INSCRIPTIONS_LIST";
@@ -30,15 +26,10 @@ export default function NormalInscriptionPage() {
     },
   ];
 
-  /**
-   * Definición de datos
-   */
   const [loading, setLoading] = useState<boolean>(false);
   const [data, setData] = useState<any[]>([]);
 
-  /**
-   * Buscador y ordenación
-   */
+
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [itemSearch, setItemSearch] = useState(false);
 
@@ -204,9 +195,6 @@ export default function NormalInscriptionPage() {
                         {t(`${column.toUpperCase()}`)}
                       </Table.HeadCell>
                     ))}
-                    {/* <Table.HeadCell>
-                      {t("INSCRIPTION_RECORDS")}
-                    </Table.HeadCell> */}
                     <Table.HeadCell>Acciones</Table.HeadCell>
                   </Table.Head>
                   <Table.Body className="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-800">
@@ -245,9 +233,6 @@ export default function NormalInscriptionPage() {
                           >
                             {new Date(item.created_at).toLocaleString("es")}
                           </Table.Cell>
-                          {/* <Table.Cell>
-                              <Button onClick={() => goToRecords(item)} size={'xs'}>Registros</Button>
-                            </Table.Cell> */}
                           <Table.Cell>
                             <Dropdown
                               label=""
@@ -325,3 +310,4 @@ export default function NormalInscriptionPage() {
     </>
   );
 }
+ */

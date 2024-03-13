@@ -1,4 +1,4 @@
-import { Breadcrumb } from "flowbite-react";
+/* import { Breadcrumb } from "flowbite-react";
 import BookingsCalendar from "../../../../components/BookingsCalendar";
 import { HiHome } from "react-icons/hi";
 import { t } from "i18next";
@@ -51,3 +51,4 @@ export default function BookingsList() {
     </>
   );
 }
+ */

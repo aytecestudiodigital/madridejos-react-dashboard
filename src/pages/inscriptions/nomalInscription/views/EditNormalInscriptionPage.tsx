@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+/* 
 import { Card, Tabs } from "flowbite-react";
 import { FC, useContext, useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
@@ -30,16 +30,10 @@ import { supabase } from "../../../../server/supabase";
 import { AlertContext } from "../../../../context/AlertContext";
 
 export const EditNormalInscriptionsPage: FC = () => {
-  /**
-   * Definición de datos
-   */
   const navigate = useNavigate();
   const location = useLocation();
   const contextMethods = useContext(InscriptionFormContext);
 
-  /**
-   * Configuración de la página
-   */
   const breadcrumb = [
     {
       title: "INSCRIPTIONS",
@@ -735,3 +729,4 @@ export const EditNormalInscriptionsPage: FC = () => {
     </>
   );
 };
+ */

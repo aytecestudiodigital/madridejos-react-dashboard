@@ -1,3 +1,4 @@
-export const TicketsListPage = () => {
+/* export const TicketsListPage = () => {
   return <div>Hola</div>;
 };
+ */

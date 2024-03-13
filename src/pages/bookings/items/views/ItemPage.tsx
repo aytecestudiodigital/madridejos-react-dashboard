@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+/* 
 import { FC, useContext, useEffect, useState } from "react";
 import { SubmitHandler, useForm, FormProvider } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -474,75 +474,8 @@ export const ItemPage: FC = () => {
             />
           </FormProvider>
         </Card>
-
-        {/* <div className="flex flex-col lg:flex-row p-4 gap-6 dark:bg-gray-900">
-          <div className="w-full lg:w-1/3 gap-y-4">
-            <FormProvider {...methods}>
-              <ItemDetailsCard
-                deleteButtonLabel={buttonDeteleType}
-                deleteOKLabel={deleteOKLabel}
-                deleteKOLabel={deleteKOLabel}
-                paymentsMethods={paymentMethods}
-                paymentsAcc={paymentAccounts}
-                accessControl={accessControl}
-                labelResponsibleCard={labelResponsibleCard}
-                installationStates={installationStates}
-                onSessions={(sessions) => changeSessions(sessions)}
-                item={item ? item : null}
-                itemCalendar={itemCalendar}
-                onDataChange={(data) => changeData(data)}
-                onDevicesChange={(devices) => setNewDevices(devices)}
-                onSessionsUpdate={(sessions) => setSessionsToUpdate(sessions)}
-                onSessionsDelete={(sessions) => setSessionsToDelete(sessions)}
-              />
-            </FormProvider>
-          </div>
-          <div className="w-full lg:w-2/3">
-            <ItemSessionsCard
-              sessions={sessions}
-              item={item}
-              formatedSessions={itemSessions}
-              onCreateSessions={() => null}
-              installationStates={installationStates}
-              installation={item ? item.id : ""}
-            />
-          </div>
-        </div> */}
-        {/* <div className="grid grid-cols-12 gap-y-6 px-4 dark:bg-gray-900 xl:grid-cols-12 xl:gap-4">
-          <div className="col-span-5 order-last xl:order-first">
-            <div className="grid grid-cols-1 gap-y-4 ">
-              <FormProvider {...methods}>
-                <ItemDetailsCard
-                  deleteButtonLabel={buttonDeteleType}
-                  deleteOKLabel={deleteOKLabel}
-                  deleteKOLabel={deleteKOLabel}
-                  paymentsMethods={paymentMethods}
-                  paymentsAcc={paymentAccounts}
-                  accessControl={accessControl}
-                  labelResponsibleCard={labelResponsibleCard}
-                  installationStates={installationStates}
-                  onSessions={(sessions) => changeSessions(sessions)}
-                  item={item ? item : null}
-                  itemCalendar={itemCalendar}
-                  onDataChange={(data) => changeData(data)}
-                  onDevicesChange={(devices) => setNewDevices(devices)}
-                  onSessionsUpdate={(sessions) => setSessionsToUpdate(sessions)}
-                  onSessionsDelete={(sessions) => setSessionsToDelete(sessions)}
-                />
-              </FormProvider>
-            </div>
-          </div>
-          <div className="col-span-7 grid grid-cols-1 gap-4 mb-5">
-            <ItemSessionsCard
-              sessions={sessions}
-              item={item}
-              formatedSessions={itemSessions}
-              onCreateSessions={() => null}
-              installationStates={installationStates}
-            />
-          </div>
-        </div> */}
       </div>
     </>
   );
 };
+ */

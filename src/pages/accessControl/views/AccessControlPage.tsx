@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { t } from "i18next";
+/* import { t } from "i18next";
 import { useContext, useEffect, useState } from "react";
 import ListPageWithPagination from "../../../components/ListPage/ListPageWithPagination";
 import { AlertContext } from "../../../context/AlertContext";
@@ -13,9 +13,6 @@ import { useNavigate } from "react-router-dom";
 
 export default function AccessControlPage() {
   const navigate = useNavigate();
-  /**
-   * Configuración de la página
-   */
   const entity_table = import.meta.env.VITE_TABLE_ACCESS_CONTROL;
   const columns = [
     "title",
@@ -34,16 +31,10 @@ export default function AccessControlPage() {
     },
   ];
 
-  /**
-   * Definición de datos
-   */
   const { openAlert } = useContext(AlertContext);
   const [loading, setLoading] = useState<boolean>(false);
   const [data, setData] = useState<any[]>([]);
   const [device, setDevice] = useState<AccessControl | null>(null);
-  /**
-   * Buscador y ordenación
-   */
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [itemSearch, setItemSearch] = useState(false);
 
@@ -227,14 +218,12 @@ export default function AccessControlPage() {
           openModal={showEditModal}
           closeModal={closeModal}
           onItem={(device: AccessControl | null | string) => {
-            //Cuando borramos el elemento - actualizar la tabla
             if (device === null) {
               getDataFromServer(orderBy, orderDir, currentPage, pageSize);
               openAlert(t("DEVICE_DELETE_OK"), "delete");
             } else if (typeof device === "string") {
               openAlert(device, "error");
             } else {
-              // Encuentra el índice del dispositivo existente en la lista
               const index = data.findIndex(
                 (device) => device.id === (device as AccessControl)!.id,
               );
@@ -264,4 +253,4 @@ export default function AccessControlPage() {
       ) : null}
     </>
   );
-}
+} */

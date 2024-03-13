@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+/* import { useContext, useEffect, useState } from "react";
 import ListPageWithPagination from "../../../../components/ListPage/ListPageWithPagination";
 import { getAll } from "../../../../server/supabaseQueries";
 import { EditPaymentMethodModal } from "../components/EditPaymentMethodModal";
@@ -11,9 +11,6 @@ import { AlertContext } from "../../../../context/AlertContext";
 
 export default function PaymentsMethodsPage() {
   const navigate = useNavigate();
-  /**
-   * Configuración de la página
-   */
   const entity_table = import.meta.env.VITE_TABLE_PAYMENTS_METHOD;
   const columns = ["title", "type", "enable", "created_at"];
   const columnsFilter = ["title", "enable", "created_at"];
@@ -25,15 +22,9 @@ export default function PaymentsMethodsPage() {
     },
   ];
 
-  /**
-   * Definición de datos
-   */
   const [loading, setLoading] = useState<boolean>(false);
   const [data, setData] = useState<any[]>([]);
   const [method, setMethod] = useState<PaymentsMethod | null>(null);
-  /**
-   * Buscador y ordenación
-   */
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [itemSearch, setItemSearch] = useState(false);
 
@@ -239,3 +230,4 @@ export default function PaymentsMethodsPage() {
     </>
   );
 }
+ */

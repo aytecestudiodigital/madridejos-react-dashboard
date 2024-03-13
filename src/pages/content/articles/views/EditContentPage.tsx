@@ -101,7 +101,7 @@ export default function EditContentPage() {
   const [deletedFiles, setDeletedFiles] = useState<any[]>([]);
   const { openAlert } = useContext(AlertContext);
 
-  const { register, formState, getValues } = useForm<Content>({
+  const { register, formState, getValues, setValue } = useForm<Content>({
     values: item ?? undefined,
     mode: "all",
     reValidateMode: "onSubmit",
@@ -122,6 +122,16 @@ export default function EditContentPage() {
       }
     }
   }, [user]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const totalArticlesDb = await getAll("content");
+      if (!id) {
+        setValue("order", totalArticlesDb.totalItems + 1);
+      }
+    };
+    fetchData();
+  }, [id]);
 
   const onSubmit = async () => {
     let state: any = {};

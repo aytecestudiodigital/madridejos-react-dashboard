@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+/* import { useContext, useEffect, useState } from "react";
 import ListPageWithPagination from "../../../../components/ListPage/ListPageWithPagination";
 import { getAll } from "../../../../server/supabaseQueries";
 import { PaymentsMethod } from "../../paymentsMethods/models/PaymentsMethods";
@@ -16,9 +16,6 @@ import { AlertContext } from "../../../../context/AlertContext";
 
 export default function PaymentsListPage() {
   const navigate = useNavigate();
-  /**
-   * Configuración de la página
-   */
   const paymentsTableName = import.meta.env.VITE_TABLE_PAYMENTS;
   const paymentsOrdersTableName = import.meta.env.VITE_TABLE_PAYMENTS_ORDERS;
   const paymentsMethodsTableName = import.meta.env.VITE_TABLE_PAYMENTS_METHOD;
@@ -51,15 +48,9 @@ export default function PaymentsListPage() {
     },
   ];
 
-  /**
-   * Definición de datos
-   */
   const [loading, setLoading] = useState<boolean>(false);
   const [data, setData] = useState<any[]>([]);
   const [payment, setPayment] = useState<any | null>(null);
-  /**
-   * Buscador y ordenación
-   */
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [itemSearch, setItemSearch] = useState(false);
 
@@ -308,3 +299,4 @@ export default function PaymentsListPage() {
     </>
   );
 }
+ */

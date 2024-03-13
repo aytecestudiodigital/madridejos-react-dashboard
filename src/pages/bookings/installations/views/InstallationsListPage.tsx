@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { FC, useContext, useEffect, useState } from "react";
+/* import { FC, useContext, useEffect, useState } from "react";
 import { getEntities } from "../../../../server/supabaseQueries";
 import { InstallationModel } from "../models/InstallationModel";
 import { useNavigate } from "react-router-dom";
@@ -9,9 +9,6 @@ import { RootState } from "../../../../store/store";
 import { useSelector } from "react-redux";
 
 export const InstallationsListPage: FC = () => {
-  /**
-   * Configuración de la página
-   */
   const entity_table = import.meta.env.VITE_TABLE_BOOKINGS_INSTALLATIONS;
   const columns = ["title", "description", "type", "enable", "created_at"];
   const page_title = "PAGE_BOOKINGS_INSTALLATIONS_LIST_TITLE";
@@ -27,15 +24,9 @@ export const InstallationsListPage: FC = () => {
 
   const navigate = useNavigate();
   const { openAlert } = useContext(AlertContext);
-  /**
-   * Definición de datos
-   */
   const [loading, setLoading] = useState<boolean>(false);
   const [data, setData] = useState<any[]>([]);
 
-  /**
-   * Buscador y ordenación
-   */
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [itemSearch, setItemSearch] = useState(false);
 
@@ -177,4 +168,4 @@ export const InstallationsListPage: FC = () => {
       />
     </>
   );
-};
+}; */

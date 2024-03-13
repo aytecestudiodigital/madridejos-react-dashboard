@@ -78,7 +78,7 @@ export const UploadArea = ({
 
     const supabaseMetadata = {
       bucketName: "organizations",
-      objectName: `043ec7c2-572a-4199-9aa1-af6af822e76a/${location}/${file.name}`,
+      objectName: `30f3a4ed-0b43-4489-85a8-244ac94019f5/${location}/${file.name}`,
       contentType: file.type,
     };
 
