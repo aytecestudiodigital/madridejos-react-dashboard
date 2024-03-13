@@ -5,9 +5,10 @@ interface MapProps extends google.maps.MapOptions {
   onClick?: (e: google.maps.MapMouseEvent) => void;
   onIdle?: (map: google.maps.Map) => void;
   children?: React.ReactNode;
+  center?:any
 }
 
-export default function GoogleMaps({ onClick, children }: MapProps) {
+export default function GoogleMaps({ onClick, children, center }: MapProps) {
   const ref = useRef<HTMLDivElement | null>(null);
   const [map, setMap] = React.useState<google.maps.Map>();
 
@@ -24,6 +25,18 @@ export default function GoogleMaps({ onClick, children }: MapProps) {
       setMap(map);
     }
   }, [ref]);
+
+  useEffect(() => {
+    if (center) {
+      if (ref.current) {
+        const map = new window.google.maps.Map(ref.current, {
+          center: center,
+          zoom: DEFAULT_ZOOM,
+        });
+        setMap(map);
+      }
+    }
+  }, [center]);
 
   useEffect(() => {
     if (map) {

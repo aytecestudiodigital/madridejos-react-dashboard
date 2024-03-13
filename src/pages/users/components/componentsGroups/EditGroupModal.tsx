@@ -1,4 +1,4 @@
-import { Button, Label, Modal, TextInput, ToggleSwitch } from "flowbite-react";
+import { Button, Label, Modal, TextInput } from "flowbite-react";
 import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -22,7 +22,7 @@ export function EditGroupModal({
   const { t } = useTranslation();
   const [isOpen, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { register, handleSubmit, formState, reset, setValue } = useForm<any>({
+  const { register, handleSubmit, formState, reset } = useForm<any>({
     values: item ?? undefined,
     mode: "onBlur",
     reValidateMode: "onBlur",
@@ -30,22 +30,9 @@ export function EditGroupModal({
   });
 
   const { errors, isValid } = formState;
-
-  const [totalAccess, setTotalAccess] = useState(false);
   const tableName = import.meta.env.VITE_TABLE_USER_GROUPS;
 
   const user = JSON.parse(localStorage.getItem("userLogged")!);
-
-  useEffect(() => {
-    if (item) {
-      setTotalAccess(item?.access_all);
-    }
-  }, [item]);
-
-  const changeTotalAccess = (value: any) => {
-    setTotalAccess(value);
-    setValue("access_all", value);
-  };
 
   const closeAfterDelete = () => {
     reset();
@@ -102,21 +89,6 @@ export function EditGroupModal({
                       required: t("FORM_ERROR_MSG_REQUIRED"),
                     })}
                     color={errors.title && "failure"}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <Label
-                  htmlFor="access_all"
-                  color={errors.access_all && "failure"}
-                >
-                  {t("ACCESS_ALL")}
-                </Label>
-                <div className="mt-1">
-                  <ToggleSwitch
-                    checked={totalAccess}
-                    onChange={(e) => changeTotalAccess(e)}
                   />
                 </div>
               </div>

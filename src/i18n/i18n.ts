@@ -12,7 +12,7 @@ i18n
       escapeValue: false,
     },
     backend: {
-      loadPath: "https://aymo-madridejos-admin.web.app/i18n/{{lng}}.json", // https://aymo-madridejos-admin.web.app / http://localhost:5173/i18n/{{lng}}.json
+      loadPath: "http://localhost:5173/i18n/{{lng}}.json", // https://aymo-madridejos-admin.web.app / http://localhost:5173/i18n/{{lng}}.json
     },
   });
 

@@ -42,11 +42,12 @@ export const TaskDetailsPage = () => {
     const [projectSelected, setProjectSelected] = useState<any>("");
     const [projectCategories, setProjectCategories] = useState<any[]>([]);
     const [clicks, setClicks] = useState<google.maps.LatLng[]>([]);
-    const [latLng, setLatLng] = useState<any>({ lat: 39.1577, lng: -3.02081 });
+    const [latLng, setLatLng] = useState<any>({ lat: 39.471655 , lng: -3.533282  });
     const [images, setImages] = useState<any[]>([]);
     const [documents, setDocuments] = useState<any[]>([]);
     //const [user, setUser] = useState<AymoUser | null>()
     const user = JSON.parse(localStorage.getItem("userLogged")!);
+    const [mapCenter, setMapCenter] = useState<any>({ lat: 39.471655 , lng: -3.533282  })
 
     useEffect(() => {
         if (user) {
@@ -122,7 +123,7 @@ export const TaskDetailsPage = () => {
                             lat: taskDb.data[0].position[0],
                             lng: taskDb.data[0].position[1],
                         });
-                    }else{
+                    } else {
                         getMapAddress({ lat: 39.1577, lng: -3.02081 })
                     }
                     if (taskDb.data[0].tasks_category_id) {
@@ -281,6 +282,29 @@ export const TaskDetailsPage = () => {
             return deletedTask;
         }
     };
+
+    const findAddress = () => {
+        //if(this.searchValue.length >= 3 ){
+        const input = document.getElementById(
+          "maps-search-box",
+        ) as HTMLInputElement;
+    
+        const autocomplete = new google.maps.places.Autocomplete(input);
+        autocomplete.setComponentRestrictions({
+          country: ["es"],
+        });
+        autocomplete.setFields(["address_components", "geometry", "icon", "name"]);
+    
+        autocomplete.addListener("place_changed", () => {
+          const place = autocomplete.getPlace();
+    
+          const display = place!.geometry!.location!.toJSON();
+          setLatLng(display);
+          setAddress(input.value);
+          setMapCenter(display);
+        });
+        //}
+      };
 
     return (
         <>
@@ -656,8 +680,14 @@ export const TaskDetailsPage = () => {
                                     <h1 className="px-2"><span className="font-bold">Ubicación:</span> {address}</h1>
                                     <div className="grid grid-cols-1">
                                         <div className="px-2 py-2">
+                                            <TextInput
+                                                className="pt-2 pb-4"
+                                                placeholder="Buscar dirección..."
+                                                onKeyUp={() => findAddress()}
+                                                id="maps-search-box"
+                                            />
                                             <Wrapper apiKey={import.meta.env.VITE_GOOGLE_MAPS}>
-                                                <GoogleMaps onClick={onClickMap}>
+                                                <GoogleMaps onClick={onClickMap} center={mapCenter}>
                                                     <Marker position={{ lat: latLng.lat, lng: latLng.lng }} />
                                                 </GoogleMaps>
                                             </Wrapper>
