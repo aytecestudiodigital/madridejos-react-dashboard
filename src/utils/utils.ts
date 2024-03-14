@@ -48,3 +48,51 @@ export const createAlias = (_string: string) => {
   str = str.replace(/ /g, "-");
   return str;
 };
+
+export async function encrypt(data: any) {
+  const key = "hKOT4JcYlAfEJqP1QLkyjVOL1F1THZfB";
+  const iv = new Uint8Array(16);
+  window.crypto.getRandomValues(iv);
+
+  const textEncoder = new TextEncoder();
+  const keyData = textEncoder.encode(key);
+  const algorithm = { name: "AES-CBC", iv };
+  const encodedData = textEncoder.encode(data);
+  try {
+    const cryptoKey = await window.crypto.subtle.importKey(
+      "raw",
+      keyData,
+      "AES-CBC",
+      false,
+      ["encrypt"],
+    );
+    const encryptedBuffer = await window.crypto.subtle.encrypt(
+      algorithm,
+      cryptoKey,
+      encodedData,
+    );
+
+    const ivHex = Array.from(iv)
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join("");
+
+    const dataHex = Array.from(new Uint8Array(encryptedBuffer))
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join("");
+
+    return {
+      iv: ivHex,
+      data: dataHex,
+    };
+  } catch (error) {
+    //console.error(error);
+    throw error;
+  }
+}
+
+export const truncateContent = (content: string, number: number) => {
+  const maxLength = number;
+  return content.length > maxLength
+    ? `${content.slice(0, maxLength)} ...`
+    : content;
+};

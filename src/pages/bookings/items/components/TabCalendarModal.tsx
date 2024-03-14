@@ -170,7 +170,6 @@ export function TabCalendarModal({
       }
       i++;
     });
-    console.log("defaultSessions", defaultSessions);
     setSessions(defaultSessions);
   };
 
@@ -183,7 +182,7 @@ export function TabCalendarModal({
               {t("EDIT_BTN")} {item.name}
             </strong>
           </Modal.Header>
-          <Modal.Body className="max-h-[70vh]">
+          <Modal.Body className="overflow-auto max-h-[70vh]">
             <div>
               <div className="flex flex-row sm:flex-col w-full mb-5">
                 <div className="hidden sm:display-1 w-1/2 sm:w-full sm:grid sm:grid-cols-12 sm:gap-4 sm:items-center sm:border-b sm:border-gray-200 sm:pt-5">
@@ -207,7 +206,7 @@ export function TabCalendarModal({
                   </a>
                 </div>
               </div>
-              <div className="flex flex-col sm:flex-grow sm:w-full w-1/2 overflow-auto max-h-96">
+              <div className="flex flex-col sm:flex-grow sm:w-full w-1/2">
                 {sessions.map((session: any, index: number) => (
                   <div
                     key={session.init}
@@ -299,25 +298,21 @@ export function TabCalendarModal({
                 <Button color="gray" onClick={() => addRow()}>
                   {t("ADD_BTN")}
                 </Button>
-                <Button color="gray" onClick={() => addRow()}>
-                  {t("ADD_BTN")}
-                </Button>
               </div>
             </div>
           </Modal.Body>
 
           <Modal.Footer className="flex justify-between">
-            <div className="flex items-center">
+            <div className="flex items-center text-sm">
               <LuRefreshCcw className="mr-1 text-blue-700 font-bold" />
               <a
                 className="text-blue-700 cursor-pointer"
                 onClick={() => recalculateSessions()}
-                /*  onClick={() => openModalEdit("add")} */
               >
                 Recalcular
               </a>
             </div>
-            <Button color="primary" onClick={createSessions}>
+            <Button size={"sm"} color="primary" onClick={createSessions}>
               {t("SAVE")}
             </Button>
           </Modal.Footer>

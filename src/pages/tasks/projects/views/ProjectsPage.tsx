@@ -2,8 +2,8 @@
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ListPageWithPagination from "../../../../components/ListPage/ListPageWithPagination";
-import { getEntities } from "../../../../server/supabaseQueries";
 import { AlertContext } from "../../../../context/AlertContext";
+import { getProjectsAndRelatedData } from "../data/ProjectsProvider";
 
 export default function ProjectsPage() {
   const navigate = useNavigate();
@@ -11,8 +11,8 @@ export default function ProjectsPage() {
    * Configuración de la página
    */
   const entity_table = import.meta.env.VITE_TABLE_TASKS_PROJECTS;
-  const columns = ["title", "enable", "created_at"];
-  const columnsDropdown = ["enable"];
+  const columns = ["title", "enable", "created_at", "total_tasks"];
+  const columnsFilter = ["title", "enable", "created_at"];
   const page_title = "PROJECTS_LIST";
   const breadcrumb = [
     {
@@ -49,13 +49,25 @@ export default function ProjectsPage() {
   const [filteredSearchItems, setFilteredSearchItems] = useState<string[]>([]);
 
   const user = JSON.parse(localStorage.getItem("userLogged")!);
+  const userGroupId = localStorage.getItem("groupSelected")!;
   const { openAlert } = useContext(AlertContext);
+
+  let showAll: boolean;
+  let userGroup: string | null;
+  let userCreatedBy: string;
 
   useEffect(() => {
     if (user) {
       if (!user.users_roles.rules.tasks.projects.access_module) {
         openAlert("No tienes acceso a esta página", "error");
         navigate("/");
+      } else {
+        userCreatedBy = user.id;
+        !user.users_roles.rules.tasks.projects.read_all &&
+        user.users_roles.rules.tasks.projects.read_group
+          ? (userGroup = userGroupId)
+          : (userGroup = null);
+        showAll = user.users_roles.rules.payments.payments_accounts.read_all;
       }
     }
   }, [user]);
@@ -95,15 +107,22 @@ export default function ProjectsPage() {
     size: number,
   ) => {
     setLoading(true);
-    getEntities(entity_table, page, size, orderBy, orderDir, "").then(
-      async (result) => {
-        const { totalItems, data } = result;
-        setData(data ? data : []);
-        setTotalItems(totalItems);
-        setTotalPages(Math.ceil(totalItems / pageSize));
-        setLoading(false);
-      },
-    );
+    getProjectsAndRelatedData(
+      page,
+      size,
+      orderBy,
+      orderDir,
+      userCreatedBy,
+      showAll,
+      userGroup,
+      "",
+    ).then(async (result) => {
+      const { totalItems, data } = result;
+      setData(data ? data : []);
+      setTotalItems(totalItems);
+      setTotalPages(Math.ceil(totalItems / pageSize));
+      setLoading(false);
+    });
     setItemSearch(false);
   };
 
@@ -111,12 +130,14 @@ export default function ProjectsPage() {
     setInitRange((page - 1) * pageSize + 1);
     setEndRange(page * pageSize);
     setFilteredSearchItems(filteredSearchItems ? filteredSearchItems : []);
-    const { totalItems, data } = await getEntities(
-      entity_table,
+    const { totalItems, data } = await getProjectsAndRelatedData(
       currentPage,
       pageSize,
       orderBy,
       orderDir,
+      userCreatedBy,
+      showAll,
+      userGroup,
       searchTerm,
     );
     setData(data ? data : []);
@@ -160,6 +181,7 @@ export default function ProjectsPage() {
         page_title={page_title}
         entity_table={entity_table}
         columns={columns}
+        columnsFilter={columnsFilter}
         breadcrumb={breadcrumb}
         onSearch={onSearch}
         onClearSearch={onClearSearch}
@@ -178,9 +200,8 @@ export default function ProjectsPage() {
         isOpen={openAlert}
         alertMsg={alertMsg}
         action={actionAlert}
-        columnsDropdown={columnsDropdown}
-        dataDropdown={["Habilitado", "Deshabilitado"]}
         disableAddButton={!user.users_roles.rules.tasks.projects.create}
+        showCleanFilter={false}
       />
     </>
   );

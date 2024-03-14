@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { t } from "i18next";
 import { useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import ListPageWithPagination from "../../../components/ListPage/ListPageWithPagination";
+import { AlertContext } from "../../../context/AlertContext";
 import { getEntities } from "../../../server/supabaseQueries";
 import { AddGroupModal } from "../components/componentsGroups/AddGroupModal";
 import { EditGroupModal } from "../components/componentsGroups/EditGroupModal";
 import { GroupUsers } from "../models/GroupUser";
-import { AlertContext } from "../../../context/AlertContext";
-import { t } from "i18next";
-import { useNavigate } from "react-router-dom";
 
 export default function GroupsPage() {
   const navigate = useNavigate();
@@ -15,7 +15,7 @@ export default function GroupsPage() {
    * Configuración de la página
    */
   const entity_table = import.meta.env.VITE_TABLE_USER_GROUPS;
-  const columns = ["title", "access_all", "created_at"];
+  const columns = ["title", "created_at"];
   const page_title = "USERS_GROUPS_LIST_TITLE";
   const breadcrumb = [
     {
@@ -59,12 +59,24 @@ export default function GroupsPage() {
   const [actionAlert] = useState("");
 
   const user = JSON.parse(localStorage.getItem("userLogged")!);
+  const userGroupId = localStorage.getItem("groupSelected")!;
+
+  let showAll: boolean;
+  let userGroup: string | null;
+  let userCreatedBy: string;
 
   useEffect(() => {
     if (user) {
       if (!user.users_roles.rules.mod_users.groups.access_module) {
         openAlert("No tienes acceso a esta página", "error");
         navigate("/");
+      } else {
+        userCreatedBy = user.id;
+        !user.users_roles.rules.mod_users.groups.read_all &&
+        user.users_roles.rules.mod_users.groups.read_group
+          ? (userGroup = userGroupId)
+          : (userGroup = null);
+        showAll = user.users_roles.rules.mod_users.groups.read_all;
       }
     }
   }, [user]);
@@ -97,16 +109,24 @@ export default function GroupsPage() {
     size: number,
   ) => {
     setLoading(true);
-    getEntities(entity_table, page, size, orderBy, orderDir, "").then(
-      (result) => {
-        const { totalItems, data } = result;
+    getEntities(
+      entity_table,
+      page,
+      size,
+      orderBy,
+      orderDir,
+      userCreatedBy,
+      showAll,
+      userGroup,
+      "",
+    ).then((result) => {
+      const { totalItems, data } = result;
 
-        setData(data ? data : []);
-        setTotalItems(totalItems);
-        setTotalPages(Math.ceil(totalItems / pageSize));
-        setLoading(false);
-      },
-    );
+      setData(data ? data : []);
+      setTotalItems(totalItems);
+      setTotalPages(Math.ceil(totalItems / pageSize));
+      setLoading(false);
+    });
     setItemSearch(false);
   };
 
@@ -119,6 +139,9 @@ export default function GroupsPage() {
       pageSize,
       orderBy,
       orderDir,
+      userCreatedBy,
+      showAll,
+      userGroup,
       searchTerm,
     );
 
@@ -186,6 +209,7 @@ export default function GroupsPage() {
         alertMsg={alertMsg}
         action={actionAlert}
         disableAddButton={!user.users_roles.rules.mod_users.groups.create}
+        showCleanFilter={false}
       />
       {showEditModal ? (
         <EditGroupModal

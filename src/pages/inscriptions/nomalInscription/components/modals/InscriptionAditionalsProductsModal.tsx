@@ -220,11 +220,13 @@ export const InscriptionAditionalsProductsModal = (
           </>
         </Modal.Body>
         <Modal.Footer>
-          <div className="flex flex-grow justify-end gap-4">
-            <Button onClick={() => close()} color="light">
-              {t("CANCEL")}
-            </Button>
-            <Button disabled={!isValid} type="submit" color="primary">
+          <div className="flex flex-grow justify-end">
+            <Button
+              size={"sm"}
+              disabled={!isValid}
+              type="submit"
+              color="primary"
+            >
               {t("SAVE")}
             </Button>
           </div>

@@ -375,6 +375,7 @@ export function ItemSessionModal({
                   </Select>
                 </div>
                 <Button
+                  size={"sm"}
                   color="primary"
                   disabled={
                     selectedItem === "" ||
@@ -394,6 +395,7 @@ export function ItemSessionModal({
             ) : (
               <div className="flex flex-grow justify-end">
                 <Button
+                  size={"sm"}
                   color="primary"
                   disabled={
                     newSession.date == undefined ||
@@ -416,7 +418,7 @@ export function ItemSessionModal({
                 <Label className="mr-2">Pista seleccionada:</Label>
                 <p> {itemSelected.title}</p>
               </div>
-              <Button color="primary" onClick={saveSession}>
+              <Button size={"sm"} color="primary" onClick={saveSession}>
                 {t("CONFIRM")}
               </Button>
             </>

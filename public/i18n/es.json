@@ -163,7 +163,7 @@
   "DASHBOARD_UPDATE": "Actualizar la configuración de la organización",
   "DASHBOARD_READ": "Leer la configuración de la organización",
   "PUSH_NOTIFICATIONS": "Notificaciones push",
-  "WARNINGS": "Warnings",
+  "WARNINGS": "Avisos",
   "SECTIONS": "Secciones",
   "TEMPLATES": "Plantillas",
   "MENU": "Menú",
@@ -193,6 +193,7 @@
 
   "PROJECTS": "Proyectos",
   "PROJECT_TITLE": "Proyecto",
+  "TOTAL_TASKS": "Total de incidencias",
 
   "COUPONS": "Cupones",
   "MANDATES": "Mandatos",
@@ -263,6 +264,14 @@
   "MANUAL": "Descuento manual (solo administradores)",
 
   "TICKETS": "Entradas",
+  "FORMALISATION_DATE": "Fecha de formalización",
+  "LIMIT_DATE_INIT": "Fecha de la entrada",
+  "OWNER_NAME": "Nombre",
+  "OWNER_SURNAME": "Apellidos",
+  "OWNER_NIF": "Documento",
+  "TICKETS_TITLE": "Evento",
+  "TICKETS_PRODUCTS_TITLE": "Entrada/Abono",
+  "TICKETS_PRODUCTS": "Productos",
 
   "DEVICES": "Dispositvos",
   "ADD_DEVICE": "Añadir dispositivo",
@@ -357,7 +366,7 @@
 
   "BOOKINGS": "Reservas",
   "BOOKING": "Reserva",
-  "BOOKINGS_LIST": "Lista de reservas",
+  "BOOKINGS_LIST": "Panel de reservas",
   "INSTALLATIONS": "Instalaciones",
   "COURTS": "Pistas",
   "COURT": "Pista",
@@ -537,10 +546,10 @@
   "INSCRIPTION_PRODUCT_PAYMENT_DATE_END": "Fecha de pago final",
   "INSCRIPTION_PRODUCT_PLACES": "Plazas",
   "INSCRIPTION_PRODUCT_APPLICABLE_DISCOUNTS": "Descuentos aplicables en este producto",
-  "INSCRIPTION_PRODUCT_APPLICABLE_DISCOUNTS_MESSAGE": "Si se desactiva, a este producto no se aplicarán descuentos por unidad",
+  "INSCRIPTION_PRODUCT_APPLICABLE_DISCOUNTS_MESSAGE": "Si se activa, a este producto se le aplicarán descuentos por unidad.",
   "INSCRIPTION_PRODUCT_WAITING_LIST": "Lista de espera",
   "INSCRIPTION_PRODUCT_YEARS_BORN": "Año(s) de nacimiento para esta actividad",
-  "INSCRIPTION_PRODUCT_YEARS_BORN_MESSAGE": "Si desea indicar varios, sepárelos por comas o enter",
+  "INSCRIPTION_PRODUCT_YEARS_BORN_MESSAGE": "Si desea indicar varios, sepárelos por comas o pulsa enter",
   "INSCRIPTION_PRODUCT_CALENDAR": "Calendario",
   "INSCRIPTION_PRODUCT_CALENDAR_MESSAGE": "Indica los días y el horario en el que se desarrolla la actividad",
   "MONDAY": "Lunes",
@@ -576,9 +585,30 @@
   "NEW_PROJECT": "Nuevo proyecto",
 
   "EVENTS_LIST": "Listado de eventos",
+  "EVENT_DETAILS": "Detalles del evento",
+  "EDIT_EVENT": "Editar evento",
+  "ADD_EVENT": "Crear evento",
+  "SUBSCRIPTION": "Abono",
+  "TICKET": "Entrada",
 
   "EMAIL_SEND": "Email enviado",
   "EMAIL_SEND_ERROR": "Error al mandar el email",
   "EMAIL_FORMAT_ERROR": "El email no es válido",
-  "FORM_ERROR_INCORRECT_EMAIL": "Error al mandar el email. Comprueba que sea correcto"
+  "FORM_ERROR_INCORRECT_EMAIL": "Error al mandar el email. Comprueba que sea correcto",
+
+  "DELETE_CONTENT_ALERT": "¿Seguro que desea eliminar este contenido?",
+
+  "NOTIFICATIONS": "Notificaciones",
+  "ALERTS": "Alertas",
+  "COMMUNICATIONS": "Comunicaciones",
+  "NOTIFICATIONS_LIST_TITLE": "Listado de notificaciones",
+  "ALERTS/WARNINGS": "Avisos/Alertas",
+  "ALERTS_LIST_TITLE": "Listado de alertas",
+  "ALERT": "Alerta",
+  "WARNING": "Aviso",
+  "STANDBY": "Borrador",
+  "SEND": "Enviado",
+  "EMAILS_LIST_TITLE": "Listado de emails",
+  "SUBJECT": "Asunto",
+  "CONTENT": "Contenido"
 }

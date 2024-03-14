@@ -81,13 +81,13 @@ export const ItemDetailsCard = ({
   const [latLng, setLatLng] = useState<any>(
     item !== null && item.position !== null
       ? {
-        lat: item.position![0],
-        lng: item.position![1],
-      }
+          lat: item.position![0],
+          lng: item.position![1],
+        }
       : {
-        lat: 39.1577,
-        lng: -3.02081,
-      },
+          lat: 39.1577,
+          lng: -3.02081,
+        },
   );
   const [isScrollbarVisible, setIsScrollbarVisible] = useState(false);
   const [newAddress, setNewAddress] = useState(null);
@@ -250,9 +250,7 @@ export const ItemDetailsCard = ({
 
   return (
     <div className="mb-5">
-      <div
-        className={`${isScrollbarVisible ? "flex place-items-start" : ""}`}
-      >
+      <div className={`${isScrollbarVisible ? "flex place-items-start" : ""}`}>
         {isScrollbarVisible && (
           <button
             onClick={scrollLeft}

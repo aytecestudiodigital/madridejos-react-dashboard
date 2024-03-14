@@ -1,8 +1,8 @@
 import { Button } from "flowbite-react";
 import { useTranslation } from "react-i18next";
-import { HiPlus } from "react-icons/hi";
 import { AymoUser } from "../../models/AymoUser";
 import { EditUserModal } from "./EditUserModal";
+import { LuPlus } from "react-icons/lu";
 
 interface AddUserModalProps {
   onUser: (user: AymoUser | null | string) => void;
@@ -23,7 +23,7 @@ export function AddUserModal(props: AddUserModalProps) {
     <>
       <Button color="primary" onClick={openModalFunction}>
         <div className="flex items-center gap-x-3">
-          <HiPlus className="text-xl" />
+          <LuPlus className="text-xl" />
           <div className="ml-1">{t("PAGE_USERS_ADD_USER_BTN")}</div>
         </div>
       </Button>

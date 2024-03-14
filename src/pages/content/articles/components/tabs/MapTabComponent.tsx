@@ -5,24 +5,21 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import GoogleMaps from "../MapComponent";
 import Marker from "../MapMarkerComponent";
+import { useFormContext } from "react-hook-form";
 
 interface MapTabProps {
   position: any;
-  onPosition: (newPosition: any) => void;
-  onAddress: (address: any) => void;
 }
 
-export default function MapTab({
-  position,
-  onPosition: onPosition,
-  onAddress: onAddress,
-}: MapTabProps) {
+export default function MapTab({ position }: MapTabProps) {
   const [clicks, setClicks] = useState<google.maps.LatLng[]>([]);
   const [latLng, setLatLng] = useState<any>({ lat: 39.471655 , lng: -3.533282  });
   const [address, setAddress] = useState("");
-  const [mapCenter, setMapCenter] = useState<any>({ lat: 39.471655 , lng: -3.533282  })
+  const [mapCenter, setMapCenter] = useState<any>({ lat: 39.471655 , lng: -3.533282  });
 
   const { t } = useTranslation();
+
+  const { setValue } = useFormContext();
 
   useEffect(() => {
     clicks.map((latLng) => {
@@ -38,8 +35,8 @@ export default function MapTab({
   }, [position]);
 
   useEffect(() => {
-    onPosition(latLng);
-    onAddress(address);
+    setValue("position", latLng);
+    setValue("address", address);
   }, [latLng]);
 
   const onClickMap = (e: google.maps.MapMouseEvent) => {
@@ -77,10 +74,10 @@ export default function MapTab({
   };
 
   return (
-    <div className="px-4">
+    <div className="p-4">
       <div className="grid grid-cols-12 divide-x">
         <div className="col-span-7 p-2">
-        <TextInput
+          <TextInput
             className="pt-2 pb-4"
             placeholder="Buscar dirección..."
             onKeyUp={() => findAddress()}

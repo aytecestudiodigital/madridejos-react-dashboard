@@ -79,7 +79,6 @@ export const InscriptionAddDocuments = (props: addDocumentsProps) => {
             placeholder={"Descripción del documento"}
             defaultValue={props.item ? props.item.description : description}
             onBlur={(e) => setDescription(e.currentTarget.value)}
-            /* {...register("description", {})} */
           />
         </div>
       </div>

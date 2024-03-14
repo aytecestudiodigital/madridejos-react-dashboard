@@ -30,9 +30,28 @@ export function DeleteContentModal({
     setOpen(false);
   };
 
+  const user = JSON.parse(localStorage.getItem("userLogged")!);
+  const userGroupId = localStorage.getItem("groupSelected");
+
   return (
     <>
-      <Button size="sm" color="failure" onClick={() => setOpen(true)}>
+      <Button
+        size="sm"
+        disabled={
+          (!user.users_roles.rules.content.contents.delete_all &&
+            !user.users_roles.rules.content.contents.delete_group &&
+            !user.users_roles.rules.content.contents.delete_own) ||
+          (!user.users_roles.rules.content.contents.delete_all &&
+            user.users_roles.rules.content.contents.delete_group &&
+            userGroupId !== content.group_id) ||
+          (!user.users_roles.rules.content.contents.delete_all &&
+            !user.users_roles.rules.content.contents.delete_group &&
+            user.users_roles.rules.content.contents.delete_own &&
+            user.id !== content.created_by)
+        }
+        color="failure"
+        onClick={() => setOpen(true)}
+      >
         <div className="flex gap-x-1 text-white items-center">
           <HiTrash className="text-sm text-white" />
           {t("DELETE")}

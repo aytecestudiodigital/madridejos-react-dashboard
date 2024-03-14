@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+/* 
 import { Button, Label, Modal, TextInput } from "flowbite-react";
 import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
@@ -53,6 +53,8 @@ export function EditDeviceModal({
 
   const [formValid, setFormValid] = useState(false);
 
+  const userGroupId = localStorage.getItem("groupSelected")!;
+
   const closeAfterDelete = () => {
     reset();
     setOpen(false);
@@ -67,12 +69,12 @@ export function EditDeviceModal({
         let itemUpdated: AccessControl;
 
         if (formData?.id !== undefined) {
-          // Update existing item
           itemUpdated = (await updateRow(
             {
               ...formData,
               updated_at: new Date(),
-              org_id: "043ec7c2-572a-4199-9aa1-af6af822e76a",
+              org_id: "30f3a4ed-0b43-4489-85a8-244ac94019f5",
+              group_id: userGroupId,
             },
             "access_control",
           )) as AccessControl;
@@ -81,7 +83,8 @@ export function EditDeviceModal({
             {
               ...formData,
               created_at: new Date(),
-              org_id: "043ec7c2-572a-4199-9aa1-af6af822e76a",
+              org_id: "30f3a4ed-0b43-4489-85a8-244ac94019f5",
+              group_id: userGroupId,
             },
             "access_control",
           )) as AccessControl;
@@ -199,23 +202,6 @@ export function EditDeviceModal({
                             {loading ? t("LOADING") : "Generar código"}
                           </Button>
                         </div>
-
-                        <div className="flex justify-end">
-                          <div>
-                            {item && item.id && (
-                              <>
-                                <div className="flex justify-end">
-                                  {/* Botón de Eliminar */}
-                                  <DeleteDeviceModal
-                                    device={item}
-                                    closeModal={closeAfterDelete}
-                                    onDeviceDelete={onItem}
-                                  />
-                                </div>
-                              </>
-                            )}
-                          </div>
-                        </div>
                       </div>
                     ) : (
                       <>
@@ -224,23 +210,6 @@ export function EditDeviceModal({
                             <Label>Cambiar estado</Label>
                             <div className="mt-1">
                               <StatusSocketRenderComponent item={item} />
-                            </div>
-                          </div>
-
-                          <div className="flex justify-end">
-                            <div>
-                              {item && item.id && (
-                                <>
-                                  <div className="flex justify-end">
-                                    {/* Botón de Eliminar */}
-                                    <DeleteDeviceModal
-                                      device={item}
-                                      closeModal={closeAfterDelete}
-                                      onDeviceDelete={onItem}
-                                    />
-                                  </div>
-                                </>
-                              )}
                             </div>
                           </div>
                         </div>
@@ -304,20 +273,49 @@ export function EditDeviceModal({
               )}
             </div>
           </Modal.Body>
-          <Modal.Footer className="flex place-content-end">
-            <div>
-              <Button
-                disabled={!formValid}
-                color="primary"
-                type="submit"
-                isProcessing={loading}
-              >
-                {loading ? t("LOADING") : t("SAVE_DEVICE")}
-              </Button>
-            </div>
-          </Modal.Footer>
+          {item && item.id ? (
+            <Modal.Footer className="flex justify-between">
+              {item && item.id && (
+                <>
+                  <div className="flex justify-end">
+                    <DeleteDeviceModal
+                      device={item}
+                      closeModal={closeAfterDelete}
+                      onDeviceDelete={onItem}
+                    />
+                  </div>
+                </>
+              )}
+              <div>
+                <Button
+                  size={"sm"}
+                  disabled={!formValid}
+                  color="primary"
+                  type="submit"
+                  isProcessing={loading}
+                >
+                  {loading ? t("LOADING") : t("SAVE_DEVICE")}
+                </Button>
+              </div>
+            </Modal.Footer>
+          ) : (
+            <Modal.Footer className="flex justify-end">
+              <div>
+                <Button
+                  size={"sm"}
+                  disabled={!formValid}
+                  color="primary"
+                  type="submit"
+                  isProcessing={loading}
+                >
+                  {loading ? t("LOADING") : t("SAVE_DEVICE")}
+                </Button>
+              </div>
+            </Modal.Footer>
+          )}
         </form>
       </Modal>
     </>
   );
 }
+ */

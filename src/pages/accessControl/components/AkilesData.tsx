@@ -89,7 +89,9 @@ export function AkilesData(props: AkilesDetailsProps) {
               color={errors.provider && "failure"}
               onChange={onFieldChange("provider")}
             >
-              <option value="">{t("SELECT")}</option>
+              <option hidden value="">
+                {t("SELECT")}
+              </option>
               <option value="RAIXER">RAIXER</option>
               <option value="SHELLY">SHELLY</option>
               <option value="AKILES">AKILES</option>
@@ -161,7 +163,9 @@ export function AkilesData(props: AkilesDetailsProps) {
               color={errors.type && "failure"}
               onChange={onFieldChange("type")}
             >
-              <option value="">{t("SELECT")}</option>
+              <option hidden value="">
+                {t("SELECT")}
+              </option>
               <option value="DOOR">{t("DOOR")}</option>
               <option value="CODE">{t("CODE")}</option>
             </Select>
@@ -248,7 +252,9 @@ export function AkilesData(props: AkilesDetailsProps) {
                   color={errors.enabled && "failure"}
                   onChange={onFieldChange("enabled")}
                 >
-                  <option value="">{t("SELECT")}</option>
+                  <option hidden value="">
+                    {t("SELECT")}
+                  </option>
                   <option value="true">{t("YES")}</option>
                   <option value="false">{t("NO")}</option>
                 </Select>
@@ -358,7 +364,9 @@ export function AkilesData(props: AkilesDetailsProps) {
                   color={errors.enabled && "failure"}
                   onChange={onFieldChange("enabled")}
                 >
-                  <option value="">{t("SELECT")}</option>
+                  <option hidden value="">
+                    {t("SELECT")}
+                  </option>
                   <option value="true">{t("YES")}</option>
                   <option value="false">{t("NO")}</option>
                 </Select>

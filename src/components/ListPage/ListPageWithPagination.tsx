@@ -14,6 +14,7 @@ interface ListPageProps {
   columnsSecondDropdown?: string[];
   columnsThirdDropdown?: any[];
   columnsFourthDropdown?: any[];
+  columnsFifthDropdown?: any[];
   breadcrumb: BreadcrumbItem[];
   onSearch: (
     searchTerm: string,
@@ -40,12 +41,17 @@ interface ListPageProps {
   secondDataDropdown?: any[] | null;
   thirdDataDropdown?: any[] | null;
   fourthDataDropdown?: any[] | null;
+  fifthDataDropdown?: any[] | null;
   showButtonSave?: boolean;
   disableAddButton: boolean;
+  showOrder?: boolean;
+  showCleanFilter: boolean;
+  alertsMessage?: string;
 }
 export default function ListPageWithPagination(props: ListPageProps) {
   const { t } = useTranslation();
   const [dataToExport, setDataToExport] = useState<any>([]);
+  const [exportFileName, setExportFileName] = useState("");
   return (
     <>
       <div className="block items-center justify-between border-b border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800 sm:flex overflow-auto max-h-[70vh]">
@@ -71,11 +77,19 @@ export default function ListPageWithPagination(props: ListPageProps) {
             fourthDataDropdown={
               props.fourthDataDropdown ? props.fourthDataDropdown : []
             }
+            columnsFifthDropdown={props.columnsFifthDropdown}
+            fifthDataDropdown={
+              props.fifthDataDropdown ? props.fifthDataDropdown : []
+            }
             dataToExport={dataToExport}
             showButtonSave={
               props.showButtonSave != undefined ? props.showButtonSave : true
             }
             disableAddButton={props.disableAddButton}
+            showOrder={props.showOrder != undefined ? props.showOrder : true}
+            exportFileName={exportFileName}
+            showCleanFilter={props.showCleanFilter}
+            //alertsMessage={props.alertsMessage ? props.alertsMessage : ""}
           />
         </div>
       </div>
@@ -93,7 +107,10 @@ export default function ListPageWithPagination(props: ListPageProps) {
                   loading={props.loading}
                   columns={props.columns}
                   onItemClick={props.clickOnItem}
-                  onDataToExport={(data) => setDataToExport(data)}
+                  onDataToExport={(data, fileName) => {
+                    setDataToExport(data);
+                    setExportFileName(fileName);
+                  }}
                 />
               )}
             </div>

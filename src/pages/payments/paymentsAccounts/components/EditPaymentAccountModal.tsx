@@ -8,8 +8,8 @@ import {
   insertRow,
   updateRow,
 } from "../../../../server/supabaseQueries";
-import { PaymentsAccount } from "../models/PaymentsAccounts";
 import { AlertContext } from "../../../../context/AlertContext";
+import { PaymentsAccount } from "../models/PaymentsAccounts";
 
 interface EditAccountProps {
   item: PaymentsAccount | null;
@@ -28,6 +28,9 @@ export function EditPaymentAccountModal({
   const [switchEnable, setSwitchEnable] = useState(false);
   const orgId = import.meta.env.VITE_ORG_ID;
   const { openAlert } = useContext(AlertContext);
+
+  const userGroupId = localStorage.getItem("groupSelected")!;
+  const user = JSON.parse(localStorage.getItem("userLogged")!);
 
   const { handleSubmit, register, formState, reset } = useForm<PaymentsAccount>(
     {
@@ -72,6 +75,7 @@ export function EditPaymentAccountModal({
               ...data,
               org_id: orgId,
               enable: switchEnable,
+              group_id: userGroupId,
             },
             "payments_accounts",
           )) as PaymentsAccount)
@@ -80,6 +84,7 @@ export function EditPaymentAccountModal({
               ...data,
               org_id: orgId,
               enable: switchEnable,
+              group_id: userGroupId,
             },
             "payments_accounts",
           )) as PaymentsAccount);
@@ -109,22 +114,8 @@ export function EditPaymentAccountModal({
             )}
           </Modal.Header>
           <Modal.Body>
-            {item && item.id && (
-              <div className="flex justify-between items-center text-gray-800">
-                <div className="flex justify-between items-center text-gray-800"></div>
-                <DeleteModal
-                  data={item}
-                  deleteFn={deletePaymentAccount}
-                  onlyIcon={false}
-                  toastSuccessMsg={t("ACCOUNT_DELETE_OK")}
-                  toastErrorMsg={t("ACCOUNT_DELETE_KO")}
-                  title={t("DELETE_ACCOUNT")}
-                />
-              </div>
-            )}
-
-            <div>
-              <div className="pb-4">
+            <div className="flex justify-between">
+              <div className="pb-4 w-2/3">
                 <Label htmlFor="title">{t("TITLE")}</Label>
                 <div className="mt-1">
                   <TextInput
@@ -135,24 +126,97 @@ export function EditPaymentAccountModal({
                 </div>
               </div>
 
-              <ToggleSwitch
-                className="mt-4 pb-3"
-                checked={switchEnable}
-                label={t("ENABLE")}
-                onChange={setSwitchEnable}
-              />
+              <div className="flex justify-end w-1/3 mr-4">
+                <div>
+                  <Label htmlFor="enable">{t("ENABLE")}</Label>
+                  <ToggleSwitch
+                    className="mt-3"
+                    checked={switchEnable}
+                    onChange={setSwitchEnable}
+                  />
+                </div>
+              </div>
             </div>
           </Modal.Body>
-          <Modal.Footer className="flex place-content-end">
-            <Button
-              disabled={!isValid}
-              color="primary"
-              type="submit"
-              isProcessing={loading}
-            >
-              {loading ? t("LOADING") : t("SAVE_ACCOUNT")}
-            </Button>
-          </Modal.Footer>
+          {item && item.id ? (
+            <Modal.Footer className="flex justify-between">
+              <div>
+                <DeleteModal
+                  data={item}
+                  deleteFn={deletePaymentAccount}
+                  onlyIcon={false}
+                  toastSuccessMsg={t("ACCOUNT_DELETE_OK")}
+                  toastErrorMsg={t("ACCOUNT_DELETE_KO")}
+                  title={t("DELETE_ACCOUNT")}
+                  disableButton={
+                    (!user.users_roles.rules.payments.payments_accounts
+                      .delete_all &&
+                      !user.users_roles.rules.payments.payments_accounts
+                        .delete_group &&
+                      !user.users_roles.rules.payments.payments_accounts
+                        .delete_own) ||
+                    (!user.users_roles.rules.payments.payments_accounts
+                      .delete_all &&
+                      user.users_roles.rules.payments.payments_accounts
+                        .delete_group &&
+                      userGroupId !== item.group_id) ||
+                    (!user.users_roles.rules.payments.payments_accounts
+                      .delete_all &&
+                      !user.users_roles.rules.payments.payments_accounts
+                        .delete_group &&
+                      user.users_roles.rules.payments.payments_accounts
+                        .delete_own &&
+                      user.id !== item.created_by)
+                  }
+                />
+              </div>
+              <div>
+                <Button
+                  disabled={
+                    !isValid ||
+                    (!user.users_roles.rules.payments.payments_accounts
+                      .update_all &&
+                      !user.users_roles.rules.payments.payments_accounts
+                        .update_group &&
+                      !user.users_roles.rules.payments.payments_accounts
+                        .update_own) ||
+                    (!user.users_roles.rules.payments.payments_accounts
+                      .update_all &&
+                      user.users_roles.rules.payments.payments_accounts
+                        .update_group &&
+                      userGroupId !== item.group_id) ||
+                    (!user.users_roles.rules.payments.payments_accounts
+                      .update_all &&
+                      !user.users_roles.rules.payments.payments_accounts
+                        .update_group &&
+                      user.users_roles.rules.payments.payments_accounts
+                        .update_own &&
+                      user.id !== item.created_by)
+                  }
+                  color="primary"
+                  type="submit"
+                  isProcessing={loading}
+                >
+                  {loading ? t("LOADING") : t("SAVE_ACCOUNT")}
+                </Button>
+              </div>
+            </Modal.Footer>
+          ) : (
+            <Modal.Footer className="flex place-content-end">
+              <Button
+                size={"sm"}
+                disabled={
+                  !isValid ||
+                  !user.users_roles.rules.payments.payments_accounts.create
+                }
+                color="primary"
+                type="submit"
+                isProcessing={loading}
+              >
+                {loading ? t("LOADING") : t("SAVE_ACCOUNT")}
+              </Button>
+            </Modal.Footer>
+          )}
         </form>
       </Modal>
     </>

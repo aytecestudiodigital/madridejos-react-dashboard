@@ -231,11 +231,13 @@ export const NewInputFormModal = (props: NewInputsProps) => {
             </div>
           </Modal.Body>
           <Modal.Footer>
-            <div className="flex flex-grow justify-end gap-4">
-              <Button color="light" onClick={() => close()}>
-                {t("CANCEL")}
-              </Button>
-              <Button type="submit" disabled={!isValid} color="primary">
+            <div className="flex flex-grow justify-end">
+              <Button
+                size={"sm"}
+                type="submit"
+                disabled={!isValid}
+                color="primary"
+              >
                 {t("SAVE")}
               </Button>
             </div>

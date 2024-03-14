@@ -1,16 +1,14 @@
-/* import { Breadcrumb } from "flowbite-react";
-import BookingsCalendar from "../../../../components/BookingsCalendar";
-import { HiHome } from "react-icons/hi";
+import { Breadcrumb } from "flowbite-react";
 import { t } from "i18next";
-import { RootState } from "../../../../store/store";
-import { useSelector } from "react-redux";
 import { useContext, useEffect } from "react";
+import { HiHome } from "react-icons/hi";
 import { useNavigate } from "react-router-dom";
+import BookingsCalendar from "../../../../components/BookingsCalendar";
 import { AlertContext } from "../../../../context/AlertContext";
 
 export default function BookingsList() {
   const navigate = useNavigate();
-  const user = useSelector((state: RootState) => state.auth.user);
+  const user = JSON.parse(localStorage.getItem("userLogged")!);
   const { openAlert } = useContext(AlertContext);
 
   useEffect(() => {
@@ -51,4 +49,3 @@ export default function BookingsList() {
     </>
   );
 }
- */

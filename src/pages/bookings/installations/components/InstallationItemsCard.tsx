@@ -1,8 +1,7 @@
 import { Button, Table } from "flowbite-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { HiPlus } from "react-icons/hi";
-import { LuMoveVertical } from "react-icons/lu";
+import { LuMoveVertical, LuPlus } from "react-icons/lu";
 import { useNavigate } from "react-router-dom";
 import { ItemModel } from "../../items/models/ItemModel";
 import { InstallationModel } from "../models/InstallationModel";
@@ -23,6 +22,8 @@ export const InstallationItemsCard = ({
   const [installationItems, setInstallationItems] = useState<
     ItemModel[] | null
   >(null);
+
+  const user = JSON.parse(localStorage.getItem("userLogged")!);
 
   useEffect(() => {
     // Actualizar el estado cuando initialInstallationItems cambie
@@ -74,13 +75,16 @@ export const InstallationItemsCard = ({
           <Button
             size="xs"
             className="bg-primary"
+            disabled={
+              !user.users_roles.rules.bookings.installation_items.create
+            }
             onClick={() =>
               navigate(`/bookings/installations/${installation.id}/item/new`, {
                 state: null,
               })
             }
           >
-            <HiPlus />
+            <LuPlus />
             <div className="ml-1">
               {" "}
               {type === "INSTALLATION" ? t("NEW_DEPENDENCY") : t("NEW_SERVICE")}

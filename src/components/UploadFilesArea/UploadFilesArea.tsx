@@ -44,8 +44,9 @@ export const UploadArea = ({
             }.supabase.co/storage/v1/upload/resumable`,
             headers: {
               authorization: `Bearer ${session.access_token}`,
-              pikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
+              apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
             },
+            removeFingerprintOnSuccess: true,
             uploadDataDuringCreation: true,
             chunkSize: 6 * 1024 * 1024,
             allowedMetaFields: [
@@ -74,7 +75,7 @@ export const UploadArea = ({
   }, []);
 
   uppy.on("file-added", async (file) => {
-    file.name = `${Math.floor(Math.random() * 100000)}_${file.name}`;
+    file.name = `${Math.floor(Math.random() * 100000)}`;
 
     const supabaseMetadata = {
       bucketName: "organizations",
@@ -86,9 +87,11 @@ export const UploadArea = ({
       ...file.meta,
       ...supabaseMetadata,
     };
+    console.log('file.meta',file.meta)
   });
   uppy.on("complete", (result) => {
     const url: any[] = [];
+    console.log('result', result)
     result.successful.forEach((file) => {
       const path: string = file.meta["objectName"] as string;
       const { data } = supabase.storage

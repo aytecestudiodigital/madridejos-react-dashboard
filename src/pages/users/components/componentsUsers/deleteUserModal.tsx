@@ -35,7 +35,7 @@ export function DeleteUserModal({
 
   return (
     <>
-      <Button size="xs" color="light" onClick={() => setOpen(true)}>
+      <Button size="sm" color="light" onClick={() => setOpen(true)}>
         <div className="flex items-center gap-x-2 text-red-500">
           <HiTrash className="text-sm text-red-500" />
           {t("DELETE")}

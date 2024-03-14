@@ -8,6 +8,7 @@ import { HiTrash } from "react-icons/hi";
 import { getAll, getRowByColumn } from "../../../../../server/supabaseQueries";
 import { Category } from "../../../../content/categories/models/Category";
 import { Content } from "../../../../content/articles/models/Content";
+import { truncateContent } from "../../../../../utils/utils";
 
 interface addAuthorizationProps {
   onDelete: (id: number) => void;
@@ -138,7 +139,7 @@ export const InscriptionAddAuthorizations = (props: addAuthorizationProps) => {
               onChange={(e) => setAuthorizationType(e.currentTarget.value)}
               value={authorizationType ? authorizationType : "TEXT"}
             >
-              <option disabled value={""}>
+              <option hidden disabled value={""}>
                 {t("SELECT")}
               </option>
               <option value={"TEXT"}>{"Texto"}</option>
@@ -176,7 +177,9 @@ export const InscriptionAddAuthorizations = (props: addAuthorizationProps) => {
               //onBlur={(e) => onChangeLegalCategory(e.currentTarget.value)}
               value={selectedCategory ? selectedCategory : ""}
             >
-              <option value={""}>{t("SELECT")}</option>
+              <option hidden value={""}>
+                {t("SELECT")}
+              </option>
               {contentCategories &&
                 contentCategories.map((item) => (
                   <option key={item.id} value={item.id}>
@@ -194,13 +197,14 @@ export const InscriptionAddAuthorizations = (props: addAuthorizationProps) => {
               value={selectedContent ? selectedContent : ""}
               onChange={(e) => getContent(e.currentTarget.value)}
               disabled={!selectedCategory} // Deshabilita el select si no hay una categoría seleccionada
-              //onBlur={(e) => onChangeLegalContent(e.currentTarget.value)}
             >
-              <option value={""}>{t("SELECT")}</option>
+              <option hidden value={""}>
+                {t("SELECT")}
+              </option>
               {content
                 ? content.map((item) => (
                     <option key={item.id} value={item.id}>
-                      {item.title}
+                      {truncateContent(item.title, 100)}
                     </option>
                   ))
                 : null}

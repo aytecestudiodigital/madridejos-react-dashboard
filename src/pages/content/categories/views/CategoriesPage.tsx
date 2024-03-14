@@ -1,9 +1,8 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getEntities } from "../../../../server/supabaseQueries";
 import ListPageWithPagination from "../../../../components/ListPage/ListPageWithPagination";
 import { AlertContext } from "../../../../context/AlertContext";
+import { getEntities } from "../../../../server/supabaseQueries";
 
 export default function CategoriesPage() {
   const navigate = useNavigate();
@@ -45,13 +44,25 @@ export default function CategoriesPage() {
   const [actionAlert] = useState("");
 
   const user = JSON.parse(localStorage.getItem("userLogged")!);
+  const userGroupId = localStorage.getItem("groupSelected")!;
   const { openAlert } = useContext(AlertContext);
+
+  let showAll: boolean;
+  let userGroup: string | null;
+  let userCreatedBy: string;
 
   useEffect(() => {
     if (user) {
       if (!user.users_roles.rules.content.categories.access_module) {
         openAlert("No tienes acceso a esta página", "error");
         navigate("/");
+      } else {
+        userCreatedBy = user.id;
+        !user.users_roles.rules.content.categories.read_all &&
+        user.users_roles.rules.content.categories.read_group
+          ? (userGroup = userGroupId)
+          : (userGroup = null);
+        showAll = user.users_roles.rules.content.categories.read_all;
       }
     }
   }, [user]);
@@ -83,15 +94,23 @@ export default function CategoriesPage() {
     size: number,
   ) => {
     setLoading(true);
-    getEntities(entity_table, page, size, orderBy, orderDir, "").then(
-      async (result) => {
-        const { totalItems, data } = result;
-        setData(data ? data : []);
-        setTotalItems(totalItems);
-        setTotalPages(Math.ceil(totalItems / pageSize));
-        setLoading(false);
-      },
-    );
+    getEntities(
+      entity_table,
+      page,
+      size,
+      orderBy,
+      orderDir,
+      userCreatedBy,
+      showAll,
+      userGroup,
+      "",
+    ).then(async (result) => {
+      const { totalItems, data } = result;
+      setData(data ? data : []);
+      setTotalItems(totalItems);
+      setTotalPages(Math.ceil(totalItems / pageSize));
+      setLoading(false);
+    });
     setItemSearch(false);
   };
 
@@ -104,6 +123,9 @@ export default function CategoriesPage() {
       pageSize,
       orderBy,
       orderDir,
+      userCreatedBy,
+      showAll,
+      userGroup,
       searchTerm,
     );
     setData(data ? data : []);
@@ -165,6 +187,8 @@ export default function CategoriesPage() {
         isOpen={null}
         alertMsg={alertMsg}
         action={actionAlert}
+        disableAddButton={!user.users_roles.rules.content.categories.create}
+        showCleanFilter={false}
       />
     </>
   );

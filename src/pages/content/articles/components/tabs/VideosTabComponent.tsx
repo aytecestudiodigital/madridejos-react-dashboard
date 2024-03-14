@@ -3,20 +3,22 @@
 /* eslint-disable no-cond-assign */
 import { Button, Label, TextInput } from "flowbite-react";
 import { useEffect, useState } from "react";
+import { useFormContext } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { LuYoutube } from "react-icons/lu";
 
 interface VideoTabProps {
-  onVideo: (video: any) => void;
   video: any;
 }
 
-export default function VideoTab({ onVideo: onVideo, video }: VideoTabProps) {
+export default function VideoTab({ video }: VideoTabProps) {
   const [iframeSource, setIframeSource] = useState("");
   const [youtubeVideo, setYoutubeVideo] = useState("");
   const [videoData, setVideoData] = useState();
 
   const { t } = useTranslation();
+
+  const { setValue } = useFormContext();
 
   useEffect(() => {
     if (video) {
@@ -25,7 +27,7 @@ export default function VideoTab({ onVideo: onVideo, video }: VideoTabProps) {
   }, [video]);
 
   useEffect(() => {
-    onVideo(videoData);
+    setValue("videos", videoData);
   }, [videoData]);
 
   function getYoutubeVideoId(url: string) {
@@ -83,7 +85,7 @@ export default function VideoTab({ onVideo: onVideo, video }: VideoTabProps) {
     } catch (err) {}
   }
   return (
-    <div className="px-4">
+    <div className="p-4">
       <div className="justify-between">
         <div>
           <Label className="text-xl font-bold leading-5" htmlFor="content">

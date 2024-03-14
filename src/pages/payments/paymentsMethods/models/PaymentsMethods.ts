@@ -18,4 +18,5 @@ export type PaymentsMethod = {
   updated_by?: string | null;
   viafirma_group?: string | null;
   viafirma_template?: string | null;
+  group_id?: string;
 };

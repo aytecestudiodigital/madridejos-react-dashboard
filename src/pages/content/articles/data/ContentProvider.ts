@@ -7,19 +7,29 @@ export const getContentWithCategories = async (
   count: number,
   orderBy: string,
   orderDir: string,
+  created_by: string,
+  showAll: boolean,
+  group: string | null,
   search?: string,
   filters?: string[],
 ): Promise<{ totalItems: number; data: any[] | null }> => {
   const initRange: number = (page - 1) * count;
   const endRange: number = count * page - 1;
-  const { data, error } = await supabase.rpc("content_with_categories", {
-    p_order_by: orderBy,
-    p_order_dir: orderDir,
-    init_range: initRange,
-    end_range: endRange,
-    p_search_term: search,
-    filters_category: filters,
-  });
+
+  const { data, error } = await supabase.rpc(
+    "content_with_categories_with_authorization",
+    {
+      p_order_by: orderBy,
+      p_order_dir: orderDir,
+      init_range: initRange,
+      end_range: endRange,
+      p_search_term: search,
+      filters_category: filters,
+      p_created_by: created_by,
+      access: showAll,
+      p_group_id: group,
+    },
+  );
 
   if (data) {
     return {

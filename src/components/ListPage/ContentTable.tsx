@@ -5,15 +5,16 @@ import { useTranslation } from "react-i18next";
 import { TablePlaceholder } from "../TablePlaceholder";
 import ContentTypeComponent from "./ContentTypeComponent";
 import StateComponent from "./StatesComponent";
-import { StatusSocketRenderComponent } from "./StatusSocketRenderComponent";
+/* import { StatusSocketRenderComponent } from "./StatusSocketRenderComponent"; */
 import { PriorityComponent } from "./PriorityComponent";
+import { truncateContent } from "../../utils/utils";
 
 interface ContentTableProps {
   data: any[];
   columns: string[];
   loading: boolean;
   onItemClick: (item: any) => void;
-  onDataToExport: (data: any) => void;
+  onDataToExport: (data: any, fileName: string) => void;
 }
 
 export function ContentTable({
@@ -38,6 +39,9 @@ export function ContentTable({
         item.order_created_at = new Date(item.order_created_at);
       }
       if (item.order_concept) {
+        item.checked = false;
+      }
+      if (item.formalisation_date) {
         item.checked = false;
       }
       return item;
@@ -98,18 +102,75 @@ export function ContentTable({
           );
           arr2.push(arr1);
         });
-        onDataToExport(arr2);
+        onDataToExport(arr2, "Lista de operaciones");
       } else {
-        onDataToExport([]);
+        onDataToExport([], "");
+      }
+    }
+
+    if (tableColumns.includes("formalisation_date")) {
+      if (dataToSend.length > 0) {
+        const headers: string[] = [
+          "Fecha límite",
+          "Fecha de formalización",
+          "Nombre",
+          "Apellidos",
+          "Documento",
+          "Evento",
+          "Entrada",
+          "Estado",
+          "Precio",
+        ];
+        let arr1: any[] = [];
+        const arr2: any[] = [[...headers]];
+        dataToSend.forEach((data) => {
+          arr1 = [];
+          arr1.push(
+            data.limit_date_init
+              ? new Date(data.limit_date_init).toLocaleString()
+              : "No definido",
+            new Date(data.formalisation_date).toLocaleString(),
+            data.owner_name,
+            data.owner_surname,
+            data.owner_nif,
+            data.tickets_title,
+            data.tickets_products_title,
+            t(data.state),
+            data.price,
+          );
+          arr2.push(arr1);
+        });
+        onDataToExport(arr2, "Lista de entradas");
+      } else {
+        onDataToExport([], "");
       }
     }
   }, [tableData]);
+
+  const formatDate = (timestamp: any) => {
+    const date = new Date(timestamp);
+
+    const day = date.getDate();
+    const month = date.getMonth() + 1; // Los meses en JavaScript van de 0 a 11
+    const year = date.getFullYear();
+
+    const hours = date.getHours();
+    const minutes = date.getMinutes();
+    const seconds = date.getSeconds();
+
+    // Agrega un cero inicial si los minutos o segundos son menores que 10
+    const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
+    const formattedSeconds = seconds < 10 ? `0${seconds}` : seconds;
+
+    return `${day}/${month}/${year}, ${hours}:${formattedMinutes}:${formattedSeconds}`;
+  };
 
   return (
     <>
       <Table className="min-w-full divide-y divide-gray-200 dark:divide-gray-600">
         <Table.Head className="bg-gray-100 dark:bg-gray-700">
-          {tableColumns.includes("order_concept") && (
+          {(tableColumns.includes("order_concept") ||
+            tableColumns.includes("formalisation_date")) && (
             <Table.HeadCell>
               <Checkbox
                 defaultChecked={checkAll}
@@ -133,7 +194,8 @@ export function ContentTable({
                 key={item.id ? item.id : item.payment_id}
                 className="hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
               >
-                {tableColumns.includes("order_concept") && (
+                {(tableColumns.includes("order_concept") ||
+                  tableColumns.includes("formalisation_date")) && (
                   <Table.Cell>
                     <Checkbox
                       checked={item.checked}
@@ -166,32 +228,11 @@ export function ContentTable({
                         </div>
                       )
                     ) : column === "status" ? (
-                      <StatusSocketRenderComponent item={item} />
+                      {/* <StatusSocketRenderComponent item={item} /> */}
                     ) : column === "payment_state" ||
-                      column === "order_state" ? (
-                      item[column] === "PENDING" ||
-                      item[column] === "IN_PROGRESS" ? (
-                        <div className="container items-center flex flex-row max-w-max px-4 bg-yellow-100 rounded-full">
-                          <label className="font-medium text-yellow-800">
-                            {t(item[column])}
-                          </label>
-                        </div>
-                      ) : item[column] === "CONFIRMED" ||
-                        item[column] === "COMPLETED" ? (
-                        <div className="container items-center flex flex-row max-w-max px-4 bg-green-100 rounded-full">
-                          <label className="font-medium text-green-800">
-                            {t(item[column])}
-                          </label>
-                        </div>
-                      ) : item[column] === "DENIED" ||
-                        item[column] === "CANCELED" ||
-                        item[column] === "ERROR" ? (
-                        <div className="container items-center flex flex-row max-w-max px-4 bg-red-100 rounded-full">
-                          <label className="font-medium text-red-800">
-                            {t(item[column])}
-                          </label>
-                        </div>
-                      ) : null
+                      column === "order_state" ||
+                      column === "state" ? (
+                      <StateComponent state={item[column]} />
                     ) : column === "order_amount" ? (
                       <label>{t(item[column])} €</label>
                     ) : typeof item[column] === "boolean" ? (
@@ -202,12 +243,25 @@ export function ContentTable({
                       )
                     ) : item[column] instanceof Date ? (
                       item[column].toLocaleString("es")
-                    ) : column === "state" ? (
-                      <StateComponent state={item[column]} />
+                    ) : column === "formalisation_date" ||
+                      column === "limit_date_init" ? (
+                      item[column] != null ? (
+                        formatDate(item[column])
+                      ) : (
+                        "No especificada"
+                      )
+                    ) : column === "limit_date_init" ? (
+                      item[column] != null ? (
+                        item[column].toLocaleString("es")
+                      ) : (
+                        "No especificada"
+                      )
                     ) : column === "content_type" ? (
                       <ContentTypeComponent type={item[column]} />
                     ) : column === "priority" ? (
                       <PriorityComponent priority={item[column]} />
+                    ) : column === "content" ? (
+                      truncateContent(item[column], 50)
                     ) : (
                       t(item[column])
                     )}

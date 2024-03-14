@@ -4,6 +4,7 @@ import { Checkbox, Label, TextInput } from "flowbite-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { getOneRow } from "../../../../../server/supabaseQueries";
+import { useFormContext } from "react-hook-form";
 
 interface DateTabProps {
   categoryId: any;
@@ -11,20 +12,12 @@ interface DateTabProps {
   defaultDateEnd: Date;
   defaultDateEventInit: Date;
   defaultDateEventEnd: Date;
-  onDateEndChange: (dates: any) => void;
-  onDateInitChange: (date: any) => void;
-  onDateEventInit: (date: any) => void;
-  onDateEventEnd: (date: any) => void;
 }
 
 export default function DateTab({
   categoryId,
-  onDateEndChange: onDateEndChange,
-  onDateInitChange: onDateInitChange,
   defaultDateInit,
   defaultDateEnd,
-  onDateEventInit: onDateEventInit,
-  onDateEventEnd: onDateEventEnd,
   defaultDateEventInit,
   defaultDateEventEnd,
 }: DateTabProps) {
@@ -36,6 +29,8 @@ export default function DateTab({
   const [dateEventEnd, setDateEventEnd] = useState<any>(null);
   const [hourEventInit, setHourEventInit] = useState<any>(null);
   const [hourEventEnd, setHourEventEnd] = useState<any>(null);
+
+  const { setValue } = useFormContext();
 
   const { t } = useTranslation();
 
@@ -85,32 +80,34 @@ export default function DateTab({
   }, [categoryId]);
 
   useEffect(() => {
-    onDateInitChange(dateInit);
-    onDateEndChange(dateEnd);
+    setValue("publish_date_init", dateInit);
+    setValue("publish_date_end", dateEnd);
   }, [dateInit]);
 
   useEffect(() => {
-    onDateEndChange(dateEnd);
+    setValue("publish_date_end", dateEnd);
   }, [dateEnd]);
 
   useEffect(() => {
     if (dateEventInit !== null && dateEventEnd !== null) {
       if (!enabledCheck) {
-        onDateEventInit(dateEventInit + "T" + hourEventInit);
-        onDateEventEnd(dateEventEnd + "T" + hourEventEnd);
+        setValue("event_date_init", dateEventInit + "T" + hourEventInit);
+
+        setValue("event_date_end", dateEventEnd + "T" + hourEventEnd);
       } else {
-        onDateEventInit(dateEventInit);
-        onDateEventEnd(dateEventEnd);
+        setValue("event_date_init", dateEventInit);
+
+        setValue("event_date_end", dateEventEnd);
       }
     }
   }, [dateEventInit, dateEventEnd]);
 
   return (
-    <div className="px-4">
+    <div className="p-4">
       <div className="grid grid-cols-12 sm:grid-cols-12 gap-4">
         <div className="col-span-6">
           <div>
-            <Label className="text-lg" htmlFor="name">
+            <Label className="text" htmlFor="name">
               {t("DATE_INIT_PUBLISH")}
             </Label>
             <div className="mt-1">
@@ -125,7 +122,7 @@ export default function DateTab({
         </div>
         <div className="col-span-6">
           <div className="">
-            <Label className="text-lg" htmlFor="name">
+            <Label className="text" htmlFor="name">
               {t("DATE_END_PUBLISH")}
             </Label>
             <div className="mt-1">
@@ -141,7 +138,7 @@ export default function DateTab({
         {category === "Agenda municipal" || category === "Eventos" ? (
           <div className="col-span-6">
             <div className="mt-4">
-              <Label className="text-lg" htmlFor="name">
+              <Label className="text" htmlFor="name">
                 {t("EVENTS_DATE")}
               </Label>
               <div className="mt-1 flex justify-start gap-4">

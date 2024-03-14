@@ -23,4 +23,6 @@ export type Content = {
   updated_at?: string | null;
   updated_by?: string | null;
   videos?: Json[] | null;
+  position?: any;
+  address?: any;
 };

@@ -17,6 +17,7 @@ export const TasksPage = () => {
     "project_title",
     "created_at",
   ];
+  const columnsFilters = ["title", "created_at"];
   const columnsDropdown = ["category_title"];
   const sencondDolumnsDropdown = ["project_title"];
   const thirdDolumnsDropdown = ["state"];
@@ -80,11 +81,19 @@ export const TasksPage = () => {
 
   const user = JSON.parse(localStorage.getItem("userLogged")!);
 
+  let showAll: boolean;
+  let userGroup: string | null;
+  let userCreatedBy: string;
+
   useEffect(() => {
     if (user) {
       if (!user.users_roles.rules.tasks.tasks.access_module) {
         openAlert("No tienes acceso a esta página", "error");
         navigate("/");
+      } else {
+        userCreatedBy = user.id;
+        userGroup = null;
+        showAll = user.users_roles.rules.tasks.tasks.read;
       }
     }
   }, [user]);
@@ -145,7 +154,16 @@ export const TasksPage = () => {
     size: number,
   ) => {
     setLoading(true);
-    getTasks(page, size, orderBy, orderDir, "").then((result) => {
+    getTasks(
+      page,
+      size,
+      orderBy,
+      orderDir,
+      userCreatedBy,
+      showAll,
+      userGroup,
+      "",
+    ).then((result: any) => {
       const { totalItems, data } = result;
       setData(data ? data : []);
       setTotalItems(totalItems);
@@ -168,6 +186,9 @@ export const TasksPage = () => {
       pageSize,
       orderBy,
       orderDir,
+      userCreatedBy,
+      showAll,
+      userGroup,
       searchTerm,
       categoryFilters,
       projectFilters,
@@ -222,6 +243,7 @@ export const TasksPage = () => {
         page_title={page_title}
         entity_table={entity_table}
         columns={columns}
+        columnsFilter={columnsFilters}
         breadcrumb={breadcrumb}
         onSearch={onSearch}
         onClearSearch={onClearSearch}
@@ -249,6 +271,7 @@ export const TasksPage = () => {
         columnsFourthDropdown={fourthColumnsDropdown}
         fourthDataDropdown={fourthDataDropdown}
         disableAddButton={!user.users_roles.rules.tasks.tasks.create}
+        showCleanFilter={false}
       />
     </>
   );

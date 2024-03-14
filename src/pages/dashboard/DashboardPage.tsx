@@ -10,6 +10,8 @@ export default function DashboardPage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  //const user = JSON.parse(localStorage.getItem("userLogged")!);
+
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (session) {
@@ -55,6 +57,23 @@ export default function DashboardPage() {
         navigate("/login");
       }
     });
+
+    /* supabase
+      .channel("table_db_changes")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "users_roles",
+        },
+        (payload: any) => {
+          if (payload.new.id === user.role) {
+            window.location.reload();
+          }
+        },
+      )
+      .subscribe(); */
 
     return () => subscription.unsubscribe();
   });

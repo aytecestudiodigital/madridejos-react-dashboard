@@ -31,6 +31,9 @@ export const NormalInscriptionRecordsActivitiesModal = (
   const [dataToExport, setDataToExport] = useState<any[]>([]);
   const { openAlert } = useContext(AlertContext);
 
+  const user = JSON.parse(localStorage.getItem("userLogged")!);
+  const userGroupId = localStorage.getItem("groupSelected")!;
+
   useEffect(() => {
     setIsOpen(props.openModal);
   }, [props.openModal]);
@@ -278,6 +281,26 @@ export const NormalInscriptionRecordsActivitiesModal = (
                             >
                               {props.item.waiting_list ? (
                                 <Dropdown.Item
+                                  disabled={
+                                    (!user.users_roles.rules.inscriptions
+                                      .records.update_all &&
+                                      !user.users_roles.rules.inscriptions
+                                        .records.update_group &&
+                                      !user.users_roles.rules.inscriptions
+                                        .records.update_own) ||
+                                    (!user.users_roles.rules.inscriptions
+                                      .records.update_all &&
+                                      user.users_roles.rules.inscriptions
+                                        .records.update_group &&
+                                      userGroupId !== props.item.group_id) ||
+                                    (!user.users_roles.rules.inscriptions
+                                      .records.update_all &&
+                                      !user.users_roles.rules.inscriptions
+                                        .records.update_group &&
+                                      user.users_roles.rules.inscriptions
+                                        .records.update_own &&
+                                      user.id !== props.item.created_by)
+                                  }
                                   onClick={() =>
                                     changeState(
                                       activity.record_product_id,
@@ -292,6 +315,26 @@ export const NormalInscriptionRecordsActivitiesModal = (
                                 </Dropdown.Item>
                               ) : null}
                               <Dropdown.Item
+                                disabled={
+                                  (!user.users_roles.rules.inscriptions.records
+                                    .update_all &&
+                                    !user.users_roles.rules.inscriptions.records
+                                      .update_group &&
+                                    !user.users_roles.rules.inscriptions.records
+                                      .update_own) ||
+                                  (!user.users_roles.rules.inscriptions.records
+                                    .update_all &&
+                                    user.users_roles.rules.inscriptions.records
+                                      .update_group &&
+                                    userGroupId !== props.item.group_id) ||
+                                  (!user.users_roles.rules.inscriptions.records
+                                    .update_all &&
+                                    !user.users_roles.rules.inscriptions.records
+                                      .update_group &&
+                                    user.users_roles.rules.inscriptions.records
+                                      .update_own &&
+                                    user.id !== props.item.created_by)
+                                }
                                 onClick={() =>
                                   changeState(
                                     activity.record_product_id,
@@ -375,6 +418,26 @@ export const NormalInscriptionRecordsActivitiesModal = (
                             >
                               {props.item.waiting_list ? (
                                 <Dropdown.Item
+                                  disabled={
+                                    (!user.users_roles.rules.inscriptions
+                                      .records.update_all &&
+                                      !user.users_roles.rules.inscriptions
+                                        .records.update_group &&
+                                      !user.users_roles.rules.inscriptions
+                                        .records.update_own) ||
+                                    (!user.users_roles.rules.inscriptions
+                                      .records.update_all &&
+                                      user.users_roles.rules.inscriptions
+                                        .records.update_group &&
+                                      userGroupId !== props.item.group_id) ||
+                                    (!user.users_roles.rules.inscriptions
+                                      .records.update_all &&
+                                      !user.users_roles.rules.inscriptions
+                                        .records.update_group &&
+                                      user.users_roles.rules.inscriptions
+                                        .records.update_own &&
+                                      user.id !== props.item.created_by)
+                                  }
                                   onClick={() =>
                                     changeState(
                                       activity.record_product_id,
@@ -389,6 +452,26 @@ export const NormalInscriptionRecordsActivitiesModal = (
                                 </Dropdown.Item>
                               ) : null}
                               <Dropdown.Item
+                                disabled={
+                                  (!user.users_roles.rules.inscriptions.records
+                                    .update_all &&
+                                    !user.users_roles.rules.inscriptions.records
+                                      .update_group &&
+                                    !user.users_roles.rules.inscriptions.records
+                                      .update_own) ||
+                                  (!user.users_roles.rules.inscriptions.records
+                                    .update_all &&
+                                    user.users_roles.rules.inscriptions.records
+                                      .update_group &&
+                                    userGroupId !== props.item.group_id) ||
+                                  (!user.users_roles.rules.inscriptions.records
+                                    .update_all &&
+                                    !user.users_roles.rules.inscriptions.records
+                                      .update_group &&
+                                    user.users_roles.rules.inscriptions.records
+                                      .update_own &&
+                                    user.id !== props.item.created_by)
+                                }
                                 onClick={() =>
                                   changeState(
                                     activity.record_product_id,
@@ -474,6 +557,26 @@ export const NormalInscriptionRecordsActivitiesModal = (
                                 )}
                               >
                                 <Dropdown.Item
+                                  disabled={
+                                    (!user.users_roles.rules.inscriptions
+                                      .records.update_all &&
+                                      !user.users_roles.rules.inscriptions
+                                        .records.update_group &&
+                                      !user.users_roles.rules.inscriptions
+                                        .records.update_own) ||
+                                    (!user.users_roles.rules.inscriptions
+                                      .records.update_all &&
+                                      user.users_roles.rules.inscriptions
+                                        .records.update_group &&
+                                      userGroupId !== props.item.group_id) ||
+                                    (!user.users_roles.rules.inscriptions
+                                      .records.update_all &&
+                                      !user.users_roles.rules.inscriptions
+                                        .records.update_group &&
+                                      user.users_roles.rules.inscriptions
+                                        .records.update_own &&
+                                      user.id !== props.item.created_by)
+                                  }
                                   onClick={() =>
                                     changeState(
                                       activity.record_product_id,
@@ -487,6 +590,26 @@ export const NormalInscriptionRecordsActivitiesModal = (
                                   </p>
                                 </Dropdown.Item>
                                 <Dropdown.Item
+                                  disabled={
+                                    (!user.users_roles.rules.inscriptions
+                                      .records.update_all &&
+                                      !user.users_roles.rules.inscriptions
+                                        .records.update_group &&
+                                      !user.users_roles.rules.inscriptions
+                                        .records.update_own) ||
+                                    (!user.users_roles.rules.inscriptions
+                                      .records.update_all &&
+                                      user.users_roles.rules.inscriptions
+                                        .records.update_group &&
+                                      userGroupId !== props.item.group_id) ||
+                                    (!user.users_roles.rules.inscriptions
+                                      .records.update_all &&
+                                      !user.users_roles.rules.inscriptions
+                                        .records.update_group &&
+                                      user.users_roles.rules.inscriptions
+                                        .records.update_own &&
+                                      user.id !== props.item.created_by)
+                                  }
                                   onClick={() =>
                                     changeState(
                                       activity.record_product_id,

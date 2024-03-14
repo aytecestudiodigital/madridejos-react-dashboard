@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { t } from "i18next";
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ListPageWithPagination from "../../../components/ListPage/ListPageWithPagination";
+import { AlertContext } from "../../../context/AlertContext";
 import { getEntities } from "../../../server/supabaseQueries";
 import { AddRoleModal } from "../components/componentsRoles/AddRoleModal";
-import { t } from "i18next";
-import { AlertContext } from "../../../context/AlertContext";
 
 export default function RolePage() {
   const navigate = useNavigate();
@@ -30,7 +30,6 @@ export default function RolePage() {
   const [data, setData] = useState<any[]>([]);
 
   const [showAddModal, setShowAddModal] = useState(false);
-
   /**
    * Buscador y ordenación
    */
@@ -52,12 +51,23 @@ export default function RolePage() {
   const [actionAlert] = useState("");
   const { openAlert } = useContext(AlertContext);
   const user = JSON.parse(localStorage.getItem("userLogged")!);
+  const userGroupId = localStorage.getItem("groupSelected")!;
+  let showAll: boolean;
+  let userGroup: string | null;
+  let userCreatedBy: string;
 
   useEffect(() => {
     if (user) {
       if (!user.users_roles.rules.mod_users.roles.access_module) {
         openAlert("No tienes acceso a esta página", "error");
         navigate("/");
+      } else {
+        userCreatedBy = user.id;
+        !user.users_roles.rules.mod_users.roles.read_all &&
+        user.users_roles.rules.mod_users.roles.read_group
+          ? (userGroup = userGroupId)
+          : (userGroup = null);
+        showAll = user.users_roles.rules.mod_users.roles.read_all;
       }
     }
   }, [user]);
@@ -66,6 +76,7 @@ export default function RolePage() {
     setInitRange((currentPage - 1) * pageSize + 1);
     setEndRange(currentPage * pageSize);
     setLoading(true);
+
     if (itemSearch) {
       search(currentPage);
     } else {
@@ -90,15 +101,23 @@ export default function RolePage() {
     size: number,
   ) => {
     setLoading(true);
-    getEntities(entity_table, page, size, orderBy, orderDir, "").then(
-      (result) => {
-        const { totalItems, data } = result;
-        setData(data ? data : []);
-        setTotalItems(totalItems);
-        setTotalPages(Math.ceil(totalItems / pageSize));
-        setLoading(false);
-      },
-    );
+    getEntities(
+      entity_table,
+      page,
+      size,
+      orderBy,
+      orderDir,
+      userCreatedBy,
+      showAll,
+      userGroup,
+      "",
+    ).then((result) => {
+      const { totalItems, data } = result;
+      setData(data ? data : []);
+      setTotalItems(totalItems);
+      setTotalPages(Math.ceil(totalItems / pageSize));
+      setLoading(false);
+    });
     setItemSearch(false);
   };
 
@@ -111,6 +130,9 @@ export default function RolePage() {
       pageSize,
       orderBy,
       orderDir,
+      userCreatedBy,
+      showAll,
+      userGroup,
       searchTerm,
     );
     setData(data ? data : []);
@@ -175,6 +197,7 @@ export default function RolePage() {
         alertMsg={alertMsg}
         action={actionAlert}
         disableAddButton={!user.users_roles.rules.mod_users.roles.create}
+        showCleanFilter={false}
       />
       {showAddModal ? (
         <AddRoleModal

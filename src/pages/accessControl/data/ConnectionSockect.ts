@@ -1,4 +1,4 @@
-import { Socket, io } from "socket.io-client";
+/* import { Socket, io } from "socket.io-client";
 
 export class DeviceSocketConection {
   private static _instance: DeviceSocketConection | null = null;
@@ -31,3 +31,4 @@ export class DeviceSocketConection {
     return this.socket;
   }
 }
+ */

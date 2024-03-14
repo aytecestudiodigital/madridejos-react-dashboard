@@ -48,6 +48,7 @@ export default function CategoryPage() {
   const { errors, isValid } = formState;
 
   const user = JSON.parse(localStorage.getItem("userLogged")!);
+  const userGroupId = localStorage.getItem("groupSelected")!;
 
   useEffect(() => {
     if (user) {
@@ -101,8 +102,7 @@ export default function CategoryPage() {
         content_type: data.content_type,
         order: data.order,
         notifiable: data.notifiable,
-        org_id: "30f3a4ed-0b43-4489-85a8-244ac94019f5",
-        group_id: user.group_id,
+        group_id: userGroupId,
       };
       if (data.tags !== "") {
         tags = data.tags?.split(",");
@@ -227,9 +227,51 @@ export default function CategoryPage() {
                 </h1>
 
                 <div className="flex flex-grow justify-end gap-x-4">
-                  <Button color="primary" disabled={!isValid} type="submit">
-                    <div className="flex items-center gap-x-3">{t("SAVE")}</div>
-                  </Button>
+                  {category.id ? (
+                    <Button
+                      color="primary"
+                      disabled={
+                        !isValid ||
+                        (!user.users_roles.rules.content.categories
+                          .update_all &&
+                          !user.users_roles.rules.content.categories
+                            .update_group &&
+                          !user.users_roles.rules.content.categories
+                            .update_own) ||
+                        (!user.users_roles.rules.content.categories
+                          .update_all &&
+                          user.users_roles.rules.content.categories
+                            .update_group &&
+                          userGroupId !== category.group_id) ||
+                        (!user.users_roles.rules.content.categories
+                          .update_all &&
+                          !user.users_roles.rules.content.categories
+                            .update_group &&
+                          user.users_roles.rules.content.categories
+                            .update_own &&
+                          user.id !== category.created_by)
+                      }
+                      type="submit"
+                    >
+                      <div className="flex items-center gap-x-3">
+                        {t("SAVE")}
+                      </div>
+                    </Button>
+                  ) : (
+                    <Button
+                      color="primary"
+                      disabled={
+                        !isValid ||
+                        !user.users_roles.rules.content.categories.create
+                      }
+                      type="submit"
+                    >
+                      <div className="flex items-center gap-x-3">
+                        {t("SAVE")}
+                      </div>
+                    </Button>
+                  )}
+
                   {category.id && (
                     <DeleteCategoryModal
                       category={category}
@@ -237,6 +279,26 @@ export default function CategoryPage() {
                         navigate("/content/categories", {
                           state: { delete: t("DELETE_CATEGORY_SUCCESS") },
                         })
+                      }
+                      disableButton={
+                        (!user.users_roles.rules.content.categories
+                          .delete_all &&
+                          !user.users_roles.rules.content.categories
+                            .delete_group &&
+                          !user.users_roles.rules.content.categories
+                            .delete_own) ||
+                        (!user.users_roles.rules.content.categories
+                          .delete_all &&
+                          user.users_roles.rules.content.categories
+                            .delete_group &&
+                          userGroupId !== category.group_id) ||
+                        (!user.users_roles.rules.content.categories
+                          .delete_all &&
+                          !user.users_roles.rules.content.categories
+                            .delete_group &&
+                          user.users_roles.rules.content.categories
+                            .delete_own &&
+                          user.id !== category.created_by)
                       }
                     />
                   )}
@@ -302,7 +364,7 @@ export default function CategoryPage() {
                     id="state"
                     required
                   >
-                    <option value="" disabled>
+                    <option hidden value="" disabled>
                       {t("SELECT")}
                     </option>
                     <option value={"PUBLISH"}>{t("PUBLISH")}</option>
@@ -343,7 +405,7 @@ export default function CategoryPage() {
                     id="content_type"
                     required
                   >
-                    <option value="" disabled>
+                    <option hidden value="" disabled>
                       {t("SELECT")}
                     </option>
                     <option value={"ARTICLES"}>{t("ARTICLES")}</option>

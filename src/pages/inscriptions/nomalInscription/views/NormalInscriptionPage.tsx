@@ -1,4 +1,4 @@
-/* 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Dropdown, Pagination, Select, Table } from "flowbite-react";
 import { t } from "i18next";
 import { useContext, useEffect, useState } from "react";
@@ -10,15 +10,16 @@ import {
 import { useNavigate } from "react-router-dom";
 import { HeaderListPageComponent } from "../../../../components/ListPage/HeaderListPage";
 import { TablePlaceholder } from "../../../../components/TablePlaceholder";
-import { getInscriptions } from "../data/NormalInscriptioProvider";
-import { RootState } from "../../../../store/store";
-import { useSelector } from "react-redux";
 import { AlertContext } from "../../../../context/AlertContext";
+import { getEntities } from "../../../../server/supabaseQueries";
 
 export default function NormalInscriptionPage() {
   const navigate = useNavigate();
+  /**
+   * Configuración de la página
+   */
+  const entity_table = import.meta.env.VITE_TABLE_INSCRIPTIONS;
   const columns = ["title", "enable", "created_at"];
-  const columnsDropdown = ["enable"];
   const page_title = "NORMAL_INSCRIPTIONS_LIST";
   const breadcrumb = [
     {
@@ -26,10 +27,15 @@ export default function NormalInscriptionPage() {
     },
   ];
 
+  /**
+   * Definición de datos
+   */
   const [loading, setLoading] = useState<boolean>(false);
   const [data, setData] = useState<any[]>([]);
 
-
+  /**
+   * Buscador y ordenación
+   */
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [itemSearch, setItemSearch] = useState(false);
 
@@ -47,14 +53,26 @@ export default function NormalInscriptionPage() {
 
   const [filteredSearchItems, setFilteredSearchItems] = useState<string[]>([]);
 
-  const user = useSelector((state: RootState) => state.auth.user);
+  const user = JSON.parse(localStorage.getItem("userLogged")!);
+  const userGroupId = localStorage.getItem("groupSelected")!;
   const { openAlert } = useContext(AlertContext);
+
+  let showAll: boolean;
+  let userGroup: string | null;
+  let userCreatedBy: string;
 
   useEffect(() => {
     if (user) {
       if (!user.users_roles.rules.inscriptions.inscriptions.access_module) {
         openAlert("No tienes acceso a esta página", "error");
         navigate("/");
+      } else {
+        userCreatedBy = user.id;
+        !user.users_roles.rules.inscriptions.inscriptions.read_all &&
+        user.users_roles.rules.inscriptions.inscriptions.read_group
+          ? (userGroup = userGroupId)
+          : (userGroup = null);
+        showAll = user.users_roles.rules.inscriptions.inscriptions.read_all;
       }
     }
   }, [user]);
@@ -67,7 +85,7 @@ export default function NormalInscriptionPage() {
       search(currentPage);
     } else {
       const fetchData = async () => {
-        getDataFromServer(orderBy, orderDir, currentPage, pageSize);
+        getDataFromServer(orderBy, orderDir);
       };
 
       fetchData();
@@ -87,22 +105,25 @@ export default function NormalInscriptionPage() {
     setPageSize(count);
   };
 
-  const getDataFromServer = (
-    orderBy: string,
-    orderDir: string,
-    page: number,
-    size: number,
-  ) => {
+  const getDataFromServer = (orderBy: string, orderDir: string) => {
     setLoading(true);
-    getInscriptions(page, size, orderBy, orderDir, "", undefined).then(
-      async (result) => {
-        const { totalItems, data } = result;
-        setData(data ? data : []);
-        setTotalItems(totalItems);
-        setTotalPages(Math.ceil(totalItems / pageSize));
-        setLoading(false);
-      },
-    );
+    getEntities(
+      entity_table,
+      currentPage,
+      pageSize,
+      orderBy,
+      orderDir,
+      userCreatedBy,
+      showAll,
+      userGroup,
+      "",
+    ).then(async (result) => {
+      const { totalItems, data } = result;
+      setData(data ? data : []);
+      setTotalItems(totalItems);
+      setTotalPages(Math.ceil(totalItems / pageSize));
+      setLoading(false);
+    });
     setItemSearch(false);
   };
 
@@ -110,13 +131,16 @@ export default function NormalInscriptionPage() {
     setInitRange((page - 1) * pageSize + 1);
     setEndRange(page * pageSize);
     setFilteredSearchItems(filteredSearchItems ? filteredSearchItems : []);
-    const { totalItems, data } = await getInscriptions(
+    const { totalItems, data } = await getEntities(
+      entity_table,
       currentPage,
       pageSize,
       orderBy,
       orderDir,
+      userCreatedBy,
+      showAll,
+      userGroup,
       searchTerm,
-      filteredSearchItems,
     );
 
     setData(data ? data : []);
@@ -169,13 +193,11 @@ export default function NormalInscriptionPage() {
             onSearch={onSearch}
             onClearSearch={onClearSearch}
             onAddButton={newItem}
-            columnsDropdown={columnsDropdown}
-            dataDropdown={["Habilitado", "Deshabilitado"]}
-            columnsSecondDropdown={[]}
-            secondDataDropdown={[]}
-            columnsThirdDropdown={[]}
-            thirdDataDropdown={[]}
-            dataToExport={[]}
+            disableAddButton={
+              !user.users_roles.rules.inscriptions.inscriptions.create
+            }
+            showOrder={true}
+            showCleanFilter={false}
           />
         </div>
       </div>
@@ -195,6 +217,9 @@ export default function NormalInscriptionPage() {
                         {t(`${column.toUpperCase()}`)}
                       </Table.HeadCell>
                     ))}
+                    {/* <Table.HeadCell>
+                      {t("INSCRIPTION_RECORDS")}
+                    </Table.HeadCell> */}
                     <Table.HeadCell>Acciones</Table.HeadCell>
                   </Table.Head>
                   <Table.Body className="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-800">
@@ -310,4 +335,3 @@ export default function NormalInscriptionPage() {
     </>
   );
 }
- */

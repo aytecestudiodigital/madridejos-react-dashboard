@@ -29,6 +29,9 @@ export const TabItemDetails = (props: ItemTabProps) => {
   const [switchNotifiable, setSwitchNotifiable] = useState<boolean>(false);
   const [installationId, setInstallationId] = useState("");
 
+  const user = JSON.parse(localStorage.getItem("userLogged")!);
+  const userGroupId = localStorage.getItem("groupSelected");
+
   useEffect(() => {
     if (props.item) {
       setItemData(props.item);
@@ -87,13 +90,14 @@ export const TabItemDetails = (props: ItemTabProps) => {
 
   return (
     <div className="flex flex-col gap-4 mb-5">
+      <h3 className="text-xl font-bold dark:text-white pt-2">Detalles</h3>
       <div>
         <Label htmlFor="name" color={errors.title && "failure"}>
           {t("TITLE")} *
         </Label>
         <div className="mt-1">
           <TextInput
-            placeholder={t("CONTENT_TITLE")}
+            placeholder={t("bookings_TITLE")}
             {...register("title", {
               required: t("FORM_ERROR_MSG_REQUIRED"),
             })}
@@ -212,6 +216,20 @@ export const TabItemDetails = (props: ItemTabProps) => {
           toastSuccessMsg={props.deleteOKLabel}
           toastErrorMsg={props.deleteKOLabel}
           title={props.deleteButtonLabel}
+          disableButton={
+            (!user.users_roles.rules.bookings.installation_items.delete_all &&
+              !user.users_roles.rules.bookings.installation_items
+                .delete_group &&
+              !user.users_roles.rules.bookings.installation_items.delete_own) ||
+            (!user.users_roles.rules.bookings.installation_items.delete_all &&
+              user.users_roles.rules.bookings.installation_items.delete_group &&
+              userGroupId !== props.item!.group_id) ||
+            (!user.users_roles.rules.bookings.installation_items.delete_all &&
+              !user.users_roles.rules.bookings.installation_items
+                .delete_group &&
+              user.users_roles.rules.bookings.installation_items.delete_own &&
+              user.id !== props.item!.created_by)
+          }
         />
         <ToggleSwitch
           checked={switchNotifiable}

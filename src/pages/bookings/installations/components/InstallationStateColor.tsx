@@ -26,6 +26,8 @@ export const InstallationStateColor = ({
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [openMenu, setOpenMenu] = useState<boolean>(false);
 
+  const user = JSON.parse(localStorage.getItem("userLogged")!);
+
   const onChangeColor = (color: ColorResult) => {
     setcurrentColor(color.hex);
   };
@@ -76,6 +78,9 @@ export const InstallationStateColor = ({
             onlyIcon={true}
             toastSuccessMsg={t("DELETE_STATE_OK")}
             toastErrorMsg={t("DELETE_STATE_KO")}
+            disableButton={
+              !user.users_roles.rules.bookings.installation_state.delete
+            }
           />
         </div>
       </div>
@@ -115,7 +120,14 @@ export const InstallationStateColor = ({
           </div>
         </Modal.Body>
         <Modal.Footer className="flex flex-row justify-end">
-          <Button color="primary" onClick={saveState}>
+          <Button
+            size={"sm"}
+            disabled={
+              !user.users_roles.rules.bookings.installation_state.update
+            }
+            color="primary"
+            onClick={saveState}
+          >
             {t("SAVE")}
           </Button>
         </Modal.Footer>

@@ -14,6 +14,7 @@ const installationsTableName = import.meta.env
 const statesTableName = import.meta.env
   .VITE_TABLE_BOOKINGS_INSTALLATIONS_STATES;
 const itemsTableName = import.meta.env.VITE_TABLE_BOOKINGS_ITEMS;
+const userGroupId = localStorage.getItem("groupSelected")!;
 
 export const updateOrCreateInstallation = async (
   installation: InstallationModel,
@@ -48,12 +49,14 @@ export const updateOrCreateInstallation = async (
         );
 
         if (matchingState) {
+          state.group_id = userGroupId;
           await updateRow(state, statesTableName);
         } else {
           await deleteRow(state.id, statesTableName);
         }
       } else {
         state.installation_id = result.id;
+        state.group_id = userGroupId;
         await insertRow(state, statesTableName);
       }
     }

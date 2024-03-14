@@ -1,38 +1,24 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Calendar, View, momentLocalizer } from "react-big-calendar";
-import moment from "moment";
-import {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useState,
-} from "react";
-import { BookingSessionModal } from "../pages/bookings/items/components/BookingSessionModal";
-import { ItemSessionModal } from "../pages/bookings/items/components/ItemSessionModal";
-import { BookingsView } from "./CalendarCustomView";
-import { getOneRow, updateRow } from "../server/supabaseQueries";
-import { supabase } from "../server/supabase";
-import "moment/locale/es";
-import BookingDetailsModal from "./BookingDetailsModal";
-import {
-  LuCalendarCheck,
-  LuPlus,
-  LuSettings,
-  LuTrash2,
-  LuX,
-} from "react-icons/lu";
-import { DeleteSessionModal } from "../pages/bookings/items/components/DeleteSessionModal";
-import { ConfirmBookingModal } from "../pages/bookings/items/components/ConfirmBookingModal";
+import { Label, Spinner } from "flowbite-react";
 import { t } from "i18next";
-import { useContext } from "react";
+import moment from "moment";
+import "moment/locale/es";
+import { useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { Calendar, View, momentLocalizer } from "react-big-calendar";
+import toast from "react-hot-toast";
+import { HiTrash } from "react-icons/hi";
+import { LuCalendarCheck, LuPlus, LuSettings, LuX } from "react-icons/lu";
 import { AlertContext } from "../context/AlertContext";
+import { BookingSessionModal } from "../pages/bookings/items/components/BookingSessionModal";
+import { ConfirmBookingModal } from "../pages/bookings/items/components/ConfirmBookingModal";
+import { DeleteSessionModal } from "../pages/bookings/items/components/DeleteSessionModal";
+import { ItemSessionModal } from "../pages/bookings/items/components/ItemSessionModal";
+import { supabase } from "../server/supabase";
+import { getOneRow, updateRow } from "../server/supabaseQueries";
+import BookingDetailsModal from "./BookingDetailsModal";
+import { BookingsView } from "./CalendarCustomView";
 import SelectCourtFilter from "./SelectCourtFilter";
 import SelectCourtState from "./SelectCourtState";
-import toast from "react-hot-toast";
-import { RootState } from "../store/store";
-import { useSelector } from "react-redux";
-import { Label, Spinner } from "flowbite-react";
 
 interface BookingsCalendarProps {
   defaultView: View;
@@ -62,23 +48,7 @@ export default function BookingsCalendar({
   const [itemSelected, setItemSelected] = useState<any>(item[0]);
   const [bookingDetails, setBookingDetails] = useState<any>();
   const [selectedMethod, setSelectedMethod] = useState<any>("");
-  const user = useSelector((state: RootState) => state.auth.user);
-  const [calendarHeight, setCalendarHeight] = useState(550);
-
-  useLayoutEffect(() => {
-    function updateSize() {
-      // Verifica el ancho de la pantalla y ajusta la altura del calendario en consecuencia
-      if (window.innerWidth < 1600) {
-        // Si es una pantalla pequeña
-        setCalendarHeight(550); // Asigna una altura más pequeña
-      } else {
-        setCalendarHeight(900); // Asigna la altura normal
-      }
-    }
-    window.addEventListener("resize", updateSize); // Agrega un listener para el evento de cambio de tamaño
-    updateSize(); // Llama a la función para ajustar el tamaño inicialmente
-    return () => window.removeEventListener("resize", updateSize); // Elimina el listener cuando el componente se desmonta
-  }, []); // Se ejecuta solo una vez al montar el componente
+  const user = JSON.parse(localStorage.getItem("userLogged")!);
 
   moment.locale("es", {
     week: {
@@ -94,6 +64,7 @@ export default function BookingsCalendar({
   const [selectedCourts, setSelectedCourts] = useState<any>([]);
   const [selectedStates, setSelectedStates] = useState<any>([]);
   const [itemsDefault, setItemsDefault] = useState<any[]>([]);
+
   const eventPropGetter = useCallback(
     (event: any) => ({
       className: "",
@@ -188,7 +159,8 @@ export default function BookingsCalendar({
         }),
       ...(!event.isSelected &&
         event.bookings_id === null &&
-        event.state && {
+        event.state &&
+        !event.selected && {
           style: {
             backgroundColor: event.state.color,
             color: "black",
@@ -198,11 +170,21 @@ export default function BookingsCalendar({
     [],
   );
 
+  const { formats }: any = useMemo(
+    () => ({
+      formats: {
+        eventTimeRangeFormat: () => {},
+      },
+    }),
+    [],
+  );
+
   useEffect(() => {
     if (installation && installation !== "") {
       const fetchData = async () => {
         const pre = await getOneRow("id", installation, "bookings_items");
         setItemsDefault([pre]);
+        setItemSelected(pre);
       };
       fetchData();
     }
@@ -282,103 +264,127 @@ export default function BookingsCalendar({
   useEffect(() => {
     BookingsView.item = [];
     const defaultItems = [...itemsDefault];
-    const fetchData = async () => {
-      if (component === "installation_item") {
-        setLoading(true);
-        if (defaultItems[0] && defaultItems.length > 0) {
-          if (defaultItems.length === 1) {
-            const newDates: any[] = [];
-            const arrayData: any[] = [];
-            for await (const i of defaultItems) {
-              const { data } = await supabase
-                .from(tableBookingsSessions)
-                .select(
-                  "*, bookings_states(id, title, color, bookeable), item:bookings_items(title)",
-                )
-                .eq("bookings_item_id", i.id)
-                .is("bookings_id", null);
-              data?.forEach((d) => {
-                arrayData.push(d);
-              });
-            }
-            for await (const i of defaultItems) {
-              const { data } = await supabase
-                .from(tableBookingsSessions)
-                .select(
-                  "*, bookings_states(id, title, color, bookeable), item:bookings_items(title)",
-                )
-                .eq("bookings_item_id", i.id)
-                .not("bookings_id", "is", null);
-              data?.forEach((d) => {
-                arrayData.push(d);
-              });
-            }
-            if (arrayData.length > 0) {
-              const sessions: any[] = formatSessions(arrayData);
-              for await (const date of sessions) {
-                const object = {
-                  start: moment(date.date).toDate(),
-                  end: moment(date.date).toDate(),
-                  bookings_item_id: date.bookings_item_id,
-                  title: date.item.title,
-                  id: date.id,
-                  isSelected: false,
-                  bookings_id: date.bookings_id,
-                  state: date.bookings_states,
-                  duration: date.duration,
-                  selected: date.selected,
-                };
-                newDates.push(object);
+    if (user.users_roles.rules.bookings.bookings.read) {
+      const fetchData = async () => {
+        if (component === "installation_item") {
+          setLoading(true);
+          if (defaultItems[0] && defaultItems.length > 0) {
+            if (defaultItems.length === 1) {
+              const newDates: any[] = [];
+              const arrayData: any[] = [];
+              for await (const i of defaultItems) {
+                const { data } = await supabase
+                  .from(tableBookingsSessions)
+                  .select(
+                    "*, bookings_states(id, title, color, bookeable), item:bookings_items(title)",
+                  )
+                  .eq("bookings_item_id", i.id)
+                  .is("bookings_id", null);
+                data?.forEach((d) => {
+                  arrayData.push(d);
+                });
               }
-              setCalendarDates(newDates);
-              setItemSelected(item[0]);
-              setLoading(false);
-            } else {
-              setCalendarDates([]);
-              setLoading(false);
+              for await (const i of defaultItems) {
+                const { data } = await supabase
+                  .from(tableBookingsSessions)
+                  .select(
+                    "*, bookings_states(id, title, color, bookeable), item:bookings_items(title)",
+                  )
+                  .eq("bookings_item_id", i.id)
+                  .not("bookings_id", "is", null);
+                data?.forEach((d) => {
+                  arrayData.push(d);
+                });
+              }
+              if (arrayData.length > 0) {
+                const sessions: any[] = formatSessions(arrayData);
+                for await (const date of sessions) {
+                  let dateEnd;
+                  let dateFormat;
+                  if (date.duration > 60) {
+                    dateEnd = moment(date.date)
+                      .toDate()
+                      .setHours(
+                        moment(date.date).toDate().getHours() +
+                          Math.trunc(date.duration / 60),
+                      );
+                    dateFormat = moment(dateEnd)
+                      .toDate()
+                      .setMinutes(date.duration % 60);
+                  } else if (date.duration === 60) {
+                    dateFormat = moment(date.date)
+                      .toDate()
+                      .setHours(moment(date.date).toDate().getHours() + 1);
+                  } else {
+                    const diffDuration = 60 - date.duration;
+                    dateFormat = moment(date.date)
+                      .toDate()
+                      .setMinutes(diffDuration);
+                  }
+                  const object = {
+                    start: moment(date.date).toDate(),
+                    end: dateFormat,
+                    bookings_item_id: date.bookings_item_id,
+                    title: date.item.title,
+                    id: date.id,
+                    isSelected: false,
+                    bookings_id: date.bookings_id,
+                    state: date.bookings_states,
+                    duration: date.duration,
+                    selected: date.selected,
+                  };
+                  newDates.push(object);
+                }
+                setCalendarDates(newDates);
+                setItemSelected(item[0]);
+                setLoading(false);
+              } else {
+                setCalendarDates([]);
+                setLoading(false);
+              }
             }
+          } else {
+            setCalendarDates([]);
+            setLoading(false);
           }
-        } else {
-          setCalendarDates([]);
-          setLoading(false);
-        }
-      } else if (component === "bookings") {
-        setLoading(true);
-        const { data } = await supabase
-          .from(tableBookings)
-          .select(
-            `*,users!bookings_user_id_fkey(name, surname),bookings_items(id,title) `,
-            { count: "exact" },
-          );
-        const sessions = formatSessions(data);
-        const newDates: any[] = [];
-        if (sessions) {
-          for await (const date of sessions) {
-            const object = {
-              start: moment(date.date).toDate(),
-              end: moment(date.date).toDate(),
-              title: date.users.name,
-              id: date.id,
-              isSelected: false,
-              bookings_id: null,
-              type: "booking",
-              status: date.state,
-            };
-            newDates.push(object);
+        } else if (component === "bookings") {
+          setLoading(true);
+          const { data } = await supabase
+            .from(tableBookings)
+            .select(
+              `*,users!bookings_user_id_fkey(name, surname),bookings_items(id,title) `,
+              { count: "exact" },
+            );
+          const sessions = formatSessions(data);
+          const newDates: any[] = [];
+          if (sessions) {
+            for await (const date of sessions) {
+              const object = {
+                start: moment(date.date).toDate(),
+                end: moment(date.date).toDate(),
+                title: date.users.name,
+                id: date.id,
+                isSelected: false,
+                bookings_id: null,
+                type: "booking",
+                status: date.state,
+              };
+              newDates.push(object);
+            }
+            setCalendarDates(newDates);
+            setLoading(false);
+          } else {
+            setCalendarDates([]);
+            setLoading(false);
           }
-          setCalendarDates(newDates);
-          setLoading(false);
-        } else {
-          setCalendarDates([]);
-          setLoading(false);
         }
+      };
+      fetchData();
+      if (itemsDefault.length > 0) {
+        BookingsView.item = item;
+      } else {
+        BookingsView.item = [];
       }
-    };
-    fetchData();
-    if (itemsDefault.length > 0) {
-      BookingsView.item = item;
-    } else {
-      BookingsView.item = [];
     }
   }, [itemsDefault]);
 
@@ -413,232 +419,280 @@ export default function BookingsCalendar({
   }; */
 
   const handleSelectEvent = async (e: any) => {
-    if (item[0]) {
-      if (e.bookings_id === null && e.state === null) {
-        const newArray = [...calendarDates];
-        const newArraySelected = [...datesSelected];
-        newArray[newArray.findIndex((event) => event.id === e.id)].isSelected =
-          !newArray[newArray.findIndex((event) => event.id === e.id)]
-            .isSelected;
-        setCalendarDates(newArray);
-        if (datesSelected.length > 0) {
-          const x = moment(newArraySelected[newArraySelected.length - 1].start);
-          const y = moment(e.start);
-          const diffDuration = moment.duration(y.diff(x)).as("minutes");
-          if (e.selected) {
-            newArray[
-              newArray.findIndex((event) => event.id === e.id)
-            ].isSelected =
-              !newArray[newArray.findIndex((event) => event.id === e.id)]
-                .isSelected;
-            toast.error("Esta sesión ya está escogida por otro usuario");
-          } else {
-            if (diffDuration > e.duration || -diffDuration > e.duration) {
+    if (user.users_roles.rules.bookings.bookings.read) {
+      if (item[0]) {
+        if (e.bookings_id === null && e.state === null) {
+          const newArray = [...calendarDates];
+          const newArraySelected = [...datesSelected];
+          newArray[
+            newArray.findIndex((event) => event.id === e.id)
+          ].isSelected =
+            !newArray[newArray.findIndex((event) => event.id === e.id)]
+              .isSelected;
+          setCalendarDates(newArray);
+          if (datesSelected.length > 0) {
+            const x = moment(
+              newArraySelected[newArraySelected.length - 1].start,
+            );
+            const y = moment(e.start);
+            const diffDuration = moment.duration(y.diff(x)).as("minutes");
+            if (e.selected) {
               newArray[
                 newArray.findIndex((event) => event.id === e.id)
               ].isSelected =
                 !newArray[newArray.findIndex((event) => event.id === e.id)]
                   .isSelected;
-              //openAlert('Sólo puedes seleccionar sesiones consecutivas', 'error')
-              toast.error("Solo puedes seleccionar sesiones consecutivas");
+              toast.error("Esta sesión ya está escogida por otro usuario");
             } else {
-              if (
-                newArraySelected[0] &&
-                newArraySelected[0].bookings_item_id !== e.bookings_item_id
-              ) {
+              if (diffDuration > e.duration || -diffDuration > e.duration) {
                 newArray[
                   newArray.findIndex((event) => event.id === e.id)
                 ].isSelected =
                   !newArray[newArray.findIndex((event) => event.id === e.id)]
                     .isSelected;
-                openAlert(
-                  "No se pueden seleccionar sesiones de 2 pistas diferentes",
-                  "error",
-                );
+                //openAlert('Sólo puedes seleccionar sesiones consecutivas', 'error')
+                toast.error("Solo puedes seleccionar sesiones consecutivas");
               } else {
                 if (
-                  newArraySelected[
-                    newArraySelected.findIndex((event) => event.id === e.id)
-                  ]
+                  newArraySelected[0] &&
+                  newArraySelected[0].bookings_item_id !== e.bookings_item_id
                 ) {
-                  newArraySelected.splice(
-                    newArraySelected.indexOf(
-                      newArraySelected.findIndex((event) => event.id === e.id),
-                    ),
-                    1,
+                  newArray[
+                    newArray.findIndex((event) => event.id === e.id)
+                  ].isSelected =
+                    !newArray[newArray.findIndex((event) => event.id === e.id)]
+                      .isSelected;
+                  openAlert(
+                    "No se pueden seleccionar sesiones de 2 pistas diferentes",
+                    "error",
                   );
-                  setDatesSelected(newArraySelected);
-                  const sessionsSelected = await getOneRow(
-                    "id",
-                    e.id,
-                    "bookings_sessions",
-                  );
-                  sessionsSelected.selected = false;
-                  sessionsSelected.updated_by = user?.id;
-                  await updateRow(sessionsSelected, "bookings_sessions");
                 } else {
-                  newArraySelected.push(
-                    newArray[newArray.findIndex((event) => event.id === e.id)],
-                  );
-                  setDatesSelected(newArraySelected);
-                  const sessionsSelected = await getOneRow(
-                    "id",
-                    e.id,
-                    "bookings_sessions",
-                  );
-                  sessionsSelected.selected = true;
-                  sessionsSelected.updated_by = user?.id;
-                  await updateRow(sessionsSelected, "bookings_sessions");
+                  if (
+                    newArraySelected[
+                      newArraySelected.findIndex((event) => event.id === e.id)
+                    ]
+                  ) {
+                    newArraySelected.splice(
+                      newArraySelected.indexOf(
+                        newArraySelected.findIndex(
+                          (event) => event.id === e.id,
+                        ),
+                      ),
+                      1,
+                    );
+                    setDatesSelected(newArraySelected);
+                    const sessionsSelected = await getOneRow(
+                      "id",
+                      e.id,
+                      "bookings_sessions",
+                    );
+                    sessionsSelected.selected = false;
+                    sessionsSelected.updated_by = user?.id;
+                    await updateRow(sessionsSelected, "bookings_sessions");
+                  } else {
+                    newArraySelected.push(
+                      newArray[
+                        newArray.findIndex((event) => event.id === e.id)
+                      ],
+                    );
+                    setDatesSelected(newArraySelected);
+                    const sessionsSelected = await getOneRow(
+                      "id",
+                      e.id,
+                      "bookings_sessions",
+                    );
+                    sessionsSelected.selected = true;
+                    sessionsSelected.updated_by = user?.id;
+                    await updateRow(sessionsSelected, "bookings_sessions");
+                  }
                 }
               }
             }
-          }
-        } else {
-          if (!e.selected) {
-            newArraySelected.push(
-              newArray[newArray.findIndex((event) => event.id === e.id)],
-            );
-            setDatesSelected(newArraySelected);
-            const sessionsSelected = await getOneRow(
-              "id",
-              e.id,
-              "bookings_sessions",
-            );
-            sessionsSelected.selected = true;
-            sessionsSelected.updated_by = user?.id;
-            await updateRow(sessionsSelected, "bookings_sessions");
           } else {
-            newArray[
-              newArray.findIndex((event) => event.id === e.id)
-            ].isSelected =
-              !newArray[newArray.findIndex((event) => event.id === e.id)]
-                .isSelected;
-            setDatesSelected(newArraySelected);
-            toast.error("Esta sesión ya está escogida por otro usuario");
-          }
-        }
-      } else if (e.bookings_id === null && e.state !== null) {
-        const newArray = [...calendarDates];
-        const newArraySelected = [...datesSelected];
-        newArray[newArray.findIndex((event) => event.id === e.id)].isSelected =
-          !newArray[newArray.findIndex((event) => event.id === e.id)]
-            .isSelected;
-        setCalendarDates(newArray);
-        if (datesSelected.length > 0) {
-          const x = moment(newArraySelected[newArraySelected.length - 1].start);
-          const y = moment(e.start);
-          const diffDuration = moment.duration(y.diff(x)).as("minutes");
-          if (e.selected) {
-            newArray[
-              newArray.findIndex((event) => event.id === e.id)
-            ].isSelected =
-              !newArray[newArray.findIndex((event) => event.id === e.id)]
-                .isSelected;
-            toast.error("Esta sesión ya está escogida por otro usuario");
-          } else {
-            if (diffDuration > 30) {
+            if (!e.selected) {
+              newArraySelected.push(
+                newArray[newArray.findIndex((event) => event.id === e.id)],
+              );
+              setDatesSelected(newArraySelected);
+              const sessionsSelected = await getOneRow(
+                "id",
+                e.id,
+                "bookings_sessions",
+              );
+              sessionsSelected.selected = true;
+              sessionsSelected.updated_by = user?.id;
+              await updateRow(sessionsSelected, "bookings_sessions");
+            } else {
               newArray[
                 newArray.findIndex((event) => event.id === e.id)
               ].isSelected =
                 !newArray[newArray.findIndex((event) => event.id === e.id)]
                   .isSelected;
-              //openAlert('Sólo puedes seleccionar sesiones consecutivas', 'error')
-              toast.error("Solo puedes seleccionar sesiones consecutivas");
+              setDatesSelected(newArraySelected);
+              openAlert(
+                "Esta sesión ya está escogida por otro usuario",
+                "error",
+              );
+              //toast.error("Esta sesión ya está escogida por otro usuario");
+            }
+          }
+        } else if (e.bookings_id === null && e.state !== null) {
+          const newArray = [...calendarDates];
+          const newArraySelected = [...datesSelected];
+          newArray[
+            newArray.findIndex((event) => event.id === e.id)
+          ].isSelected =
+            !newArray[newArray.findIndex((event) => event.id === e.id)]
+              .isSelected;
+          setCalendarDates(newArray);
+          if (datesSelected.length > 0) {
+            const x = moment(
+              newArraySelected[newArraySelected.length - 1].start,
+            );
+            const y = moment(e.start);
+            const diffDuration = moment.duration(y.diff(x)).as("minutes");
+            if (e.selected) {
+              newArray[
+                newArray.findIndex((event) => event.id === e.id)
+              ].isSelected =
+                !newArray[newArray.findIndex((event) => event.id === e.id)]
+                  .isSelected;
+              //toast.error("Esta sesión ya está escogida por otro usuario");
+              openAlert(
+                "Esta sesión ya está escogida por otro usuario",
+                "error",
+              );
             } else {
-              if (
-                newArraySelected[0] &&
-                newArraySelected[0].bookings_item_id !== e.bookings_item_id
-              ) {
+              if (diffDuration > e.duration || -diffDuration > e.duration) {
                 newArray[
                   newArray.findIndex((event) => event.id === e.id)
                 ].isSelected =
                   !newArray[newArray.findIndex((event) => event.id === e.id)]
                     .isSelected;
                 openAlert(
-                  "No se pueden seleccionar sesiones de 2 pistas diferentes",
+                  "Sólo puedes seleccionar sesiones consecutivas",
                   "error",
                 );
-              } else if (
-                newArraySelected[0] &&
-                newArraySelected[0].state.id !== e.state.id
-              ) {
-                newArray[
-                  newArray.findIndex((event) => event.id === e.id)
-                ].isSelected =
-                  !newArray[newArray.findIndex((event) => event.id === e.id)]
-                    .isSelected;
-                openAlert(
-                  "No se pueden seleccionar sesiones con 2 estados diferentes",
-                  "error",
-                );
+                //toast.error("Solo puedes seleccionar sesiones consecutivas");
               } else {
                 if (
-                  newArraySelected[
-                    newArraySelected.findIndex((event) => event.id === e.id)
-                  ]
+                  newArraySelected[0] &&
+                  newArraySelected[0].bookings_item_id !== e.bookings_item_id
                 ) {
-                  newArraySelected.splice(
-                    newArraySelected.indexOf(
-                      newArraySelected.findIndex((event) => event.id === e.id),
-                    ),
-                    1,
+                  newArray[
+                    newArray.findIndex((event) => event.id === e.id)
+                  ].isSelected =
+                    !newArray[newArray.findIndex((event) => event.id === e.id)]
+                      .isSelected;
+                  openAlert(
+                    "No se pueden seleccionar sesiones de 2 pistas diferentes",
+                    "error",
                   );
-                  setDatesSelected(newArraySelected);
-                  const sessionsSelected = await getOneRow(
-                    "id",
-                    e.id,
-                    "bookings_sessions",
+                } else if (
+                  newArraySelected[0] &&
+                  newArraySelected[0].state.id !== e.state.id
+                ) {
+                  newArray[
+                    newArray.findIndex((event) => event.id === e.id)
+                  ].isSelected =
+                    !newArray[newArray.findIndex((event) => event.id === e.id)]
+                      .isSelected;
+                  openAlert(
+                    "No se pueden seleccionar sesiones con 2 estados diferentes",
+                    "error",
                   );
-                  sessionsSelected.selected = false;
-                  sessionsSelected.updated_by = user?.id;
-                  await updateRow(sessionsSelected, "bookings_sessions");
                 } else {
-                  newArraySelected.push(
-                    newArray[newArray.findIndex((event) => event.id === e.id)],
-                  );
-                  setDatesSelected(newArraySelected);
-                  const sessionsSelected = await getOneRow(
-                    "id",
-                    e.id,
-                    "bookings_sessions",
-                  );
-                  sessionsSelected.selected = true;
-                  sessionsSelected.updated_by = user?.id;
-                  await updateRow(sessionsSelected, "bookings_sessions");
+                  if (
+                    newArraySelected[
+                      newArraySelected.findIndex((event) => event.id === e.id)
+                    ]
+                  ) {
+                    newArraySelected.splice(
+                      newArraySelected.indexOf(
+                        newArraySelected.findIndex(
+                          (event) => event.id === e.id,
+                        ),
+                      ),
+                      1,
+                    );
+                    setDatesSelected(newArraySelected);
+                    const sessionsSelected = await getOneRow(
+                      "id",
+                      e.id,
+                      "bookings_sessions",
+                    );
+                    sessionsSelected.selected = false;
+                    sessionsSelected.updated_by = user?.id;
+                    await updateRow(sessionsSelected, "bookings_sessions");
+                  } else {
+                    newArraySelected.push(
+                      newArray[
+                        newArray.findIndex((event) => event.id === e.id)
+                      ],
+                    );
+                    setDatesSelected(newArraySelected);
+                    const sessionsSelected = await getOneRow(
+                      "id",
+                      e.id,
+                      "bookings_sessions",
+                    );
+                    sessionsSelected.selected = true;
+                    sessionsSelected.updated_by = user?.id;
+                    await updateRow(sessionsSelected, "bookings_sessions");
+                  }
                 }
               }
             }
+          } else {
+            if (!e.selected) {
+              newArraySelected.push(
+                newArray[newArray.findIndex((event) => event.id === e.id)],
+              );
+              setDatesSelected(newArraySelected);
+              const sessionsSelected = await getOneRow(
+                "id",
+                e.id,
+                "bookings_sessions",
+              );
+              sessionsSelected.selected = true;
+              sessionsSelected.updated_by = user?.id;
+              await updateRow(sessionsSelected, "bookings_sessions");
+            } else {
+              newArray[
+                newArray.findIndex((event) => event.id === e.id)
+              ].isSelected =
+                !newArray[newArray.findIndex((event) => event.id === e.id)]
+                  .isSelected;
+              setDatesSelected(newArraySelected);
+              //toast.error("Esta sesión ya está escogida por otro usuario");
+              openAlert(
+                "Esta sesión ya está escogida por otro usuario",
+                "error",
+              );
+            }
+          }
+          if (newArraySelected[0]) {
+            const bookingIdSelected = newArraySelected[0].bookings_item_id;
+            setItemSelected(
+              item[item.findIndex((e) => e.id === bookingIdSelected)],
+            );
           }
         } else {
-          if (!e.selected) {
-            newArraySelected.push(
-              newArray[newArray.findIndex((event) => event.id === e.id)],
-            );
-            setDatesSelected(newArraySelected);
-            const sessionsSelected = await getOneRow(
-              "id",
-              e.id,
-              "bookings_sessions",
-            );
-            sessionsSelected.selected = true;
-            sessionsSelected.updated_by = user?.id;
-            await updateRow(sessionsSelected, "bookings_sessions");
-          } else {
-            newArray[
-              newArray.findIndex((event) => event.id === e.id)
-            ].isSelected =
-              !newArray[newArray.findIndex((event) => event.id === e.id)]
-                .isSelected;
-            setDatesSelected(newArraySelected);
-            toast.error("Esta sesión ya está escogida por otro usuario");
+          const { data } = await supabase
+            .from(tableBookings)
+            .select(
+              `*,users!bookings_user_id_fkey(name, surname),bookings_items(id,title) `,
+              { count: "exact" },
+            )
+            .eq("id", e.bookings_id);
+          if (data) {
+            data[0].name = data[0].users.name;
+            data[0].surname = data[0].users.surname;
+            data[0].title = data[0].bookings_items.title;
+            setSelectedBooking(data[0]);
+            setIsOpenBooking(true);
           }
         }
-        /* if (newArraySelected[0]) {
-          const bookingIdSelected = newArraySelected[0].bookings_item_id;
-          setItemSelected(
-            item[item.findIndex((e) => e.id === bookingIdSelected)],
-          );
-        } */
       } else {
         const { data } = await supabase
           .from(tableBookings)
@@ -646,7 +700,7 @@ export default function BookingsCalendar({
             `*,users!bookings_user_id_fkey(name, surname),bookings_items(id,title) `,
             { count: "exact" },
           )
-          .eq("id", e.bookings_id);
+          .eq("id", e.id);
         if (data) {
           data[0].name = data[0].users.name;
           data[0].surname = data[0].users.surname;
@@ -654,21 +708,6 @@ export default function BookingsCalendar({
           setSelectedBooking(data[0]);
           setIsOpenBooking(true);
         }
-      }
-    } else {
-      const { data } = await supabase
-        .from(tableBookings)
-        .select(
-          `*,users!bookings_user_id_fkey(name, surname),bookings_items(id,title) `,
-          { count: "exact" },
-        )
-        .eq("id", e.id);
-      if (data) {
-        data[0].name = data[0].users.name;
-        data[0].surname = data[0].users.surname;
-        data[0].title = data[0].bookings_items.title;
-        setSelectedBooking(data[0]);
-        setIsOpenBooking(true);
       }
     }
   };
@@ -784,121 +823,84 @@ export default function BookingsCalendar({
     setLoading(true);
     const defaultStates: any[] = states;
     const formatStates: any[] = [];
-    if (courts.length > 0) {
-      const newDates: any[] = [];
-      const arrayData: any[] = [];
-      if (states.length === 0) {
-        for await (const i of courts) {
-          const { data } = await supabase
-            .from(tableBookingsSessions)
-            .select(
-              "*, bookings_states(id, title, color, bookeable), item:bookings_items(title)",
-            )
-            .eq("bookings_item_id", i)
-            .is("bookings_id", null);
-          data?.forEach((d) => {
-            arrayData.push(d);
-          });
-        }
-
-        for await (const i of courts) {
-          const { data } = await supabase
-            .from(tableBookingsSessions)
-            .select(
-              "*, bookings_states(id, title, color, bookeable), item:bookings_items(title)",
-            )
-            .eq("bookings_item_id", i)
-            .not("bookings_id", "is", null);
-          data?.forEach((d) => {
-            arrayData.push(d);
-          });
-        }
-
-        if (arrayData.length > 0) {
-          const sessions: any[] = formatSessions(arrayData);
-          for await (const date of sessions) {
-            const object = {
-              start: moment(date.date).toDate(),
-              end: moment(date.date).toDate(),
-              title: date.item.title,
-              id: date.id,
-              isSelected: false,
-              bookings_id: date.bookings_id,
-              state: date.bookings_states,
-              bookings_item_id: date.bookings_item_id,
-              duration: date.duration,
-              selected: date.selected,
-            };
-            newDates.push(object);
+    if (user.users_roles.rules.bookings.bookings.read) {
+      if (courts.length > 0) {
+        const newDates: any[] = [];
+        const arrayData: any[] = [];
+        if (states.length === 0) {
+          for await (const i of courts) {
+            const { data } = await supabase
+              .from(tableBookingsSessions)
+              .select(
+                "*, bookings_states(id, title, color, bookeable), item:bookings_items(title)",
+              )
+              .eq("bookings_item_id", i)
+              .is("bookings_id", null);
+            data?.forEach((d) => {
+              arrayData.push(d);
+            });
           }
-          setCalendarDates(newDates);
-          setItemSelected(item[0]);
-          setLoading(false);
-        } else {
-          setCalendarDates([]);
-          setLoading(false);
-        }
-      } else if (states.length === 1 && states.includes("booked")) {
-        for await (const i of courts) {
-          const { data } = await supabase
-            .from(tableBookingsSessions)
-            .select(
-              "*, bookings_states(id, title, color, bookeable), item:bookings_items(title)",
-            )
-            .eq("bookings_item_id", i)
-            .not("bookings_id", "is", null);
-          data?.forEach((d) => {
-            arrayData.push(d);
-          });
-        }
-        if (arrayData.length > 0) {
-          const sessions: any[] = formatSessions(arrayData);
-          for await (const date of sessions) {
-            const object = {
-              start: moment(date.date).toDate(),
-              end: moment(date.date).toDate(),
-              title: date.item.title,
-              id: date.id,
-              isSelected: false,
-              bookings_id: date.bookings_id,
-              state: date.bookings_states,
-              bookings_item_id: date.bookings_item_id,
-              duration: date.duration,
-              selected: date.selected,
-            };
-            newDates.push(object);
+
+          for await (const i of courts) {
+            const { data } = await supabase
+              .from(tableBookingsSessions)
+              .select(
+                "*, bookings_states(id, title, color, bookeable), item:bookings_items(title)",
+              )
+              .eq("bookings_item_id", i)
+              .not("bookings_id", "is", null);
+            data?.forEach((d) => {
+              arrayData.push(d);
+            });
           }
-          setCalendarDates(newDates);
-          setItemSelected(item[0]);
-          setLoading(false);
-        } else {
-          setCalendarDates([]);
-          setLoading(false);
-        }
-      } else {
-        if (defaultStates.includes("booked")) {
-          defaultStates.forEach((state) => {
-            if (state !== "booked") {
-              formatStates.push(state);
-            }
-          });
-          for await (const state of formatStates) {
-            if (state !== undefined) {
-              for await (const i of courts) {
-                const { data } = await supabase
-                  .from(tableBookingsSessions)
-                  .select(
-                    "*, bookings_states(id, title, color, bookeable), item:bookings_items(title)",
-                  )
-                  .eq("bookings_item_id", i)
-                  .eq("bookings_state_id", state)
-                  .is("bookings_id", null);
-                data?.forEach((d) => {
-                  arrayData.push(d);
-                });
+
+          if (arrayData.length > 0) {
+            const sessions: any[] = formatSessions(arrayData);
+            for await (const date of sessions) {
+              let dateEnd;
+              let dateFormat;
+              if (date.duration > 60) {
+                dateEnd = moment(date.date)
+                  .toDate()
+                  .setHours(
+                    moment(date.date).toDate().getHours() +
+                      Math.trunc(date.duration / 60),
+                  );
+                dateFormat = moment(dateEnd)
+                  .toDate()
+                  .setMinutes(date.duration % 60);
+              } else if (date.duration === 60) {
+                dateFormat = moment(date.date)
+                  .toDate()
+                  .setHours(moment(date.date).toDate().getHours() + 1);
+              } else {
+                const diffDuration = 60 - date.duration;
+                dateFormat = moment(date.date)
+                  .toDate()
+                  .setMinutes(diffDuration);
               }
+              const object = {
+                start: moment(date.date).toDate(),
+                end: dateFormat,
+                title: date.item.title,
+                id: date.id,
+                isSelected: false,
+                bookings_id: date.bookings_id,
+                state: date.bookings_states,
+                bookings_item_id: date.bookings_item_id,
+                duration: date.duration,
+                selected: date.selected,
+              };
+              newDates.push(object);
             }
+            setCalendarDates(newDates);
+            setItemSelected(item[0]);
+            setLoading(false);
+          } else {
+            setCalendarDates([]);
+            setLoading(false);
           }
+        } else if (states.length === 1 && states.includes("booked")) {
           for await (const i of courts) {
             const { data } = await supabase
               .from(tableBookingsSessions)
@@ -914,9 +916,31 @@ export default function BookingsCalendar({
           if (arrayData.length > 0) {
             const sessions: any[] = formatSessions(arrayData);
             for await (const date of sessions) {
+              let dateEnd;
+              let dateFormat;
+              if (date.duration > 60) {
+                dateEnd = moment(date.date)
+                  .toDate()
+                  .setHours(
+                    moment(date.date).toDate().getHours() +
+                      Math.trunc(date.duration / 60),
+                  );
+                dateFormat = moment(dateEnd)
+                  .toDate()
+                  .setMinutes(date.duration % 60);
+              } else if (date.duration === 60) {
+                dateFormat = moment(date.date)
+                  .toDate()
+                  .setHours(moment(date.date).toDate().getHours() + 1);
+              } else {
+                const diffDuration = 60 - date.duration;
+                dateFormat = moment(date.date)
+                  .toDate()
+                  .setMinutes(diffDuration);
+              }
               const object = {
                 start: moment(date.date).toDate(),
-                end: moment(date.date).toDate(),
+                end: dateFormat,
                 title: date.item.title,
                 id: date.id,
                 isSelected: false,
@@ -936,58 +960,163 @@ export default function BookingsCalendar({
             setLoading(false);
           }
         } else {
-          for await (const state of selectedStates) {
+          if (defaultStates.includes("booked")) {
+            defaultStates.forEach((state) => {
+              if (state !== "booked") {
+                formatStates.push(state);
+              }
+            });
+            for await (const state of formatStates) {
+              if (state !== undefined) {
+                for await (const i of courts) {
+                  const { data } = await supabase
+                    .from(tableBookingsSessions)
+                    .select(
+                      "*, bookings_states(id, title, color, bookeable), item:bookings_items(title)",
+                    )
+                    .eq("bookings_item_id", i)
+                    .eq("bookings_state_id", state)
+                    .is("bookings_id", null);
+                  data?.forEach((d) => {
+                    arrayData.push(d);
+                  });
+                }
+              }
+            }
             for await (const i of courts) {
               const { data } = await supabase
                 .from(tableBookingsSessions)
                 .select(
-                  "*, bookings_states(id, atitle, color, bookeable), item:bookings_items(title)",
+                  "*, bookings_states(id, title, color, bookeable), item:bookings_items(title)",
                 )
                 .eq("bookings_item_id", i)
-                .eq("bookings_state_id", state)
-                .is("bookings_id", null);
+                .not("bookings_id", "is", null);
               data?.forEach((d) => {
                 arrayData.push(d);
               });
             }
-          }
-
-          if (arrayData.length > 0) {
-            const sessions: any[] = formatSessions(arrayData);
-            for await (const date of sessions) {
-              const object = {
-                start: moment(date.date).toDate(),
-                end: moment(date.date).toDate(),
-                title: date.item.title,
-                id: date.id,
-                isSelected: false,
-                bookings_id: date.bookings_id,
-                state: date.bookings_states,
-                bookings_item_id: date.bookings_item_id,
-                duration: date.duration,
-                selected: date.selected,
-              };
-              newDates.push(object);
+            if (arrayData.length > 0) {
+              const sessions: any[] = formatSessions(arrayData);
+              for await (const date of sessions) {
+                let dateEnd;
+                let dateFormat;
+                if (date.duration > 60) {
+                  dateEnd = moment(date.date)
+                    .toDate()
+                    .setHours(
+                      moment(date.date).toDate().getHours() +
+                        Math.trunc(date.duration / 60),
+                    );
+                  dateFormat = moment(dateEnd)
+                    .toDate()
+                    .setMinutes(date.duration % 60);
+                } else if (date.duration === 60) {
+                  dateFormat = moment(date.date)
+                    .toDate()
+                    .setHours(moment(date.date).toDate().getHours() + 1);
+                } else {
+                  const diffDuration = 60 - date.duration;
+                  dateFormat = moment(date.date)
+                    .toDate()
+                    .setMinutes(diffDuration);
+                }
+                const object = {
+                  start: moment(date.date).toDate(),
+                  end: dateFormat,
+                  title: date.item.title,
+                  id: date.id,
+                  isSelected: false,
+                  bookings_id: date.bookings_id,
+                  state: date.bookings_states,
+                  bookings_item_id: date.bookings_item_id,
+                  duration: date.duration,
+                  selected: date.selected,
+                };
+                newDates.push(object);
+              }
+              setCalendarDates(newDates);
+              setItemSelected(item[0]);
+              setLoading(false);
+            } else {
+              setCalendarDates([]);
+              setLoading(false);
             }
-            setCalendarDates(newDates);
-            setItemSelected(item[0]);
-            setLoading(false);
           } else {
-            setCalendarDates([]);
-            setLoading(false);
+            for await (const state of selectedStates) {
+              for await (const i of courts) {
+                const { data } = await supabase
+                  .from(tableBookingsSessions)
+                  .select(
+                    "*, bookings_states(id, title, color, bookeable), item:bookings_items(title)",
+                  )
+                  .eq("bookings_item_id", i)
+                  .eq("bookings_state_id", state)
+                  .is("bookings_id", null);
+                data?.forEach((d) => {
+                  arrayData.push(d);
+                });
+              }
+            }
+
+            if (arrayData.length > 0) {
+              const sessions: any[] = formatSessions(arrayData);
+              for await (const date of sessions) {
+                let dateEnd;
+                let dateFormat;
+                if (date.duration > 60) {
+                  dateEnd = moment(date.date)
+                    .toDate()
+                    .setHours(
+                      moment(date.date).toDate().getHours() +
+                        Math.trunc(date.duration / 60),
+                    );
+                  dateFormat = moment(dateEnd)
+                    .toDate()
+                    .setMinutes(date.duration % 60);
+                } else if (date.duration === 60) {
+                  dateFormat = moment(date.date)
+                    .toDate()
+                    .setHours(moment(date.date).toDate().getHours() + 1);
+                } else {
+                  const diffDuration = 60 - date.duration;
+                  dateFormat = moment(date.date)
+                    .toDate()
+                    .setMinutes(diffDuration);
+                }
+                const object = {
+                  start: moment(date.date).toDate(),
+                  end: dateFormat,
+                  title: date.item.title,
+                  id: date.id,
+                  isSelected: false,
+                  bookings_id: date.bookings_id,
+                  state: date.bookings_states,
+                  bookings_item_id: date.bookings_item_id,
+                  duration: date.duration,
+                  selected: date.selected,
+                };
+                newDates.push(object);
+              }
+              setCalendarDates(newDates);
+              setItemSelected(item[0]);
+              setLoading(false);
+            } else {
+              setCalendarDates([]);
+              setLoading(false);
+            }
           }
         }
+        setLoading(false);
+      } else {
+        setCalendarDates([]);
+        setLoading(false);
       }
-      setLoading(false);
-    } else {
-      setCalendarDates([]);
-      setLoading(false);
     }
   };
 
   return (
     <>
-      <div>
+      <div className="mr-4 overflow-hidden">
         {item[0] && item !== null ? (
           <>
             {item.length > 1 ? (
@@ -1015,33 +1144,39 @@ export default function BookingsCalendar({
               <div className="flex gap-8 mb-2">
                 {datesSelected.length > 0 ? (
                   <>
-                    <div className="flex">
-                      <LuSettings className="mt-1.5 mr-2 text-orange-500" />
-                      <a
-                        className="text-orange-500 font-bold cursor-pointer"
-                        onClick={() => openModalEdit("edit")}
-                      >
-                        {t("MODIFY_BTN")}
-                      </a>
-                    </div>
-                    <div className="flex">
-                      <LuTrash2 className="mt-1.5 mr-2 text-red-500 font-bold" />
-                      <a
-                        className="text-red-500 font-bold cursor-pointer"
-                        onClick={openModalDelete}
-                      >
-                        {t("DELETE_BTN")}
-                      </a>
-                    </div>
-                    <div className="flex">
-                      <LuCalendarCheck className="mt-1.5 mr-2 text-pink-500 font-bold" />
-                      <a
-                        className="text-pink-500 font-bold cursor-pointer"
-                        onClick={openModal}
-                      >
-                        {t("BOOK")}
-                      </a>
-                    </div>
+                    {user.users_roles.rules.bookings.bookings.update ? (
+                      <div className="flex">
+                        <LuSettings className="mt-1.5 mr-2 text-orange-500" />
+                        <a
+                          className="text-orange-500 font-bold cursor-pointer"
+                          onClick={() => openModalEdit("edit")}
+                        >
+                          {t("MODIFY_BTN")}
+                        </a>
+                      </div>
+                    ) : null}
+                    {user.users_roles.rules.bookings.bookings.delete ? (
+                      <div className="flex">
+                        <HiTrash className="mt-1.5 mr-2 text-red-500 font-bold" />
+                        <a
+                          className="text-red-500 font-bold cursor-pointer"
+                          onClick={openModalDelete}
+                        >
+                          {t("DELETE_BTN")}
+                        </a>
+                      </div>
+                    ) : null}
+                    {user.users_roles.rules.bookings.bookings.create ? (
+                      <div className="flex">
+                        <LuCalendarCheck className="mt-1.5 mr-2 text-pink-500 font-bold" />
+                        <a
+                          className="text-pink-500 font-bold cursor-pointer"
+                          onClick={openModal}
+                        >
+                          {t("BOOK")}
+                        </a>
+                      </div>
+                    ) : null}
                     <div className="flex">
                       <LuX className="mt-1.5 mr-2 font-bold" />
                       <a
@@ -1069,18 +1204,21 @@ export default function BookingsCalendar({
           </>
         ) : null}
         {!loading ? (
-          <Calendar
-            localizer={localizer}
-            events={calendarDates}
-            startAccessor="start"
-            endAccessor="end"
-            defaultView={defaultView}
-            onSelectEvent={(e) => handleSelectEvent(e)}
-            eventPropGetter={eventPropGetter}
-            style={{ height: calendarHeight }}
-            views={views}
-            messages={messages}
-          />
+          <div className="h-full">
+            <Calendar
+              localizer={localizer}
+              events={calendarDates}
+              startAccessor="start"
+              endAccessor="end"
+              defaultView={defaultView}
+              onSelectEvent={(e) => handleSelectEvent(e)}
+              eventPropGetter={eventPropGetter}
+              views={views}
+              messages={messages}
+              style={{ height: "100vh" }}
+              formats={formats}
+            />
+          </div>
         ) : (
           <div className="flex justify-center">
             <Spinner />

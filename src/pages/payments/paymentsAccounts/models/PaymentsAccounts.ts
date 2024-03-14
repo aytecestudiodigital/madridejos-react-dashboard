@@ -7,4 +7,5 @@ export type PaymentsAccount = {
   title: string;
   updated_at?: string;
   updated_by?: string | null;
+  group_id?: string;
 };

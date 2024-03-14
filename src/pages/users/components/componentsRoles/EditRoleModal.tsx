@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/ban-types */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -31,11 +33,13 @@ export function EditRolesModal({
 
   const { errors, isValid } = formState;
   const tableName = import.meta.env.VITE_TABLE_USER_ROLES;
+  const userGroupId = localStorage.getItem("groupSelected")!;
 
   const onSubmit: SubmitHandler<object> = async (data) => {
     if (isValid) {
-      const dataToInsert = { ...data, rules: { ...UserRol } };
+      const dataToInsert: any = { ...data, rules: { ...UserRol } };
       setLoading(true);
+      dataToInsert.group_id = userGroupId;
       const roleSaved = await insertRow(dataToInsert, tableName);
       close(dataToInsert);
       setLoading(false);
@@ -97,6 +101,7 @@ export function EditRolesModal({
           </Modal.Body>
           <Modal.Footer>
             <Button
+              size={"sm"}
               disabled={!isValid}
               color="primary"
               type="submit"

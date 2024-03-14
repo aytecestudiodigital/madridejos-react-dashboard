@@ -4,13 +4,13 @@ import ListPageWithPagination from "../../../components/ListPage/ListPageWithPag
 
 import { AymoUser } from "../models/AymoUser";
 
-import { getEntities } from "../../../server/supabaseQueries";
-import { EditUserModal } from "../components/componentsUsers/EditUserModal";
-import { GroupUsers } from "../models/GroupUser";
-import { AddUserModal } from "../components/componentsUsers/AddUserModal";
-import { AlertContext } from "../../../context/AlertContext";
 import { t } from "i18next";
 import { useNavigate } from "react-router-dom";
+import { AlertContext } from "../../../context/AlertContext";
+import { getEntities } from "../../../server/supabaseQueries";
+import { AddUserModal } from "../components/componentsUsers/AddUserModal";
+import { EditUserModal } from "../components/componentsUsers/EditUserModal";
+import { GroupUsers } from "../models/GroupUser";
 
 export default function UserListPage() {
   /**
@@ -70,12 +70,19 @@ export default function UserListPage() {
   const [actionAlert] = useState("");
 
   const user = JSON.parse(localStorage.getItem("userLogged")!);
+  let showAll: boolean;
+  let userGroup: string | null;
+  let userCreatedBy: string;
 
   useEffect(() => {
     if (user) {
       if (!user.users_roles.rules.mod_users.users.access_module) {
         openAlert("No tienes acceso a esta página", "error");
         navigate("/");
+      } else {
+        userCreatedBy = user.id;
+        userGroup = null;
+        showAll = user.users_roles.rules.mod_users.users.read;
       }
     }
   }, [user]);
@@ -85,12 +92,15 @@ export default function UserListPage() {
     setEndRange(currentPage * pageSize);
     setLoading(true);
     if (itemSearch) {
-      search(currentPage);
+      if (user.users_roles.rules.mod_users.users.read) {
+        search(currentPage);
+      }
     } else {
       const fetchData = async () => {
-        getDataFromServer(orderBy, orderDir, currentPage, pageSize);
+        if (user.users_roles.rules.mod_users.users.read) {
+          getDataFromServer(orderBy, orderDir, currentPage, pageSize);
+        }
       };
-
       fetchData();
     }
     setLoading(false);
@@ -108,16 +118,24 @@ export default function UserListPage() {
     size: number,
   ) => {
     setLoading(true);
-    getEntities(entity_table, page, size, orderBy, orderDir, "").then(
-      (result) => {
-        const { totalItems, data } = result;
-        setData(data ? data : []);
-        setTotalItems(totalItems);
-        setTotalPages(Math.ceil(totalItems / pageSize));
-        if (currentPage == totalPages) setEndRange(totalItems);
-        setLoading(false);
-      },
-    );
+    getEntities(
+      entity_table,
+      page,
+      size,
+      orderBy,
+      orderDir,
+      userCreatedBy,
+      showAll,
+      userGroup,
+      "",
+    ).then((result) => {
+      const { totalItems, data } = result;
+      setData(data ? data : []);
+      setTotalItems(totalItems);
+      setTotalPages(Math.ceil(totalItems / pageSize));
+      if (currentPage == totalPages) setEndRange(totalItems);
+      setLoading(false);
+    });
     setItemSearch(false);
   };
 
@@ -130,6 +148,9 @@ export default function UserListPage() {
       pageSize,
       orderBy,
       orderDir,
+      userCreatedBy,
+      showAll,
+      userGroup,
       searchTerm,
     );
 
@@ -197,6 +218,7 @@ export default function UserListPage() {
         alertMsg={alertMsg}
         action={actionAlert}
         disableAddButton={!user.users_roles.rules.mod_users.users.create}
+        showCleanFilter={false}
       />
       {showEditModal ? (
         <EditUserModal

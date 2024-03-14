@@ -18,13 +18,13 @@ export const panels = [
     title: "Usuarios",
     description: "Permisos de gestión de usuarios, roles y grupos.",
   },
-  /* {
+  {
     id: "communication",
     icon: "heroicons_outline:bell",
     title: "Comunicaciones",
     description:
       "Permisos de gestión de notificaciones push, emails y alertas.",
-  }, */
+  },
   /* {
     id: "design",
     icon: "heroicons_outline:pencil",
@@ -60,8 +60,8 @@ export const panels = [
     icon: "heroicons_outline:ticket",
     title: "Módulo de Entradas y Abonos",
     description: "Permisos de gestión del módulo de entradas y abonos",
-  }, */
-  /* {
+  },
+  {
     id: "access_control",
     icon: "heroicons_outline:lock-open",
     title: "Módulo de Control de acceso",

@@ -2,14 +2,12 @@
 import { Pagination, Select } from "flowbite-react";
 import { useContext, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 import { ContentTable } from "../../../components/ListPage/ContentTable";
 import { HeaderListPageComponent } from "../../../components/ListPage/HeaderListPage";
+import { AlertContext } from "../../../context/AlertContext";
 import { getEntities } from "../../../server/supabaseQueries";
 import { EntityPageModal } from "./EntityModal";
-import { RootState } from "../../../store/store";
-import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import { AlertContext } from "../../../context/AlertContext";
 
 export default function EntitiesListPage() {
   const navigate = useNavigate();
@@ -56,14 +54,24 @@ export default function EntitiesListPage() {
   const [endRange, setEndRange] = useState(pageSize);
   const [totalPages] = useState<number>(0);
 
-  const user = useSelector((state: RootState) => state.auth.user);
+  const user = JSON.parse(localStorage.getItem("userLogged")!);
   const { openAlert } = useContext(AlertContext);
+
+  let showAll: boolean;
+  let userGroup: string | null;
+  let userCreatedBy: string;
 
   useEffect(() => {
     if (user) {
       if (!user.users_roles.rules.content.entities.access_module) {
         openAlert("No tienes acceso a esta página", "error");
         navigate("/");
+      } else {
+        userCreatedBy = user.id;
+        user.users_roles.rules.content.entities.read_group === true
+          ? (userGroup = "aa15110f-1afd-4408-865a-bd7b6d347719")
+          : (userGroup = null);
+        showAll = user.users_roles.rules.content.entities.read_all;
       }
     }
   }, [user]);
@@ -98,6 +106,9 @@ export default function EntitiesListPage() {
       pageSize,
       orderBy,
       orderDir,
+      userCreatedBy,
+      showAll,
+      userGroup,
       "",
     ).then((result) => {
       const { data, totalItems } = result;
@@ -118,6 +129,9 @@ export default function EntitiesListPage() {
       pageSize,
       orderBy,
       orderDir,
+      userCreatedBy,
+      showAll,
+      userGroup,
       searchTerm,
     );
     setData(data ? data : []);
@@ -163,6 +177,7 @@ export default function EntitiesListPage() {
             onSearch={onSearch}
             onClearSearch={onClearSearch}
             onAddButton={newItem}
+            showCleanFilter={false}
           />
         </div>
       </div>

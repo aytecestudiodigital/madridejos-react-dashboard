@@ -2,15 +2,15 @@
 import { Breadcrumb, Button, Card, TextInput } from "flowbite-react";
 import { t } from "i18next";
 import React, { useContext, useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
 import { HiHome, HiOutlineArrowLeft } from "react-icons/hi";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import { AlertContext } from "../../../context/AlertContext";
 import { getOneRow, updateRow } from "../../../server/supabaseQueries";
 import { PermissionsTable } from "../components/componentsPermissions/permissionsTable";
+import { DeleteRoleModal } from "../components/componentsRoles/deleteRoleModal";
 import { panels } from "../models/RolePanels";
 import { UserRol } from "../models/UserRol";
-import { useForm } from "react-hook-form";
-import { DeleteRoleModal } from "../components/componentsRoles/deleteRoleModal";
-import { AlertContext } from "../../../context/AlertContext";
 
 export default function PermissionsPage() {
   const navigate = useNavigate();
@@ -30,6 +30,7 @@ export default function PermissionsPage() {
   const tableName = import.meta.env.VITE_TABLE_USER_ROLES;
 
   const user = JSON.parse(localStorage.getItem("userLogged")!);
+  const userGroupId = localStorage.getItem("groupSelected")!;
 
   useEffect(() => {
     if (user) {
@@ -49,19 +50,25 @@ export default function PermissionsPage() {
 
   const handleClick = (id: string) => {
     switch (id) {
-      case "content":
-        setPanel("content");
-        break;
-      case "organization":
-        setPanel("organization");
+      case "mod_users":
+        setPanel("mod_users");
         break;
       case "users":
         setPanel("users");
         break;
+      case "organization":
+        setPanel("organization");
+        break;
+      case "content":
+        setPanel("content");
+        break;
       case "communication":
         setPanel("communication");
         break;
-      case "design":
+      case "tasks":
+        setPanel("tasks");
+        break;
+      /* case "design":
         setPanel("design");
         break;
       case "bookings":
@@ -84,7 +91,7 @@ export default function PermissionsPage() {
         break;
       case "competitions":
         setPanel("competitions");
-        break;
+        break; */
       default:
         break;
     }
@@ -99,7 +106,7 @@ export default function PermissionsPage() {
       title: title,
       rules: permission,
       id: id,
-      group_id: user.group_id,
+      group_id: userGroupId,
     };
 
     updateRow(role, tableName).then(() => {
@@ -146,7 +153,7 @@ export default function PermissionsPage() {
               </h1>
 
               <div className="flex flex-grow justify-end gap-x-4">
-              {role ? (
+                {role ? (
                   <>
                     <Button
                       disabled={
@@ -156,7 +163,7 @@ export default function PermissionsPage() {
                           !user.users_roles.rules.mod_users.roles.update_own) ||
                         (!user.users_roles.rules.mod_users.roles.update_all &&
                           user.users_roles.rules.mod_users.roles.update_group &&
-                          user.group_id !== role.group_id) ||
+                          userGroupId !== role.group_id) ||
                         (!user.users_roles.rules.mod_users.roles.update_all &&
                           !user.users_roles.rules.mod_users.roles
                             .update_group &&
@@ -185,7 +192,7 @@ export default function PermissionsPage() {
                           !user.users_roles.rules.mod_users.roles.delete_own) ||
                         (!user.users_roles.rules.mod_users.roles.delete_all &&
                           user.users_roles.rules.mod_users.roles.delete_group &&
-                          user.group_id !== role.group_id) ||
+                          userGroupId !== role.group_id) ||
                         (!user.users_roles.rules.mod_users.roles.delete_all &&
                           !user.users_roles.rules.mod_users.roles
                             .delete_group &&

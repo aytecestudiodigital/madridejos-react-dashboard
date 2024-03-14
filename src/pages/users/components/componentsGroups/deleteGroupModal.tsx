@@ -17,7 +17,7 @@ export function DeleteGroupModal({
   item: item,
   closeModal,
   onDeleteItem: onGroupDelete,
-  disableButton
+  disableButton,
 }: DeleteGroupModalProps) {
   const { t } = useTranslation();
   const [isOpen, setOpen] = useState(false);
@@ -39,7 +39,12 @@ export function DeleteGroupModal({
 
   return (
     <>
-      <Button size="xs" color="light" disabled={disableButton} onClick={() => setOpen(true)}>
+      <Button
+        disabled={disableButton}
+        size="sm"
+        color="light"
+        onClick={() => setOpen(true)}
+      >
         <div className="flex items-center gap-x-2 text-red-500">
           <HiTrash className="text-sm text-red-500" />
           {t("DELETE_GROUP")}

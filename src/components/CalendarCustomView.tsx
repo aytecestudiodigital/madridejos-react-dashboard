@@ -1,5 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Card, Pagination, Select, Table } from "flowbite-react";
+import {
+  Card,
+  CustomFlowbiteTheme,
+  Pagination,
+  Select,
+  Table,
+} from "flowbite-react";
 import { useEffect, useState } from "react";
 import { supabase } from "../server/supabase";
 import { t } from "i18next";
@@ -93,41 +99,69 @@ export function BookingsView() {
     setIsOpen(false);
   };
 
+  const customTheme: CustomFlowbiteTheme["table"] = {
+    root: {
+      base: "w-full text-left text-sm text-gray-500 dark:text-gray-400",
+      shadow:
+        "absolute bg-white dark:bg-black w-full h-full top-0 left-0 rounded-lg drop-shadow-md -z-10",
+      wrapper: "relative",
+    },
+    body: {
+      base: "group/body",
+      cell: {
+        base: "group-first/body:group-first/row:first:rounded-tl-lg group-first/body:group-first/row:last:rounded-tr-lg group-last/body:group-last/row:first:rounded-bl-lg group-last/body:group-last/row:last:rounded-br-lg px-6 py-4",
+      },
+    },
+    head: {
+      base: "group/head text-xs uppercase text-gray-700 dark:text-gray-400",
+      cell: {
+        base: "group-first/head:first:rounded-tl-lg group-first/head:last:rounded-tr-lg bg-gray-50 dark:bg-gray-700 px-6 py-3",
+      },
+    },
+    row: {
+      base: "group/row",
+      hovered: "hover:bg-gray-50 dark:hover:bg-gray-600",
+      striped:
+        "odd:bg-white even:bg-gray-50 odd:dark:bg-gray-800 even:dark:bg-gray-700",
+    },
+  };
   return (
     <>
       {bookings && bookings.length > 0 ? (
         <>
-          <Card className="h-full mt-4 overflow-auto">
-            <div className="overflow-auto">
-              <Table>
-                <Table.Head className="">
-                  <Table.HeadCell>{t("DATE")}</Table.HeadCell>
-                  <Table.HeadCell>{t("DURATION")}</Table.HeadCell>
-                  <Table.HeadCell>{t("USER")}</Table.HeadCell>
-                  <Table.HeadCell>{t("COURT")}</Table.HeadCell>
-                  <Table.HeadCell>{t("STATE")}</Table.HeadCell>
-                </Table.Head>
-                <Table.Body>
-                  {bookings.map((booking, index) => (
-                    <Table.Row
-                      key={index}
-                      className="cursor-pointer font-bold hover:bg-gray-200"
-                      onClick={() => openModal(booking)}
-                    >
-                      <Table.Cell>
-                        {new Date(booking.date).toLocaleDateString()}
-                      </Table.Cell>
-                      <Table.Cell>{booking.duration}</Table.Cell>
-                      <Table.Cell>
-                        {booking.name} {booking.surname}
-                      </Table.Cell>
-                      <Table.Cell>{booking.title}</Table.Cell>
-                      <Table.Cell>{t(booking.state)}</Table.Cell>
-                    </Table.Row>
-                  ))}
-                </Table.Body>
-              </Table>
-            </div>
+          <Card className="overflow-auto">
+            <Table className="">
+              <Table.Head className="">
+                <Table.HeadCell>{"Fecha de creación"}</Table.HeadCell>
+                <Table.HeadCell>{"Fecha de reserva"}</Table.HeadCell>
+                <Table.HeadCell>{t("DURATION")}</Table.HeadCell>
+                <Table.HeadCell>{t("USER")}</Table.HeadCell>
+                <Table.HeadCell>{t("COURT")}</Table.HeadCell>
+                <Table.HeadCell>{t("STATE")}</Table.HeadCell>
+              </Table.Head>
+              <Table.Body className="overflow-auto h-56">
+                {bookings.map((booking, index) => (
+                  <Table.Row
+                    key={index}
+                    className="cursor-pointer font-bold hover:bg-gray-200"
+                    onClick={() => openModal(booking)}
+                  >
+                    <Table.Cell>
+                      {new Date(booking.created_at).toLocaleString()}
+                    </Table.Cell>
+                    <Table.Cell>
+                      {new Date(booking.date).toLocaleString()}
+                    </Table.Cell>
+                    <Table.Cell>{booking.duration}</Table.Cell>
+                    <Table.Cell>
+                      {booking.name} {booking.surname}
+                    </Table.Cell>
+                    <Table.Cell>{booking.title}</Table.Cell>
+                    <Table.Cell>{t(booking.state)}</Table.Cell>
+                  </Table.Row>
+                ))}
+              </Table.Body>
+            </Table>
           </Card>
 
           <div className="flex justify-between mt-2 mx-4 items-center">

@@ -33,4 +33,5 @@ export type ItemModel = {
   updated_by?: string | null;
   valuable_limit?: string | null;
   legal_text_id?: string | null;
+  group_id?: string;
 };

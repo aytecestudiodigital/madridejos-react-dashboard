@@ -171,6 +171,7 @@ export default function TabItemCalendar({
   return (
     <>
       <div className="divide-y">
+        <h3 className="text-xl font-bold dark:text-white py-2">Calendario</h3>
         {arrayDays.map((day: any, index: any) => (
           <div key={index} className="p-2">
             <div className="flex justify-between p-2">

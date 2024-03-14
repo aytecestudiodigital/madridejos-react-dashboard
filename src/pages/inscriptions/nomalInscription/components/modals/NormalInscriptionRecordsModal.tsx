@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Button, Modal, Tabs } from "flowbite-react";
+import { Card, Modal, Tabs } from "flowbite-react";
 import { useEffect, useState } from "react";
+import { DeleteModal } from "../../../../../components/DeleteModal";
 import { supabase } from "../../../../../server/supabase";
 import { deleteRow, getOneRow } from "../../../../../server/supabaseQueries";
-import { DeleteModal } from "../../../../../components/DeleteModal";
 
 interface NormalInscriptionRecordsModalProps {
   openModal: boolean;
@@ -19,6 +19,9 @@ export const NormalInscriptionRecordsModal = (
   const [authorizations, setAuthorizations] = useState<any[]>([]);
   const [paymentOrder, setPaymentOrder] = useState<any>(null);
   const [discounts, setDiscounts] = useState<any[]>([]);
+
+  const user = JSON.parse(localStorage.getItem("userLogged")!);
+  const userGroupId = localStorage.getItem("groupSelected")!;
 
   useEffect(() => {
     setIsOpen(props.openModal);
@@ -100,51 +103,52 @@ export const NormalInscriptionRecordsModal = (
       className="z-40"
     >
       <Modal.Header className="border-b border-gray-200 !p-6 dark:border-gray-700">
-        <span className="font-bold">Registro:</span> {props.item.id}
+        <strong>Registro</strong>
       </Modal.Header>
       <Modal.Body className="max-h-[70vh] overflow-auto">
-        <div className="mt-4 flex justify-between">
-          <h1 className="text-xl font-bold text-blue-700">Estado</h1>
+        <div className="mt-4 flex border-b-2 pb-2 justify-between">
+          <strong className="text-blue-800 font-semibold text-lg">
+            Estado
+          </strong>
           <div className="">
             {props.item.state === "CONFIRMED" ? (
-              <div className="container items-center flex flex-row max-w-max px-4 bg-green-300 rounded-full font-semibold">
+              <div className="container items-center flex flex-row max-w-max px-4 bg-green-100 text-green-800  rounded-full font-semibold">
                 Confirmado
               </div>
             ) : props.item.state === "PENDING" ? (
-              <div className="container items-center flex flex-row max-w-max px-4 bg-yellow-300 rounded-full font-semibold">
+              <div className="container items-center flex flex-row max-w-max px-4 bg-yellow-100 text-yellow-800 rounded-full font-semibold">
                 Pendiente
               </div>
             ) : props.item.state === "IN_PROGRESS" ? (
-              <div className="container items-center flex flex-row max-w-max px-4 bg-orange-300 rounded-full font-semibold">
+              <div className="container items-center flex flex-row max-w-max px-4 bg-orange-100 text-orange-800 rounded-full font-semibold">
                 En proceso
               </div>
             ) : props.item.state === "CANCELED" ? (
-              <div className="container items-center flex flex-row max-w-max px-4 bg-red-300 rounded-full font-semibold">
+              <div className="container items-center flex flex-row max-w-max px-4 bg-red-100 text-red-800 rounded-full font-semibold">
                 Cancelado
               </div>
             ) : props.item.state === "COMPLETED" ? (
-              <div className="container items-center flex flex-row max-w-max px-4 bg-green-300 rounded-full font-semibold">
+              <div className="container items-center flex flex-row max-w-max px-4 bg-green-100 text-green-800 rounded-full font-semibold">
                 Completado
               </div>
             ) : props.item.state === "DENIED" ? (
-              <div className="container items-center flex flex-row max-w-max px-4 bg-gray-300 rounded-full font-semibold">
+              <div className="container items-center flex flex-row max-w-max px-4 bg-gray-100 text-gray-800 rounded-full font-semibold">
                 Denegado
               </div>
             ) : props.item.state === "ERROR" ? (
-              <div className="container items-center flex flex-row max-w-max px-4 bg-black-300 rounded-full font-semibold">
+              <div className="container items-center flex flex-row max-w-max px-4 bg-red-100 text-red-800 rounded-full font-semibold">
                 Error
               </div>
             ) : null}
           </div>
         </div>
-        <div className="mt-4">
-          <h1 className="text-xl font-bold text-blue-700 mb-2">Actividades</h1>
+        <div className="mt-4 border-b-2">
+          <strong className="text-blue-800 font-semibold text-lg">
+            Actividades
+          </strong>
           {activities.length > 0 ? (
             activities.map((activity) => (
-              <div
-                key={activity.id}
-                className="flex justify-between border-b p-2"
-              >
+              <div key={activity.id} className="flex justify-between p-2">
                 <div>
                   <p>{activity.inscriptions_products.title}</p>
                 </div>
@@ -157,43 +161,39 @@ export const NormalInscriptionRecordsModal = (
             <p className="text-center border-b p-2">No hay actividades</p>
           )}
         </div>
-        <div className="mt-4">
-          <h1 className="text-xl font-bold text-blue-700 mb-2">
+        <div className="mt-4 border-b-2">
+          <strong className="text-blue-800 font-semibold text-lg">
             Autorizaciones
-          </h1>
+          </strong>
           {authorizations.length > 0 ? (
             authorizations.map((authorization) => (
-              <div
-                key={authorization.id}
-                className="flex justify-start border-b p-2"
-              >
+              <div key={authorization.id} className="flex justify-start p-2">
                 <p>{authorization.title}</p>
               </div>
             ))
           ) : (
-            <p className="text-center border-b p-2">No hay autorizaciones</p>
+            <p className="text-center p-2">No hay autorizaciones</p>
           )}
         </div>
-        <div className="mt-4">
-          <h1 className="text-xl font-bold text-blue-700 mb-2">
+        <div className="mt-4 border-b-2">
+          <strong className="text-blue-800 font-semibold text-lg">
             Datos del pago
-          </h1>
+          </strong>
           {paymentOrder ? (
             <div>Datos del payment</div>
           ) : (
-            <div className="text-center border-b p-2">
+            <div className="text-center p-2">
               No se ha realizado ningún pago
             </div>
           )}
         </div>
-        <div className="mt-4">
-          <h1 className="text-xl font-bold text-blue-700 mb-2">Descuentos</h1>
+        <div className="mt-4 border-b-2">
+          <strong className="text-blue-800 font-semibold text-lg">
+            Descuentos
+          </strong>
           {discounts.length > 0 ? (
             discounts.map((discount) => (
-              <div
-                key={discount.id}
-                className="flex justify-between border-b p-2"
-              >
+              <div key={discount.id} className="flex justify-between p-2">
                 <div>
                   <p>{discount.title}</p>
                 </div>
@@ -207,69 +207,65 @@ export const NormalInscriptionRecordsModal = (
               </div>
             ))
           ) : (
-            <p className="text-center border-b p-2">No se aplican descuentos</p>
+            <p className="text-center p-2">No se aplican descuentos</p>
           )}
         </div>
         <div className="mt-4">
-          <h1 className="text-xl font-bold text-blue-700 mb-2">
+          <strong className="text-blue-800 font-semibold text-lg">
             Datos del registro
-          </h1>
-          <Tabs.Group>
-            <Tabs.Item title="Principal">
-              {props.item.main_form && props.item.main_form.length > 0 ? (
-                props.item.main_form.map((formData: any, index: number) => (
-                  <div
-                    key={index}
-                    className="flex justify-start gap-4 mt-2 p-2 border-b"
-                  >
-                    <div>
-                      <p className="font-bold">{formData.title}:</p>
+          </strong>
+          <div className="mt-2">
+            <Card>
+              <Tabs.Group>
+                <Tabs.Item title="Principal">
+                  {props.item.main_form && props.item.main_form.length > 0 ? (
+                    props.item.main_form.map((formData: any, index: number) => (
+                      <div
+                        key={index}
+                        className="flex justify-start gap-4 px-2"
+                      >
+                        <div>
+                          <p className="font-semibold">{formData.title}:</p>
+                        </div>
+                        <div>
+                          <p>{formData.value}</p>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center px-2">
+                      No hay datos del formulario
                     </div>
-                    <div>
-                      <p>{formData.value}</p>
+                  )}
+                </Tabs.Item>
+                <Tabs.Item title="Autorización">
+                  {props.item.auth_form && props.item.auth_form.length > 0 ? (
+                    props.item.auth_form.map((formData: any, index: number) => (
+                      <div
+                        key={index}
+                        className="flex justify-start gap-4 px-2"
+                      >
+                        <div>
+                          <p className="font-semibold">{formData.title}:</p>
+                        </div>
+                        <div>
+                          <p>{formData.value}</p>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center border-b p-2">
+                      No hay datos del formulario
                     </div>
-                  </div>
-                ))
-              ) : (
-                <div className="text-center border-b p-2">
-                  No hay datos del formulario
-                </div>
-              )}
-            </Tabs.Item>
-            <Tabs.Item title="Autorización">
-              {props.item.auth_form && props.item.auth_form.length > 0 ? (
-                props.item.auth_form.map((formData: any, index: number) => (
-                  <div
-                    key={index}
-                    className="flex justify-start gap-4 mt-2 p-2 border-b"
-                  >
-                    <div>
-                      <p className="font-bold">{formData.title}:</p>
-                    </div>
-                    <div>
-                      <p>{formData.value}</p>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="text-center border-b p-2">
-                  No hay datos del formulario
-                </div>
-              )}
-            </Tabs.Item>
-          </Tabs.Group>
+                  )}
+                </Tabs.Item>
+              </Tabs.Group>
+            </Card>
+          </div>
         </div>
       </Modal.Body>
       <Modal.Footer>
-        <Button
-          size={"xs"}
-          onClick={() => close(false)}
-          color="light"
-          className="font-semibold"
-        >
-          Cancelar
-        </Button>
-        <div className="flex justify-end">
+        <div>
           <DeleteModal
             data={props.item}
             deleteFn={deleteRecord}
@@ -277,6 +273,18 @@ export const NormalInscriptionRecordsModal = (
             toastSuccessMsg={"Registro eliminado correctamente"}
             toastErrorMsg={"Error al eliminar el registro"}
             title="Eliminar registro"
+            disableButton={
+              (!user.users_roles.rules.inscriptions.records.delete_all &&
+                !user.users_roles.rules.inscriptions.records.delete_group &&
+                !user.users_roles.rules.inscriptions.records.delete_own) ||
+              (!user.users_roles.rules.inscriptions.records.delete_all &&
+                user.users_roles.rules.inscriptions.records.delete_group &&
+                userGroupId !== props.item.group_id) ||
+              (!user.users_roles.rules.inscriptions.records.delete_all &&
+                !user.users_roles.rules.inscriptions.records.delete_group &&
+                user.users_roles.rules.inscriptions.records.delete_own &&
+                user.id !== props.item.created_by)
+            }
           />
         </div>
       </Modal.Footer>

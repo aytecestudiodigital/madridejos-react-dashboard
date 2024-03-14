@@ -5110,18 +5110,6 @@ export interface Database {
       [_ in never]: never;
     };
     Functions: {
-      general_entities: {
-        Args: {
-          p_table_name: string;
-          search_data: Json;
-          p_order_by?: string;
-          p_order_dir?: string;
-          init_range?: number;
-          end_range?: number;
-        };
-        Returns: { data: any[]; count: number };
-      };
-
       access_control: {
         Args: {
           init_range?: number;
@@ -5130,6 +5118,30 @@ export interface Database {
           p_order_dir?: string;
           p_search_term?: string;
           filters_type?: string[];
+        };
+        Returns: { data: any[]; count: number };
+      };
+
+      access_control_with_authorization: {
+        Args: {
+          init_range?: number;
+          end_range?: number;
+          p_order_by?: string;
+          p_order_dir?: string;
+          p_search_term?: string;
+          filters_type?: string[];
+          p_created_by: string;
+          access: boolean;
+          p_group_id: string | null;
+        };
+        Returns: { data: any[]; count: number };
+      };
+
+      bookings_info_by_items: {
+        Args: {
+          bookings_items_ids_param: string[];
+          init_range: number;
+          end_range: number;
         };
         Returns: { data: any[]; count: number };
       };
@@ -5146,14 +5158,44 @@ export interface Database {
         Returns: { data: any[]; count: number };
       };
 
-      inscriptions: {
+      content_with_categories_with_authorization: {
         Args: {
-          init_range?: number;
-          end_range?: number;
           p_order_by?: string;
           p_order_dir?: string;
+          init_range?: number;
+          end_range?: number;
           p_search_term?: string;
-          p_enabled_filters?: string[];
+          filters_category?: string[];
+          p_created_by: string;
+          access: boolean;
+          p_group_id: string | null;
+        };
+        Returns: { data: any[]; count: number };
+      };
+
+      general_entities: {
+        Args: {
+          p_table_name: string;
+          search_data: Json;
+          p_order_by?: string;
+          p_order_dir?: string;
+          init_range?: number;
+          end_range?: number;
+        };
+        Returns: { data: any[]; count: number };
+      };
+
+      general_entities_with_authorization: {
+        Args: {
+          p_table_name: string;
+          search_data: Json;
+          p_created_by: string;
+          p_access: boolean;
+          p_group_id?: string | null;
+          p_order_by?: string;
+          p_order_dir?: string;
+          init_range?: number;
+          end_range?: number;
         };
         Returns: { data: any[]; count: number };
       };
@@ -5165,16 +5207,14 @@ export interface Database {
         Returns: { data: any[] };
       };
 
-      payments_orders: {
+      inscriptions: {
         Args: {
-          init_range: number;
-          end_range: number;
+          init_range?: number;
+          end_range?: number;
           p_order_by?: string;
           p_order_dir?: string;
           p_search_term?: string;
-          filters_status?: string[];
-          filters_modules?: string[];
-          filters_methods?: number[];
+          p_enabled_filters?: string[];
         };
         Returns: { data: any[]; count: number };
       };
@@ -5191,14 +5231,52 @@ export interface Database {
         Returns: { data: any[]; count: number };
       };
 
-      bookings_info_by_items: {
+      payments_methods_with_authorization: {
         Args: {
-          bookings_items_ids_param: string[];
           init_range: number;
           end_range: number;
+          p_order_by?: string;
+          p_order_dir?: string;
+          p_search_term?: string;
+          p_types_filters?: string[];
+          p_created_by: string;
+          access: boolean;
+          p_group_id: string | null;
         };
         Returns: { data: any[]; count: number };
       };
+
+      payments_orders: {
+        Args: {
+          init_range: number;
+          end_range: number;
+          p_order_by?: string;
+          p_order_dir?: string;
+          p_search_term?: string;
+          filters_status?: string[];
+          filters_modules?: string[];
+          filters_methods?: number[];
+        };
+        Returns: { data: any[]; count: number };
+      };
+
+      payments_orders_with_authorization: {
+        Args: {
+          init_range: number;
+          end_range: number;
+          p_order_by?: string;
+          p_order_dir?: string;
+          p_search_term?: string;
+          filters_status?: string[];
+          filters_modules?: string[];
+          filters_methods?: number[];
+          p_created_by: string;
+          access: boolean;
+          p_group_id: string | null;
+        };
+        Returns: { data: any[]; count: number };
+      };
+
       tasks_with_project_and_category: {
         Args: {
           init_range: number;
@@ -5210,6 +5288,79 @@ export interface Database {
           filters_projects?: string[];
           filters_status?: string[];
           filters_priority?: number[];
+        };
+        Returns: { data: any[]; count: number };
+      };
+
+      tasks_with_project_and_category_with_authentication: {
+        Args: {
+          init_range: number;
+          end_range: number;
+          p_order_by?: string;
+          p_order_dir?: string;
+          p_search_term?: string;
+          filters_categories?: string[];
+          filters_projects?: string[];
+          filters_status?: string[];
+          filters_priority?: number[];
+          p_created_by: string;
+          access: boolean;
+          p_group_id: string | null;
+        };
+        Returns: { data: any[]; count: number };
+      };
+
+      records_with_filters: {
+        Args: {
+          init_range: number;
+          end_range: number;
+          p_inscription_id: string;
+          p_dates?: string[];
+          filters_status?: string[];
+          p_created_by: string;
+          access: boolean;
+        };
+        Returns: { data: any[]; count: number };
+      };
+
+      projects_with_tasks: {
+        Args: {
+          init_range: number;
+          end_range: number;
+          p_order_by: string;
+          p_order_dir: string;
+          p_search_term?: string;
+          p_created_by: string;
+          access: boolean;
+          p_group_id: string | null;
+        };
+        Returns: { data: any[]; count: number };
+      };
+
+      get_project_by_id: {
+        Args: {
+          p_project_id: string;
+          p_created_by: string;
+          p_access: boolean;
+          p_group_id: string | null;
+        };
+        Returns: any;
+      };
+
+      tickets_products_with_filters: {
+        Args: {
+          init_range: number;
+          end_range: number;
+          p_order_by: string;
+          p_order_dir: string;
+          p_search_term?: string;
+          p_dates?: string[];
+          filters_status?: string[];
+          filters_tickets?: string[];
+          filters_products?: string[];
+          filters_types?: string[];
+          p_created_by: string;
+          access: boolean;
         };
         Returns: { data: any[]; count: number };
       };

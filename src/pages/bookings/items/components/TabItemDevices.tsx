@@ -2,10 +2,11 @@
 import { Button, Select } from "flowbite-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { HiPlus, HiTrash } from "react-icons/hi";
+import { HiTrash } from "react-icons/hi";
 import { ItemModel } from "../models/ItemModel";
 import { AccessControl } from "../../../accessControl/models/AccessControl";
 import { getOneRow, getRowByColumn } from "../../../../server/supabaseQueries";
+import { LuPlus } from "react-icons/lu";
 
 interface TabItemDevicesProps {
   accessControl: AccessControl[] | [];
@@ -86,9 +87,10 @@ export const TabItemDevices = (props: TabItemDevicesProps) => {
 
   return (
     <div>
+      <h3 className="text-xl font-bold dark:text-white py-2">Dispositivos</h3>
       <Button size="xs" color="light" onClick={handleAddSelect}>
         <div className="flex items-center text-blue-900">
-          <HiPlus className="text-sm text-blue-900" />
+          <LuPlus className="text-sm text-blue-900" />
           <div className="ml-1">{t("ADD_DEVICE")}</div>
         </div>
       </Button>
@@ -101,7 +103,7 @@ export const TabItemDevices = (props: TabItemDevicesProps) => {
                 onChange={(e) => handleSelectChange(index, e.target.value)}
                 value={device.value}
               >
-                <option value="" disabled>
+                <option hidden value="" disabled>
                   {t("SELECT")}
                 </option>
                 {props.accessControl.map((device) => (

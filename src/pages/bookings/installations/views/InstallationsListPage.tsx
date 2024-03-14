@@ -1,14 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* import { FC, useContext, useEffect, useState } from "react";
-import { getEntities } from "../../../../server/supabaseQueries";
-import { InstallationModel } from "../models/InstallationModel";
+import { FC, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ListPageWithPagination from "../../../../components/ListPage/ListPageWithPagination";
 import { AlertContext } from "../../../../context/AlertContext";
-import { RootState } from "../../../../store/store";
-import { useSelector } from "react-redux";
+import { getEntities } from "../../../../server/supabaseQueries";
+import { InstallationModel } from "../models/InstallationModel";
 
 export const InstallationsListPage: FC = () => {
+  /**
+   * Configuración de la página
+   */
   const entity_table = import.meta.env.VITE_TABLE_BOOKINGS_INSTALLATIONS;
   const columns = ["title", "description", "type", "enable", "created_at"];
   const page_title = "PAGE_BOOKINGS_INSTALLATIONS_LIST_TITLE";
@@ -24,9 +25,15 @@ export const InstallationsListPage: FC = () => {
 
   const navigate = useNavigate();
   const { openAlert } = useContext(AlertContext);
+  /**
+   * Definición de datos
+   */
   const [loading, setLoading] = useState<boolean>(false);
   const [data, setData] = useState<any[]>([]);
 
+  /**
+   * Buscador y ordenación
+   */
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [itemSearch, setItemSearch] = useState(false);
 
@@ -45,13 +52,24 @@ export const InstallationsListPage: FC = () => {
   const [alertMsg] = useState("");
   const [actionAlert] = useState("");
 
-  const user = useSelector((state: RootState) => state.auth.user);
+  const user = JSON.parse(localStorage.getItem("userLogged")!);
+  const userGroupId = localStorage.getItem("groupSelected")!;
+  let showAll: boolean;
+  let userGroup: string | null;
+  let userCreatedBy: string;
 
   useEffect(() => {
     if (user) {
       if (!user.users_roles.rules.bookings.installations.access_module) {
         openAlert("No tienes acceso a esta página", "error");
         navigate("/");
+      } else {
+        userCreatedBy = user.id;
+        !user.users_roles.rules.bookings.installations.read_all &&
+        user.users_roles.rules.bookings.installations.read_group
+          ? (userGroup = userGroupId)
+          : (userGroup = null);
+        showAll = user.users_roles.rules.bookings.installations.read_all;
       }
     }
   }, [user]);
@@ -85,6 +103,9 @@ export const InstallationsListPage: FC = () => {
       pageSize,
       orderBy,
       orderDir,
+      userCreatedBy,
+      showAll,
+      userGroup,
       "",
     ).then((result) => {
       const { data, totalItems } = result;
@@ -106,6 +127,9 @@ export const InstallationsListPage: FC = () => {
       pageSize,
       orderBy,
       orderDir,
+      userCreatedBy,
+      showAll,
+      userGroup,
       searchTerm,
     );
     setData(data ? data : []);
@@ -165,7 +189,9 @@ export const InstallationsListPage: FC = () => {
         isOpen={openAlert}
         alertMsg={alertMsg}
         action={actionAlert}
+        disableAddButton={!user.users_roles.rules.bookings.installations.create}
+        showCleanFilter={false}
       />
     </>
   );
-}; */
+};

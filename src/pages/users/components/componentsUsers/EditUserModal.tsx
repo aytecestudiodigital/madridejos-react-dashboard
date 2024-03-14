@@ -5,17 +5,25 @@ import {
   Banner,
   Button,
   Checkbox,
+  Dropdown,
   Label,
   Modal,
   Select,
   TextInput,
 } from "flowbite-react";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
+import { AlertContext } from "../../../../context/AlertContext";
 import { ValidateSpanishID } from "../../../../helpers/validate-document";
-import { getAll, updateRow } from "../../../../server/supabaseQueries";
-import { newUser, resetPasswordByEmail } from "../../data/UsersProvider";
+import { supabase } from "../../../../server/supabase";
+import { getAll, insertRow } from "../../../../server/supabaseQueries";
+import {
+  newUser,
+  resetPasswordByEmail,
+  updateUser,
+  verificationEmail,
+} from "../../data/UsersProvider";
 import { AymoUser } from "../../models/AymoUser";
 import { DeleteUserModal } from "./deleteUserModal";
 
@@ -41,6 +49,7 @@ export function EditUserModal({
   const { t } = useTranslation();
   const [isOpen, setOpen] = useState(false);
   const [loadingPassword, setLoadingResetPassword] = useState(false);
+  const [loadingEmail, setLoadingEmail] = useState(false);
   const [sendEmailPassword, setSendEmailPassword] = useState(true);
   const { register, handleSubmit, formState, reset, setValue } =
     useForm<AymoUser>({
@@ -57,14 +66,17 @@ export function EditUserModal({
   const [selectedRole, setSelectedRole] = useState(
     user && user.role ? user.role : "",
   );
-  const [selectedGroup, setSelectedGroup] = useState(
-    user && user.group_id ? user.group_id : "",
-  );
 
   const mobileRegex = /^(\+34|0034|34)?[ -]*(6|7)[ -]*([0-9][ -]*){8}/;
-  const tableName = import.meta.env.VITE_TABLE_USERS;
+  //const tableName = import.meta.env.VITE_TABLE_USERS;
 
   const userActive = JSON.parse(localStorage.getItem("userLogged")!);
+
+  const [selectedGroups, setSelectedGroups] = useState<any[]>([]);
+  const [groupsDefault, setGroupsDefault] = useState<any[]>([]);
+  const [showSuccessAlert, setShowSuccessAlert] = useState(false);
+  const [showErrorAlert, setShowErrorAlert] = useState(false);
+  const { openAlert } = useContext(AlertContext);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -82,16 +94,27 @@ export function EditUserModal({
 
   useEffect(() => {
     if (user) {
+      const userId = user.id;
       if (user.role) {
         setSelectedRole(user.role);
       } else {
         setSelectedRole("");
       }
-      if (user.group_id) {
-        setSelectedGroup(user.group_id);
-      } else {
-        setSelectedGroup("");
-      }
+      const fetchData = async () => {
+        const groupsArray: any[] = [];
+        const groupsDb = await supabase
+          .from("users_groups")
+          .select("*,groups(*)")
+          .eq("user_id", userId!);
+        if (groupsDb.data) {
+          groupsDb.data.forEach((group) => {
+            groupsArray.push(group.groups!.id);
+          });
+          setSelectedGroups(groupsArray);
+          setGroupsDefault(groupsArray);
+        }
+      };
+      fetchData();
     }
   }, [user]);
 
@@ -103,20 +126,38 @@ export function EditUserModal({
     }
   }, [selectedRole]);
 
-  useEffect(() => {
-    if (selectedGroup === "") {
-      setValue("group_id", null);
-    } else {
-      setValue("group_id", selectedGroup);
-    }
-  }, [selectedGroup]);
-
   const onSubmit: SubmitHandler<AymoUser> = async (data) => {
     if (isValid) {
       setLoading(true);
       const userUpdated = data.id
-        ? ((await updateRow(data, tableName)) as AymoUser)
-        : ((await newUser(data)) as AymoUser);
+        ? ((await updateUser(data)) as AymoUser)
+        : ((await newUser(data, selectedGroups)) as AymoUser);
+      if (data.id) {
+        if (groupsDefault.length > 0) {
+          for await (const group of groupsDefault) {
+            if (selectedGroups[selectedGroups.indexOf(group)] === undefined) {
+              await supabase
+                .from("users_groups")
+                .delete()
+                .eq("group_id", group)
+                .eq("user_id", data.id);
+            }
+          }
+        }
+        if (selectedGroups.length > 0) {
+          for await (const group of selectedGroups) {
+            if (groupsDefault[groupsDefault.indexOf(group)] === undefined) {
+              const newGroup = {
+                group_id: group,
+                user_id: data.id,
+                created_by: userActive.id,
+                updated_by: userActive.id,
+              };
+              await insertRow(newGroup, "users_groups");
+            }
+          }
+        }
+      }
       close(userUpdated);
       setLoading(false);
       onUser(userUpdated);
@@ -138,11 +179,52 @@ export function EditUserModal({
     closeModal(user ? true : false);
   };
 
+  useEffect(() => {
+    if (showSuccessAlert) {
+      openAlert("Correo enviado", "insert");
+      setShowSuccessAlert(false);
+    } else if (showErrorAlert) {
+      openAlert("Error al enviar el correo", "error");
+      setShowErrorAlert(false);
+    }
+  }, [showSuccessAlert, showErrorAlert]);
+
   const resetPassword = async () => {
     setLoadingResetPassword(true);
+    if (user?.email) {
+      await resetPasswordByEmail(user.email).then((sendPwdEmail: any) => {
+        if (sendPwdEmail === 200 || sendPwdEmail === undefined) {
+          setTimeout(() => {
+            setLoadingResetPassword(false);
+          }, 1000);
+          setShowSuccessAlert(true);
+        } else {
+          setTimeout(() => {
+            setLoadingResetPassword(false);
+          }, 1000);
+          setShowErrorAlert(true);
+        }
+      });
+    }
+  };
 
-    if (user?.email) await resetPasswordByEmail(user.email);
-    setLoadingResetPassword(false);
+  const resendVerificationEmail = async () => {
+    setLoadingEmail(true);
+    if (user?.email) {
+      await verificationEmail(user.email).then((sendEmail: any) => {
+        if (sendEmail === 200 || sendEmail === undefined) {
+          setTimeout(() => {
+            setLoadingEmail(false);
+          }, 1000);
+          setShowSuccessAlert(true);
+        } else {
+          setTimeout(() => {
+            setLoadingEmail(false);
+          }, 1000);
+          setShowErrorAlert(true);
+        }
+      });
+    }
   };
 
   const closeAfterDelete = () => {
@@ -151,9 +233,30 @@ export function EditUserModal({
     closeModal(true);
   };
 
+  const handleGroupChange = (value: any, checked: boolean) => {
+    if (checked) {
+      // Agregar el título si está marcado
+      setSelectedGroups((prevTypes) => {
+        const prev = [...prevTypes, value];
+        return prev;
+      });
+    } else {
+      // Quitar el título si está desmarcado
+      setSelectedGroups((prevTypes) => {
+        const filtered = prevTypes.filter((prevTitle) => prevTitle !== value);
+        return filtered;
+      });
+    }
+  };
+
   return (
     <>
-      <Modal dismissible onClose={() => close(null)} show={isOpen}>
+      <Modal
+        dismissible
+        onClose={() => close(null)}
+        show={isOpen}
+        className="z-40"
+      >
         <form onSubmit={handleSubmit(onSubmit)}>
           <Modal.Header className="border-b border-gray-200 !p-6 dark:border-gray-700">
             <strong>
@@ -161,15 +264,6 @@ export function EditUserModal({
             </strong>
           </Modal.Header>
           <Modal.Body className="max-h-[70vh]">
-            {user && user.id && (
-              <div className="flex justify-end items-center text-gray-800">
-                <DeleteUserModal
-                  user={user}
-                  closeModal={closeAfterDelete}
-                  onUserDelete={onUser}
-                />
-              </div>
-            )}
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
               <div>
                 <Label htmlFor="name" color={errors.name && "failure"}>
@@ -383,19 +477,57 @@ export function EditUserModal({
               <div>
                 <Label htmlFor="group">Grupo</Label>
                 <div className="mt-1">
-                  <Select
-                    id="group"
-                    value={selectedGroup}
-                    onChange={(e) => setSelectedGroup(e.currentTarget.value)}
+                  <Dropdown
+                    renderTrigger={({}) => (
+                      <button
+                        id="dropdownBgHoverButton"
+                        data-dropdown-toggle="dropdownBgHover"
+                        className="flex items-center justify-between w-full border disabled:cursor-not-allowed disabled:opacity-50 bg-gray-50 border-gray-300 text-gray-900 focus:border-cyan-500 focus:ring-cyan-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-cyan-500 dark:focus:ring-cyan-500 p-2.5 text-sm rounded-lg focus:outline-none focus-within:border-2 focus-within:border-cyan-500"
+                        type="button"
+                      >
+                        <span>Grupos</span>
+                        <svg
+                          className="ml-4 h-4 w-4 py-1 text-gray-500 dark:text-gray-400"
+                          aria-hidden="true"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                        >
+                          <path
+                            stroke="currentColor"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="m1 2 4 4 4-4"
+                          />
+                        </svg>
+                      </button>
+                    )}
+                    color="gray"
+                    label={t("TYPES")}
+                    dismissOnClick={false}
                   >
-                    <option value={""}>Ninguno</option>
-                    {groups.length > 0 &&
-                      groups.map((group) => (
-                        <option key={group.id} value={group.id}>
-                          {group.title}
-                        </option>
-                      ))}
-                  </Select>
+                    <Dropdown.Divider />
+                    {groups.map((item, index) => (
+                      <Dropdown.Item key={index}>
+                        <div className="flex items-center p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-600">
+                          <Checkbox
+                            id={`checkbox-item-${index}`}
+                            className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
+                            checked={selectedGroups.includes(item.id)}
+                            onChange={(e) =>
+                              handleGroupChange(item.id, e.target.checked)
+                            }
+                          />
+                          <label
+                            htmlFor={`checkbox-item-${index}`}
+                            className="w-full ms-2 text-sm font-medium text-gray-900 rounded dark:text-gray-300"
+                          >
+                            {t(item.title)}
+                          </label>
+                        </div>
+                      </Dropdown.Item>
+                    ))}
+                  </Dropdown>
                 </div>
               </div>
             </div>
@@ -466,10 +598,50 @@ export function EditUserModal({
                       </Button>
                     </div>
                   </div>
+
+                  <div className=" w-full  bg-gray-50 p-4 dark:bg-gray-700 mt-2">
+                    <div className="mb-4 md:mb-0 md:mr-4">
+                      <h2 className="mb-1 text-base font-semibold text-gray-900 dark:text-white">
+                        Verificación de la cuenta
+                      </h2>
+                      <p className="flex items-center text-xs font-normal text-gray-500 dark:text-gray-400">
+                        Si lo que se desea verificar es el número de teléfono,
+                        mande un sms al usuario, si no, mande un correo de
+                        verificación.
+                      </p>
+                    </div>
+                    <div className="flex justify-center gap-8 mt-4">
+                      <div>
+                        <Button
+                          color="light"
+                          size="sm"
+                          className="w-full"
+                          /* disabled={loadingPassword}
+                        isProcessing={loadingPassword}
+                        onClick={resetPassword} */
+                        >
+                          Enviar SMS
+                        </Button>
+                      </div>
+                      <div>
+                        <Button
+                          color="light"
+                          size="sm"
+                          className="w-full"
+                          disabled={loadingEmail}
+                          isProcessing={loadingEmail}
+                          onClick={resendVerificationEmail}
+                        >
+                          Enviar correo de verificación
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
                 </Banner>
               </>
             )}
           </Modal.Body>
+
           {user && user.id ? (
             <Modal.Footer className="flex justify-between">
               <div>
@@ -481,9 +653,11 @@ export function EditUserModal({
               </div>
               <div>
                 <Button
+                  size={"sm"}
                   disabled={
                     !isValid ||
-                    !userActive.users_roles.rules.mod_users.users.update
+                    !userActive.users_roles.rules.mod_users.users.update ||
+                    (selectedRole !== "" && selectedGroups.length === 0)
                   }
                   color="primary"
                   type="submit"
@@ -498,9 +672,11 @@ export function EditUserModal({
           ) : (
             <Modal.Footer className="flex place-content-end">
               <Button
+                size={"sm"}
                 disabled={
                   !isValid ||
-                  !userActive.users_roles.rules.mod_users.users.create
+                  !userActive.users_roles.rules.mod_users.users.create ||
+                  (selectedRole !== "" && selectedGroups.length === 0)
                 }
                 color="primary"
                 type="submit"

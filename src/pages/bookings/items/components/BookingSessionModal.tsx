@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Button, Label, Modal, Select, TextInput } from "flowbite-react";
 import { useEffect, useState } from "react";
-import { LuTrash } from "react-icons/lu";
 import { getOneRow, getRowByColumn } from "../../../../server/supabaseQueries";
 import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import { ValidateSpanishID } from "../../../../helpers/validate-document";
 import { ErrorMessage } from "@hookform/error-message";
+import { HiTrash } from "react-icons/hi";
 interface BookingSessionModalProps {
   openModal: boolean;
   defaultSessions: any;
@@ -265,7 +265,7 @@ export function BookingSessionModal({
                       size={"xs"}
                       className="mt-1 ml-1.5 cursor-pointer"
                     >
-                      <LuTrash className="text-red-500" />
+                      <HiTrash className="text-red-500" />
                     </Button>
                   </div>
                 </div>
@@ -332,7 +332,9 @@ export function BookingSessionModal({
               className="mr-2"
               onChange={(e) => setSelectedMethod(e.currentTarget.value)}
             >
-              <option value="">{t("SELECT")}</option>
+              <option hidden value="">
+                {t("SELECT")}
+              </option>
               {paymentMethods.map((method: any, index: any) => (
                 <option key={index} value={method.id}>
                   {method.title}
@@ -341,6 +343,7 @@ export function BookingSessionModal({
             </Select>
           </div>
           <Button
+            size={"sm"}
             color="primary"
             disabled={activeUser === undefined || selectedMethod === ""}
             onClick={confirmBooking}

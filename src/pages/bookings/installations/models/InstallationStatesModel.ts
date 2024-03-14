@@ -6,4 +6,5 @@ export type InstallationStatesModel = {
   bookeable?: boolean;
   color?: string;
   delete?: boolean;
+  group_id?: string;
 };

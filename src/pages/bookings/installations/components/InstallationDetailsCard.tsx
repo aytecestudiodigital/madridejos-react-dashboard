@@ -45,6 +45,9 @@ export const InstallationDetailsCard = ({
 
   const { errors } = formState;
 
+  const user = JSON.parse(localStorage.getItem("userLogged")!);
+  const userGroupId = localStorage.getItem("groupSelected")!;
+
   useEffect(() => {
     register("images");
     setValue("images", installation?.images);
@@ -203,9 +206,9 @@ export const InstallationDetailsCard = ({
 
       <div className="mb-4 pt-4">
         <div className="flex flex-row justify-between items-center">
-          <Label className="">{t(`EDIT_INSTALLATION_FORM_IMAGE_LABEL`)}</Label>
+          <Label>{t(`EDIT_INSTALLATION_FORM_IMAGE_LABEL`)}</Label>
           {images.length > 0 && (
-            <Button size="xs" className="" color="light" onClick={clearImages}>
+            <Button size="xs" color="light" onClick={clearImages}>
               <div className="flex items-center gap-x-2 text-red-500">
                 <HiTrash className="text-xs text-red-500" />
                 Borrar imagen
@@ -214,7 +217,7 @@ export const InstallationDetailsCard = ({
           )}
         </div>
         <div className="mt-4">
-          <div className="">
+          <div>
             {images.length > 0 ? (
               images.map((image, index) => (
                 <div key={index} className="flex justify-center p-2">
@@ -283,6 +286,22 @@ export const InstallationDetailsCard = ({
                 toastSuccessMsg={t("INSTALLATION_DELETE_OK")}
                 toastErrorMsg={t("INSTALLATION_DELETE_KO")}
                 title={t("DELETE_INSTALLATION")}
+                disableButton={
+                  (!user.users_roles.rules.bookings.installations.delete_all &&
+                    !user.users_roles.rules.bookings.installations
+                      .delete_group &&
+                    !user.users_roles.rules.bookings.installations
+                      .delete_own) ||
+                  (!user.users_roles.rules.bookings.installations.delete_all &&
+                    user.users_roles.rules.bookings.installations
+                      .delete_group &&
+                    userGroupId !== installation.group_id) ||
+                  (!user.users_roles.rules.bookings.installations.delete_all &&
+                    !user.users_roles.rules.bookings.installations
+                      .delete_group &&
+                    user.users_roles.rules.bookings.installations.delete_own &&
+                    user.id !== installation.created_by)
+                }
               />
             </div>
           </>

@@ -10,4 +10,5 @@ export type InstallationModel = {
   updated_by?: string;
   org_id?: string;
   images?: string[];
+  group_id?: string;
 };

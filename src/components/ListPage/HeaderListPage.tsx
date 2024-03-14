@@ -2,12 +2,13 @@
 import { Breadcrumb, Button, Label, Select, TextInput } from "flowbite-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { HiHome, HiPlus, HiX } from "react-icons/hi";
-import SelectCategoryFilter from "../../pages/content/articles/components/SelectCategoryFilter";
-import SelectTypeFilter from "./SelectTypeFilter";
-import SelectMethodFilter from "../../pages/payments/paymentsList/components/SelectMethodsFilter";
+import { HiHome, HiX } from "react-icons/hi";
+import { LuDownload, LuPlus } from "react-icons/lu";
+import { getAllProductsToDropdown } from "../../pages/tickets/tickets/data/TicketsProvider";
 import { createXLs } from "../../utils/utils";
-import { LuDownload } from "react-icons/lu";
+import SelectDateFilter from "./SelectDateFilter";
+import SelectEnumsFilter from "./SelectEnumsFilter";
+import SelectFilter from "./SelectFilter";
 
 export interface BreadcrumbItem {
   title: string;
@@ -27,6 +28,8 @@ interface HeaderListPageProps {
   thirdDataDropdown?: any[];
   columnsFourthDropdown?: string[];
   fourthDataDropdown?: any[];
+  columnsFifthDropdown?: any[];
+  fifthDataDropdown?: any[];
   data?: any[];
   onSearch: (
     searchTerm: string,
@@ -36,12 +39,17 @@ interface HeaderListPageProps {
     secondFilteredItems?: string[],
     thirdFilteredItems?: any[],
     fourthFilteredItems?: any[],
+    fifthFilteredItems?: any[],
   ) => void;
   onClearSearch: () => void;
   onAddButton: () => void;
   dataToExport?: any[];
   showButtonSave?: boolean;
   disableAddButton?: boolean;
+  showOrder?: boolean;
+  exportFileName?: string;
+  showCleanFilter: boolean;
+  //alertsMessage?: string;
 }
 
 export function HeaderListPageComponent(props: HeaderListPageProps) {
@@ -58,12 +66,23 @@ export function HeaderListPageComponent(props: HeaderListPageProps) {
   const [selectedModules, setSelectedModules] = useState<string[]>([]);
   const [selectedMethods, setSelectedMethods] = useState<number[]>([]);
   const [selectedEnable, setSelectedEnable] = useState<string[]>([]);
+  const [selectedDates, setSelectedDates] = useState<string[]>([]);
   const [selectedProjectCategories, setSelectedProjectCategories] = useState<
     any[]
   >([]);
   const [selectedProject, setSelectedProject] = useState<any[]>([]);
   const [selectedState, setSelectedState] = useState<any[]>([]);
   const [selectedPriority, setSelectedPriority] = useState<any[]>([]);
+  const [selectedEvent, setSelectedEvent] = useState<string[]>([]);
+  const [selectedTypesTickets, setSelectedTypesTickets] = useState<string[]>(
+    [],
+  );
+  const [productsToDropdown, setProductsToDropdown] = useState<
+    any[] | undefined
+  >([]);
+  const [selectedProduct, setSelectedProduct] = useState<string[]>([]);
+
+  const [showDatesCustom, setShowDatesCustom] = useState<boolean>(false);
 
   const handleCategoryChange = (selectedCategories: string[]) => {
     setSelectedCategories(selectedCategories);
@@ -87,6 +106,10 @@ export function HeaderListPageComponent(props: HeaderListPageProps) {
 
   const handleProjectCategoryChange = (selectedCategories: string[]) => {
     setSelectedProjectCategories(selectedCategories);
+  };
+
+  const onFilteredDate = (selectedDates: string[]) => {
+    setSelectedDates(selectedDates);
   };
 
   const handleProjectChange = (selectedProject: string[]) => {
@@ -139,7 +162,36 @@ export function HeaderListPageComponent(props: HeaderListPageProps) {
     );
   }, [orderBy, orderDir, selectedTypes, selectedModules, selectedMethods]);
 
-  useEffect(() => {}, [props.dataDropdown]);
+  const getDataToProductsDropdown = async () => {
+    const products = await getAllProductsToDropdown(selectedEvent[0]);
+    setProductsToDropdown(products);
+  };
+
+  useEffect(() => {
+    props.onSearch(
+      searchTerm,
+      orderBy,
+      orderDir,
+      selectedDates,
+      selectedEvent,
+      selectedProduct,
+      selectedState,
+      selectedTypesTickets,
+    );
+  }, [
+    orderBy,
+    orderDir,
+    searchTerm,
+    selectedDates,
+    selectedEvent,
+    selectedProduct,
+    selectedState,
+    selectedTypesTickets,
+  ]);
+
+  useEffect(() => {
+    selectedEvent.length != 0 && getDataToProductsDropdown();
+  }, [selectedEvent]);
 
   const onPressEnter = (key: string, value: string) => {
     if (key === "Enter") {
@@ -195,6 +247,19 @@ export function HeaderListPageComponent(props: HeaderListPageProps) {
     searchInput.value = "";
     setSearchTerm("");
     props.onClearSearch();
+  };
+
+  const deleteFiltering = () => {
+    setShowDatesCustom(true);
+    onFilteredDate([]);
+    setSelectedDates([]);
+    setSelectedEvent([]);
+    setSelectedProduct([]);
+    setSelectedState([]);
+    setSelectedTypesTickets([]);
+    setTimeout(() => {
+      setShowDatesCustom(false);
+    }, 1000);
   };
 
   return (
@@ -254,6 +319,7 @@ export function HeaderListPageComponent(props: HeaderListPageProps) {
           </div>
 
           {/* FILTRAR POR */}
+          {/* PRIMER DROPDOWN Y SUS CASUISTICAS */}
           {props.columnsDropdown &&
           props.columnsDropdown.includes("content_category_id") ? (
             <div className="lg:pr-3 flex flex-col">
@@ -262,18 +328,18 @@ export function HeaderListPageComponent(props: HeaderListPageProps) {
                 {props.columnsDropdown &&
                 props.columnsSecondDropdown === undefined ? (
                   <div className="border-r-2 border-slate-300 pr-6 mr-3">
-                    <SelectCategoryFilter
+                    <SelectFilter
                       dataDropdown={
                         props.dataDropdown ? props.dataDropdown : []
                       }
-                      onCategoryChange={handleCategoryChange}
+                      onFilterChange={handleCategoryChange}
                       title={"CATEGORIES_TITLE"}
                     />
                   </div>
                 ) : (
-                  <SelectCategoryFilter
+                  <SelectFilter
                     dataDropdown={props.dataDropdown ? props.dataDropdown : []}
-                    onCategoryChange={handleCategoryChange}
+                    onFilterChange={handleCategoryChange}
                     title={"CATEGORIES_TITLE"}
                   />
                 )}
@@ -288,12 +354,12 @@ export function HeaderListPageComponent(props: HeaderListPageProps) {
                 {props.columnsDropdown &&
                 props.columnsSecondDropdown === undefined ? (
                   <div className="border-r-2 border-slate-300 pr-6 mr-3">
-                    <SelectTypeFilter
+                    <SelectEnumsFilter
                       dataDropdown={
                         props.dataDropdown ? props.dataDropdown : []
                       }
-                      onTypeChange={handleTypeChange}
-                      selectTitle={
+                      onFilterChange={handleTypeChange}
+                      title={
                         props.columnsDropdown.includes("type")
                           ? "TYPE"
                           : "PAYMENT_STATE"
@@ -301,10 +367,10 @@ export function HeaderListPageComponent(props: HeaderListPageProps) {
                     />
                   </div>
                 ) : (
-                  <SelectTypeFilter
+                  <SelectEnumsFilter
                     dataDropdown={props.dataDropdown ? props.dataDropdown : []}
-                    onTypeChange={handleTypeChange}
-                    selectTitle={
+                    onFilterChange={handleTypeChange}
+                    title={
                       props.columnsDropdown.includes("type")
                         ? "TYPE"
                         : "PAYMENT_STATE"
@@ -321,19 +387,19 @@ export function HeaderListPageComponent(props: HeaderListPageProps) {
                 {props.columnsDropdown &&
                 props.columnsSecondDropdown === undefined ? (
                   <div className="border-r-2 border-slate-300 pr-6 mr-3">
-                    <SelectTypeFilter
+                    <SelectEnumsFilter
                       dataDropdown={
                         props.dataDropdown ? props.dataDropdown : []
                       }
-                      onTypeChange={handleEnabledChange}
-                      selectTitle={"PAYMENT_STATE"}
+                      onFilterChange={handleEnabledChange}
+                      title={"PAYMENT_STATE"}
                     />
                   </div>
                 ) : (
-                  <SelectTypeFilter
+                  <SelectEnumsFilter
                     dataDropdown={props.dataDropdown ? props.dataDropdown : []}
-                    onTypeChange={handleEnabledChange}
-                    selectTitle={"PAYMENT_STATE"}
+                    onFilterChange={handleEnabledChange}
+                    title={"PAYMENT_STATE"}
                   />
                 )}
               </div>
@@ -346,25 +412,66 @@ export function HeaderListPageComponent(props: HeaderListPageProps) {
                 {props.columnsDropdown &&
                 props.columnsSecondDropdown === undefined ? (
                   <div className="border-r-2 border-slate-300 pr-6 mr-3">
-                    <SelectCategoryFilter
+                    <SelectFilter
                       dataDropdown={
                         props.dataDropdown ? props.dataDropdown : []
                       }
-                      onCategoryChange={handleProjectCategoryChange}
+                      onFilterChange={handleProjectCategoryChange}
                       title={"CATEGORIES_TITLE"}
                     />
                   </div>
                 ) : (
-                  <SelectCategoryFilter
+                  <SelectFilter
                     dataDropdown={props.dataDropdown ? props.dataDropdown : []}
-                    onCategoryChange={handleProjectCategoryChange}
+                    onFilterChange={handleProjectCategoryChange}
                     title={"CATEGORIES_TITLE"}
+                  />
+                )}
+              </div>
+            </div>
+          ) : props.columnsDropdown &&
+            props.columnsDropdown.includes("formalisation_date") ? (
+            <div className="lg:pr-3 flex flex-col">
+              <div className="flex">
+                <Label htmlFor="selectedEnable">Filtrar por</Label>
+                {props.showCleanFilter === true && (
+                  <div className="flex justify-center">
+                    {/*  <LuListX className="w-4 h-4 mr-1 mt-1 text-red-900 cursor-pointer" /> */}
+                    <a
+                      className="text-red-900 cursor-pointer text-sm font-medium dark:text-white ml-1"
+                      onClick={deleteFiltering}
+                    >
+                      / Limpiar filtros
+                    </a>
+                  </div>
+                )}
+              </div>
+              <div>
+                {props.columnsDropdown &&
+                props.columnsSecondDropdown === undefined ? (
+                  <div className="border-r-2 border-slate-300 pr-6 mr-3">
+                    <SelectDateFilter
+                      dataDropdown={
+                        props.dataDropdown ? props.dataDropdown : []
+                      }
+                      onFilterChange={onFilteredDate}
+                      title={"FORMALISATION_DATE"}
+                      showCustom={showDatesCustom}
+                    />
+                  </div>
+                ) : (
+                  <SelectDateFilter
+                    dataDropdown={props.dataDropdown ? props.dataDropdown : []}
+                    onFilterChange={onFilteredDate}
+                    title={"FORMALISATION_DATE"}
+                    showCustom={showDatesCustom}
                   />
                 )}
               </div>
             </div>
           ) : null}
 
+          {/* SEGUNDO DROPDOWN Y SUS CASUISTICAS */}
           {props.columnsSecondDropdown &&
           props.columnsSecondDropdown.includes("order_module") ? (
             <div className="lg:pr-3 flex flex-col">
@@ -372,21 +479,21 @@ export function HeaderListPageComponent(props: HeaderListPageProps) {
                 {props.columnsSecondDropdown &&
                 props.columnsThirdDropdown === undefined ? (
                   <div className="border-r-2 border-slate-300 pr-6 mr-3">
-                    <SelectTypeFilter
+                    <SelectEnumsFilter
                       dataDropdown={
                         props.secondDataDropdown ? props.secondDataDropdown : []
                       }
-                      onTypeChange={handleModuleChange}
-                      selectTitle={t("MODULE")}
+                      onFilterChange={handleModuleChange}
+                      title={t("MODULE")}
                     />
                   </div>
                 ) : (
-                  <SelectTypeFilter
+                  <SelectEnumsFilter
                     dataDropdown={
                       props.secondDataDropdown ? props.secondDataDropdown : []
                     }
-                    onTypeChange={handleModuleChange}
-                    selectTitle={t("MODULE")}
+                    onFilterChange={handleModuleChange}
+                    title={t("MODULE")}
                   />
                 )}
               </div>
@@ -398,39 +505,83 @@ export function HeaderListPageComponent(props: HeaderListPageProps) {
                 {props.columnsSecondDropdown &&
                 props.columnsThirdDropdown === undefined ? (
                   <div className="border-r-2 border-slate-300 pr-6 mr-3">
-                    <SelectCategoryFilter
+                    <SelectFilter
                       dataDropdown={
                         props.secondDataDropdown ? props.secondDataDropdown : []
                       }
-                      onCategoryChange={handleProjectChange}
+                      onFilterChange={handleProjectChange}
                       title={"PROJECT_TITLE"}
                     />
                   </div>
                 ) : (
-                  <SelectCategoryFilter
+                  <SelectFilter
                     dataDropdown={
                       props.secondDataDropdown ? props.secondDataDropdown : []
                     }
-                    onCategoryChange={handleProjectChange}
+                    onFilterChange={handleProjectChange}
                     title={"PROJECT_TITLE"}
                   />
                 )}
               </div>
             </div>
+          ) : props.columnsSecondDropdown &&
+            props.columnsSecondDropdown.includes("tickets_title") ? (
+            <div className="lg:pr-3 flex flex-col">
+              <div className="mt-6">
+                {props.columnsSecondDropdown &&
+                props.columnsThirdDropdown === undefined ? (
+                  <div className="border-r-2 border-slate-300 pr-6 mr-3">
+                    <Select
+                      value={""}
+                      onChange={(event) => setSelectedEvent([event.target.id])}
+                    >
+                      <option hidden disabled value="">
+                        Eventos
+                      </option>
+                      {props.secondDataDropdown &&
+                        props.secondDataDropdown.map((item: any) => (
+                          <option key={item.id} value={item.id}>
+                            {item.title}
+                          </option>
+                        ))}
+                    </Select>
+                  </div>
+                ) : (
+                  <>
+                    <Select
+                      value={""}
+                      onChange={(event) =>
+                        setSelectedEvent([event.target.value])
+                      }
+                    >
+                      <option hidden disabled value="">
+                        Eventos
+                      </option>
+                      {props.secondDataDropdown &&
+                        props.secondDataDropdown.map((item: any) => (
+                          <option key={item.id} value={item.id}>
+                            {item.title}
+                          </option>
+                        ))}
+                    </Select>
+                  </>
+                )}
+              </div>
+            </div>
           ) : null}
 
+          {/* TERCERO DROPDOWN Y SUS CASUISTICAS */}
           {props.columnsThirdDropdown &&
           props.columnsThirdDropdown.includes("method_title") ? (
             <div className="lg:pr-3 flex flex-col">
-              {/* <Label htmlFor="orderBy">Filtrar por</Label> */}
               <div className="mt-6">
                 <div className="border-r-2 border-slate-300 pr-6 mr-3">
-                  <SelectMethodFilter
+                  <SelectFilter
                     dataDropdown={
                       props.thirdDataDropdown ? props.thirdDataDropdown : []
                     }
-                    onMethodChange={handleMethodChange}
-                    selectTitle={t("METHOD_TITLE")}
+                    onFilterChange={handleMethodChange}
+                    title={t("METHOD_TITLE")}
                   />
                 </div>
               </div>
@@ -443,87 +594,198 @@ export function HeaderListPageComponent(props: HeaderListPageProps) {
                 {props.columnsThirdDropdown &&
                 props.columnsFourthDropdown === undefined ? (
                   <div className="border-r-2 border-slate-300 pr-6 mr-3">
-                    <SelectTypeFilter
+                    <SelectEnumsFilter
                       dataDropdown={
                         props.thirdDataDropdown ? props.thirdDataDropdown : []
                       }
-                      onTypeChange={handleStateChange}
-                      selectTitle={t("STATE")}
+                      onFilterChange={handleStateChange}
+                      title={t("STATE")}
                     />
                   </div>
                 ) : (
-                  <SelectTypeFilter
+                  <SelectEnumsFilter
                     dataDropdown={
                       props.thirdDataDropdown ? props.thirdDataDropdown : []
                     }
-                    onTypeChange={handleStateChange}
-                    selectTitle={t("STATE")}
+                    onFilterChange={handleStateChange}
+                    title={t("STATE")}
                   />
                 )}
               </div>
             </div>
+          ) : props.columnsThirdDropdown &&
+            props.columnsThirdDropdown.includes("tickets_products") ? (
+            <div>
+              {selectedEvent.length > 0 && (
+                <div className="lg:pr-3 flex flex-col">
+                  <div className="mt-6">
+                    {props.columnsThirdDropdown &&
+                    props.columnsFourthDropdown === undefined ? (
+                      <div className="border-r-2 border-slate-300 pr-6 mr-3">
+                        <Select
+                          value={""}
+                          onChange={(event) =>
+                            setSelectedProduct([event.target.value])
+                          }
+                        >
+                          <option hidden disabled value="">
+                            Productos
+                          </option>
+                          {productsToDropdown &&
+                            productsToDropdown.map((item: any) => (
+                              <option key={item.id} value={item.id}>
+                                {item.title}
+                              </option>
+                            ))}
+                        </Select>
+                      </div>
+                    ) : (
+                      <Select
+                        value={""}
+                        onChange={(event) =>
+                          setSelectedProduct([event.target.value])
+                        }
+                      >
+                        <option hidden disabled value="">
+                          Productos
+                        </option>
+                        {productsToDropdown &&
+                          productsToDropdown.map((item: any) => (
+                            <option key={item.id} value={item.id}>
+                              {item.title}
+                            </option>
+                          ))}
+                      </Select>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
           ) : null}
 
+          {/* CUARTO DROPDOWN Y SUS CASUISTICAS */}
           {props.columnsFourthDropdown &&
           props.columnsFourthDropdown.includes("priority") ? (
             <div className="lg:pr-3 flex flex-col">
               {/* <Label htmlFor="orderBy">Filtrar por</Label> */}
               <div className="mt-6">
                 <div className="border-r-2 border-slate-300 pr-6 mr-3">
-                  <SelectCategoryFilter
+                  <SelectFilter
                     dataDropdown={
                       props.fourthDataDropdown ? props.fourthDataDropdown : []
                     }
-                    onCategoryChange={handlePriorityChange}
+                    onFilterChange={handlePriorityChange}
                     title={"PRIORITY"}
                   />
                 </div>
+              </div>
+            </div>
+          ) : props.columnsFourthDropdown &&
+            props.columnsFourthDropdown.includes("state") ? (
+            <div className="lg:pr-3 flex flex-col">
+              {/* <Label htmlFor="orderBy">Filtrar por</Label> */}
+              <div className="mt-6">
+                {props.columnsFourthDropdown &&
+                props.columnsFifthDropdown === undefined ? (
+                  <div className="border-r-2 border-slate-300 pr-6 mr-3">
+                    <SelectEnumsFilter
+                      dataDropdown={
+                        props.fourthDataDropdown ? props.fourthDataDropdown : []
+                      }
+                      onFilterChange={handleStateChange}
+                      title={t("STATE")}
+                    />
+                  </div>
+                ) : (
+                  <SelectEnumsFilter
+                    dataDropdown={
+                      props.fourthDataDropdown ? props.fourthDataDropdown : []
+                    }
+                    onFilterChange={handleStateChange}
+                    title={t("STATE")}
+                  />
+                )}
+              </div>
+            </div>
+          ) : null}
+
+          {/* QUINTO DROPDOWN Y SUS CASUISTICAS */}
+          {props.columnsFifthDropdown &&
+          props.columnsFifthDropdown.includes("type") ? (
+            <div className="lg:pr-3 flex flex-col">
+              {/* <Label htmlFor="orderBy">Filtrar por</Label> */}
+              <div className="mt-6">
+                <Select
+                  value={""}
+                  onChange={(event) =>
+                    setSelectedTypesTickets([event.target.value])
+                  }
+                >
+                  <option hidden disabled value="">
+                    Tipo de producto
+                  </option>
+                  {props.fifthDataDropdown &&
+                    props.fifthDataDropdown.map((item) => (
+                      <option key={item.id} value={item.id}>
+                        {item.title}
+                      </option>
+                    ))}
+                </Select>
               </div>
             </div>
           ) : null}
         </div>
 
         {/* ORDER BY Y ORDER DIR */}
-        <div className="lg:pr-3 flex flex-col">
-          <Label htmlFor="orderBy">{t("ORDER_BY_LABEL")}</Label>
-          <div className="mt-1">
-            <Select
-              id="orderBy"
-              value={orderBy}
-              onChange={(event) => setOrderBy(event.target.value)}
-            >
-              {props.columns.map((column, index) => (
-                <option key={index} value={column}>
-                  {t(`${column.toUpperCase()}`)}
-                </option>
-              ))}
-            </Select>
-          </div>
-        </div>
+        {props.showOrder && (
+          <>
+            <div className="lg:pr-3 flex flex-col">
+              <Label htmlFor="orderBy">{t("ORDER_BY_LABEL")}</Label>
+              <div className="mt-1">
+                <Select
+                  id="orderBy"
+                  value={orderBy}
+                  onChange={(event) => setOrderBy(event.target.value)}
+                >
+                  {props.columns.map((column, index) => (
+                    <option key={index} value={column}>
+                      {t(`${column.toUpperCase()}`)}
+                    </option>
+                  ))}
+                </Select>
+              </div>
+            </div>
+            <div className="lg:pr-3 flex flex-col">
+              <Label htmlFor="orderDir">{t("ORDER_DIR_LABEL")}</Label>
+              <div className="mt-1">
+                <Select
+                  id="orderDir"
+                  value={orderDir}
+                  onChange={(event) => setOrderDir(event.target.value)}
+                >
+                  <option value="ASC">{t("ORDER_DIR_ASC")}</option>
+                  <option value="DESC">{t("ORDER_DIR_DESC")}</option>
+                </Select>
+              </div>
+            </div>
+          </>
+        )}
 
-        <div className="lg:pr-3 flex flex-col">
-          <Label htmlFor="orderDir">{t("ORDER_DIR_LABEL")}</Label>
-          <div className="mt-1">
-            <Select
-              id="orderDir"
-              value={orderDir}
-              onChange={(event) => setOrderDir(event.target.value)}
-            >
-              <option value="ASC">{t("ORDER_DIR_ASC")}</option>
-              <option value="DESC">{t("ORDER_DIR_DESC")}</option>
-            </Select>
-          </div>
-        </div>
-
-        <div className="ml-auto flex items-center space-x-1 sm:space-x-3">
+        <div className="ml-auto flex space-x-1 sm:space-x-3">
+         
           {props.showButtonSave !== undefined &&
           props.showButtonSave === false ? null : (
-            <Button color="primary" disabled={props.disableAddButton} onClick={props.onAddButton}>
+            <Button
+              color="primary"
+              onClick={props.onAddButton}
+              disabled={props.disableAddButton}
+            >
               <div className="flex items-center gap-x-1">
-                <HiPlus className="text-xl" />
+                <LuPlus className="text-xl" />
                 {t("ADD_BTN")}
               </div>
             </Button>
+            
           )}
 
           {props.dataToExport && props.dataToExport?.length > 0 && (
@@ -535,7 +797,7 @@ export function HeaderListPageComponent(props: HeaderListPageProps) {
                     props.dataToExport && props.dataToExport?.length > 0
                       ? props.dataToExport
                       : [],
-                    "lista_operaciones",
+                    props.exportFileName!,
                   )
                 }
               >

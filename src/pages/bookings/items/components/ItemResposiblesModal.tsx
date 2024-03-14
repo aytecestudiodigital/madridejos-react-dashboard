@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Users } from "../../../users/models/Users";
 import { getUsersJoinRoles } from "../data/ItemsProvider";
+import { getAll } from "../../../../server/supabaseQueries";
 
 interface EditEntityModalProps {
   showModal: boolean;
@@ -10,6 +11,7 @@ interface EditEntityModalProps {
   onUser?: (data: any) => void;
   setTechnicians: Function;
   selectedTechnicians: Users[];
+  type: string;
 }
 
 export function ItemResponsiblesModal(props: EditEntityModalProps) {
@@ -28,22 +30,36 @@ export function ItemResponsiblesModal(props: EditEntityModalProps) {
     setOpenModal(props.showModal);
 
     const fetchData = async () => {
-      const usersWithRole = await getUsersJoinRoles(
-        usersTableName,
-        userRolesTableName,
-      );
+      if (props.type === "roles") {
+        const usersWithRole = await getUsersJoinRoles(
+          usersTableName,
+          userRolesTableName,
+        );
 
-      if (usersWithRole.data != null) {
-        // Inicializa selectedResponsibles con los técnicos seleccionados
-        setSelectedResponsibles(props.selectedTechnicians);
+        if (usersWithRole.data != null) {
+          // Inicializa selectedResponsibles con los técnicos seleccionados
+          setSelectedResponsibles(props.selectedTechnicians);
 
-        const initialResponsibles = usersWithRole.data.map((user) => ({
-          ...user,
-          selected: props.selectedTechnicians.some(
-            (selected) => selected.id === user.id,
-          ),
-        }));
-        setResponsibles(initialResponsibles);
+          const initialResponsibles = usersWithRole.data.map((user) => ({
+            ...user,
+            selected: props.selectedTechnicians.some(
+              (selected) => selected.id === user.id,
+            ),
+          }));
+          setResponsibles(initialResponsibles);
+        }
+      } else {
+        const allUsers = await getAll("users");
+        if (allUsers.data) {
+          setSelectedResponsibles(props.selectedTechnicians);
+          const initialResponsibles = allUsers.data.map((user) => ({
+            ...user,
+            selected: props.selectedTechnicians.some(
+              (selected) => selected.id === user.id,
+            ),
+          }));
+          setResponsibles(initialResponsibles);
+        }
       }
     };
 
@@ -106,9 +122,6 @@ export function ItemResponsiblesModal(props: EditEntityModalProps) {
     props.closeModal();
   };
 
-  console.log("seleccionados: ", selectedResponsibles);
-  console.log("responsibles: ", responsibles);
-
   const isAllSelected =
     responsibles.length > 0 && responsibles.every((user) => user.selected);
   return (
@@ -154,16 +167,24 @@ export function ItemResponsiblesModal(props: EditEntityModalProps) {
                     {user.email}
                   </Table.Cell>
                   <Table.Cell className="whitespace-nowrap text-gray-900 dark:text-white">
-                    {responsibles[index].role.title === "Administrador" ? (
+                    {responsibles[index].role &&
+                    responsibles[index].role.title === "Administrador" ? (
                       <div className="container items-center flex flex-row max-w-max px-4 bg-pink-100  rounded-full">
                         <label className="font-medium text-pink-800">
+                          {responsibles[index].role.title}
+                        </label>
+                      </div>
+                    ) : responsibles[index].role &&
+                      responsibles[index].role.title === "Técnico" ? (
+                      <div className="container items-center flex flex-row max-w-max px-4 bg-blue-100 rounded-full">
+                        <label className="font-medium text-blue-800">
                           {responsibles[index].role.title}
                         </label>
                       </div>
                     ) : (
                       <div className="container items-center flex flex-row max-w-max px-4 bg-blue-100 rounded-full">
                         <label className="font-medium text-blue-800">
-                          {responsibles[index].role.title}
+                          Ciudadano
                         </label>
                       </div>
                     )}
@@ -176,11 +197,19 @@ export function ItemResponsiblesModal(props: EditEntityModalProps) {
       </Modal.Body>
       <Modal.Footer className="flex place-content-end">
         {props.selectedTechnicians.length === 0 ? (
-          <Button className="bg-primary" onClick={handleAddResponsibles}>
+          <Button
+            size={"sm"}
+            className="bg-primary"
+            onClick={handleAddResponsibles}
+          >
             {t("ADD_BTN")}
           </Button>
         ) : (
-          <Button className="bg-primary" onClick={handleAddResponsibles}>
+          <Button
+            size={"sm"}
+            className="bg-primary"
+            onClick={handleAddResponsibles}
+          >
             {t("EDIT_BTN")}
           </Button>
         )}

@@ -5,14 +5,14 @@ interface MapProps extends google.maps.MapOptions {
   onClick?: (e: google.maps.MapMouseEvent) => void;
   onIdle?: (map: google.maps.Map) => void;
   children?: React.ReactNode;
-  center?:any
+  center?: any;
 }
 
 export default function GoogleMaps({ onClick, children, center }: MapProps) {
   const ref = useRef<HTMLDivElement | null>(null);
   const [map, setMap] = React.useState<google.maps.Map>();
 
-  const DEFAULT_CENTER = { lat: 39.1577, lng: -3.02081 };
+  const DEFAULT_CENTER = { lat: 39.471655 , lng: -3.533282  };
   const DEFAULT_ZOOM = 14;
 
   useEffect(() => {

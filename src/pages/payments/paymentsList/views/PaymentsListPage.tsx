@@ -1,5 +1,7 @@
-/* import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import ListPageWithPagination from "../../../../components/ListPage/ListPageWithPagination";
+import { AlertContext } from "../../../../context/AlertContext";
 import { getAll } from "../../../../server/supabaseQueries";
 import { PaymentsMethod } from "../../paymentsMethods/models/PaymentsMethods";
 import { PaymentListModal } from "../components/PaymentListModal";
@@ -9,13 +11,12 @@ import {
 } from "../data/PaymentsProvider";
 import { Payments } from "../models/Payments";
 import { PaymentsOrders } from "../models/PaymentsOrders";
-import { RootState } from "../../../../store/store";
-import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import { AlertContext } from "../../../../context/AlertContext";
 
 export default function PaymentsListPage() {
   const navigate = useNavigate();
+  /**
+   * Configuración de la página
+   */
   const paymentsTableName = import.meta.env.VITE_TABLE_PAYMENTS;
   const paymentsOrdersTableName = import.meta.env.VITE_TABLE_PAYMENTS_ORDERS;
   const paymentsMethodsTableName = import.meta.env.VITE_TABLE_PAYMENTS_METHOD;
@@ -36,7 +37,6 @@ export default function PaymentsListPage() {
     "order_user_name",
     "order_user_surname",
     "user_document",
-    "method_title",
   ];
   const columnsDropdown = ["order_state"];
   const columnsSecondDropdown = ["order_module"];
@@ -48,9 +48,15 @@ export default function PaymentsListPage() {
     },
   ];
 
+  /**
+   * Definición de datos
+   */
   const [loading, setLoading] = useState<boolean>(false);
   const [data, setData] = useState<any[]>([]);
   const [payment, setPayment] = useState<any | null>(null);
+  /**
+   * Buscador y ordenación
+   */
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [itemSearch, setItemSearch] = useState(false);
 
@@ -79,14 +85,22 @@ export default function PaymentsListPage() {
   const [totalMethods, setTotalMethods] = useState<any[]>([]);
   const [subItems, setSubItems] = useState<any[]>([]);
 
-  const user = useSelector((state: RootState) => state.auth.user);
+  const user = JSON.parse(localStorage.getItem("userLogged")!);
   const { openAlert } = useContext(AlertContext);
+
+  let showAll: boolean;
+  let userGroup: string | null = null;
+  let userCreatedBy: string = user.id;
 
   useEffect(() => {
     if (user) {
       if (!user.users_roles.rules.payments.payments.access_module) {
         openAlert("No tienes acceso a esta página", "error");
         navigate("/");
+      } else {
+        userCreatedBy = user.id;
+        userGroup = null;
+        showAll = user.users_roles.rules.payments.payments.read;
       }
     }
   }, [user]);
@@ -123,16 +137,13 @@ export default function PaymentsListPage() {
 
   const getTotalMethodPayments = async () => {
     const result = await getAll(paymentsMethodsTableName);
-
+    let allMethods: { id: number; title: string }[] = [];
     if (result.data) {
-      const uniqueModulesSet = new Set<string>();
       result.data.forEach((element: PaymentsMethod) => {
-        uniqueModulesSet.add(element.title);
+        allMethods.push({ id: element.id!, title: element.title });
       });
 
-      const uniqueTypesArray = Array.from(uniqueModulesSet);
-
-      setTotalMethods(uniqueTypesArray);
+      setTotalMethods(allMethods);
     }
   };
 
@@ -149,10 +160,14 @@ export default function PaymentsListPage() {
       filteredModules.length > 0 ||
       filteredMethods.length > 0
     ) {
-      search(currentPage);
+      if (user.users_roles.rules.payments.payments.read) {
+        search(currentPage);
+      }
     } else {
       const fetchData = async () => {
-        getDataFromServer(orderBy, orderDir, currentPage, pageSize);
+        if (user.users_roles.rules.payments.payments.read) {
+          getDataFromServer(orderBy, orderDir, currentPage, pageSize);
+        }
       };
       fetchData();
     }
@@ -181,15 +196,22 @@ export default function PaymentsListPage() {
     size: number,
   ) => {
     setLoading(true);
-    getOrdersAndRelatedData(page, size, orderBy, orderDir, "").then(
-      (result) => {
-        const { totalItems, data } = result;
-        setData(data ? data : []);
-        setTotalItems(totalItems);
-        setTotalPages(Math.ceil(totalItems / pageSize));
-        setLoading(false);
-      },
-    );
+    getOrdersAndRelatedData(
+      page,
+      size,
+      orderBy,
+      orderDir,
+      userCreatedBy,
+      showAll,
+      userGroup,
+      "",
+    ).then((result) => {
+      const { totalItems, data } = result;
+      setData(data ? data : []);
+      setTotalItems(totalItems);
+      setTotalPages(Math.ceil(totalItems / pageSize));
+      setLoading(false);
+    });
     setItemSearch(false);
   };
 
@@ -208,6 +230,9 @@ export default function PaymentsListPage() {
       pageSize,
       orderBy,
       orderDir,
+      userCreatedBy,
+      showAll,
+      userGroup,
       searchTerm,
       filteredStatus,
       filteredModules,
@@ -287,6 +312,8 @@ export default function PaymentsListPage() {
         columnsThirdDropdown={columnsThridDropdown}
         thirdDataDropdown={totalMethods}
         showButtonSave={false}
+        disableAddButton={!user.users_roles.rules.payments.payments.create}
+        showCleanFilter={false}
       />
       {showEditModal ? (
         <PaymentListModal
@@ -299,4 +326,3 @@ export default function PaymentsListPage() {
     </>
   );
 }
- */

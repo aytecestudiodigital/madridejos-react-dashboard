@@ -1,12 +1,15 @@
-/* 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { Card } from "flowbite-react";
 import { FC, useContext, useEffect, useState } from "react";
-import { SubmitHandler, useForm, FormProvider } from "react-hook-form";
+import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   BreadcrumbItem,
   HeaderItemPageComponent,
 } from "../../../../components/ListPage/HeaderItemPage";
+import { AlertContext } from "../../../../context/AlertContext";
+import { supabase } from "../../../../server/supabase";
 import {
   deleteRow,
   getAll,
@@ -15,18 +18,13 @@ import {
   insertRow,
   updateRow,
 } from "../../../../server/supabaseQueries";
-import { ItemDetailsCard } from "../components/ItemsDetailsCard";
 import { AccessControl } from "../../../accessControl/models/AccessControl";
+import { Users } from "../../../users/models/Users";
+import { ItemDetailsCard } from "../components/ItemsDetailsCard";
+import { ItemContext } from "../context/ItemContext";
 import { ItemModel } from "../models/ItemModel";
 import { PaymentAccount } from "../models/PaymentAcc";
 import { PaymentMethod } from "../models/PaymentMethod";
-import { Users } from "../../../users/models/Users";
-import { AlertContext } from "../../../../context/AlertContext";
-import { ItemContext } from "../context/ItemContext";
-import { supabase } from "../../../../server/supabase";
-import { RootState } from "../../../../store/store";
-import { useSelector } from "react-redux";
-import { Card } from "flowbite-react";
 
 export const ItemPage: FC = () => {
   const navigate = useNavigate();
@@ -82,7 +80,8 @@ export const ItemPage: FC = () => {
     [],
   );
 
-  const user = useSelector((state: RootState) => state.auth.user);
+  const user = JSON.parse(localStorage.getItem("userLogged")!);
+  const userGroupId = localStorage.getItem("groupSelected")!;
 
   useEffect(() => {
     if (user) {
@@ -155,7 +154,7 @@ export const ItemPage: FC = () => {
         });
       }
       setItemCalendar(formatCalendar);
-      setPaymentMethodsSelected(formatMethods)
+      setPaymentMethodsSelected(formatMethods);
 
       //Definir el breadcrumb, títulos y botones
       if (installation.type === "INSTALLATION") {
@@ -241,6 +240,8 @@ export const ItemPage: FC = () => {
     criteriaMode: "all",
   });
 
+  const { isValid } = methods.formState;
+
   const [dataToSend, setDataToSend] = useState<any>({});
 
   const onBack = () => {
@@ -270,7 +271,8 @@ export const ItemPage: FC = () => {
   const onSave: SubmitHandler<any> = async (close: boolean) => {
     setSaving(true);
     let result: any;
-    const formValue = methods.getValues();
+    const formValue: any = methods.getValues();
+    formValue.group_id = userGroupId;
     formValue.courtesy_time = 5;
     if (!item) {
       delete dataToSend.legal.id;
@@ -437,19 +439,56 @@ export const ItemPage: FC = () => {
 
   return (
     <>
-      <div className="block items-center justify-between border-b border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800 sm:flex">
+      <div className="block items-center justify-between border-b border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800 sm:flex">
         <div className="mb-1 w-full">
-          <HeaderItemPageComponent
-            title={pageTitle}
-            breadcrumb={breadcrumb}
-            saving={saving}
-            showBackButton={true}
-            showButtonSave={true}
-            showButtonSaveAndClose={true}
-            saveButtonDisabled={false}
-            onBack={onBack}
-            onSave={onSave}
-          />
+          {item ? (
+            <HeaderItemPageComponent
+              title={pageTitle}
+              breadcrumb={breadcrumb}
+              saving={saving}
+              showBackButton={true}
+              showButtonSave={true}
+              showButtonSaveAndClose={true}
+              saveButtonDisabled={
+                !isValid ||
+                (!user.users_roles.rules.bookings.installation_items
+                  .update_all &&
+                  !user.users_roles.rules.bookings.installation_items
+                    .update_group &&
+                  !user.users_roles.rules.bookings.installation_items
+                    .update_own) ||
+                (!user.users_roles.rules.bookings.installation_items
+                  .update_all &&
+                  user.users_roles.rules.bookings.installation_items
+                    .update_group &&
+                  userGroupId !== item.group_id) ||
+                (!user.users_roles.rules.bookings.installation_items
+                  .update_all &&
+                  !user.users_roles.rules.bookings.installation_items
+                    .update_group &&
+                  user.users_roles.rules.bookings.installation_items
+                    .update_own &&
+                  user.id !== item.created_by)
+              }
+              onBack={onBack}
+              onSave={onSave}
+            />
+          ) : (
+            <HeaderItemPageComponent
+              title={pageTitle}
+              breadcrumb={breadcrumb}
+              saving={saving}
+              showBackButton={true}
+              showButtonSave={true}
+              showButtonSaveAndClose={true}
+              saveButtonDisabled={
+                !isValid ||
+                !user.users_roles.rules.bookings.installation_items.create
+              }
+              onBack={onBack}
+              onSave={onSave}
+            />
+          )}
         </div>
       </div>
       <div className="p-4">
@@ -478,4 +517,3 @@ export const ItemPage: FC = () => {
     </>
   );
 };
- */

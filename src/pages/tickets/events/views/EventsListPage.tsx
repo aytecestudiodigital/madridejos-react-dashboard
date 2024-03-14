@@ -1,10 +1,8 @@
-/* import { useContext, useEffect, useState } from "react";
-import ListPageWithPagination from "../../../../components/ListPage/ListPageWithPagination";
-import { getEntities } from "../../../../server/supabaseQueries";
-import { AlertContext } from "../../../../context/AlertContext";
+import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { RootState } from "../../../../store/store";
-import { useSelector } from "react-redux";
+import ListPageWithPagination from "../../../../components/ListPage/ListPageWithPagination";
+import { AlertContext } from "../../../../context/AlertContext";
+import { getEntities } from "../../../../server/supabaseQueries";
 
 export const EventsListPage = () => {
   const navigate = useNavigate();
@@ -17,10 +15,16 @@ export const EventsListPage = () => {
     },
   ];
 
+  /**
+   * Definición de datos
+   */
   const { openAlert } = useContext(AlertContext);
   const [loading, setLoading] = useState<boolean>(false);
   const [data, setData] = useState<any[]>([]);
 
+  /**
+   * Buscador y ordenación
+   */
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [itemSearch, setItemSearch] = useState(false);
 
@@ -38,14 +42,27 @@ export const EventsListPage = () => {
 
   const [alertMsg] = useState("");
   const [actionAlert] = useState("");
+  const [filteredSearchItems, setFilteredSearchItems] = useState<string[]>([]);
 
-  const user = useSelector((state: RootState) => state.auth.user);
+  const user = JSON.parse(localStorage.getItem("userLogged")!);
+  const userGroupId = localStorage.getItem("groupSelected")!;
+
+  let showAll: boolean;
+  let userGroup: string | null;
+  let userCreatedBy: string;
 
   useEffect(() => {
     if (user) {
       if (!user.users_roles.rules.tickets.events.access_module) {
         openAlert("No tienes acceso a esta página", "error");
         navigate("/");
+      } else {
+        userCreatedBy = user.id;
+        !user.users_roles.rules.tickets.events.read_all &&
+        user.users_roles.rules.tickets.events.read_group
+          ? (userGroup = userGroupId)
+          : (userGroup = null);
+        showAll = user.users_roles.rules.tickets.events.read_all;
       }
     }
   }, [user]);
@@ -77,16 +94,24 @@ export const EventsListPage = () => {
     size: number,
   ) => {
     setLoading(true);
-    getEntities(entity_table, page, size, orderBy, orderDir, "").then(
-      (result) => {
-        const { totalItems, data } = result;
-        setData(data ? data : []);
-        setTotalItems(totalItems);
-        setTotalPages(Math.ceil(totalItems / pageSize));
-        if (currentPage == totalPages) setEndRange(totalItems);
-        setLoading(false);
-      },
-    );
+    getEntities(
+      entity_table,
+      page,
+      size,
+      orderBy,
+      orderDir,
+      userCreatedBy,
+      showAll,
+      userGroup,
+      "",
+    ).then((result) => {
+      const { totalItems, data } = result;
+      setData(data ? data : []);
+      setTotalItems(totalItems);
+      setTotalPages(Math.ceil(totalItems / pageSize));
+      if (currentPage == totalPages) setEndRange(totalItems);
+      setLoading(false);
+    });
     setItemSearch(false);
   };
 
@@ -99,6 +124,9 @@ export const EventsListPage = () => {
       pageSize,
       orderBy,
       orderDir,
+      userCreatedBy,
+      showAll,
+      userGroup,
       searchTerm,
     );
 
@@ -107,19 +135,23 @@ export const EventsListPage = () => {
     setTotalPages(Math.ceil(totalItems / pageSize));
   };
 
-  const clickOnItem = () => {
+  const clickOnItem = (item: any) => {
+    navigate(`/tickets/events/${item.id}`);
   };
 
   const newItem = () => {
+    navigate(`/tickets/events/new`);
   };
 
   const onSearch = async (
     searchTerm: string,
     orderBy: string,
     orderDir: string,
+    filteredSearchItems?: string[],
   ) => {
     setCurrentPage(1);
     setSearchTerm(searchTerm);
+    setFilteredSearchItems(filteredSearchItems ? filteredSearchItems : []);
     setItemSearch(searchTerm !== "" ? true : false);
     setOrderBy(orderBy);
     setOrderDir(orderDir);
@@ -157,10 +189,9 @@ export const EventsListPage = () => {
         isOpen={openAlert}
         alertMsg={alertMsg}
         action={actionAlert}
-        columnsDropdown={[]}
-        dataDropdown={[]}
+        disableAddButton={!user.users_roles.rules.tickets.events.create}
+        showCleanFilter={false}
       />
     </>
   );
 };
- */

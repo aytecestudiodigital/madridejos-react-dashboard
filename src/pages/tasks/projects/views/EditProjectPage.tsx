@@ -1,8 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useContext, useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { HeaderItemPageComponent } from "../../../../components/ListPage/HeaderItemPage";
-import { useForm } from "react-hook-form";
+import { ErrorMessage } from "@hookform/error-message";
 import {
   Button,
   Card,
@@ -11,21 +8,24 @@ import {
   Textarea,
   ToggleSwitch,
 } from "flowbite-react";
-import { LuPlus, LuUserCog2, LuUserPlus2 } from "react-icons/lu";
 import { t } from "i18next";
-import { ProjectCategoryModal } from "../components/ProjectCategoryModal";
+import { useContext, useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
 import { HiTrash } from "react-icons/hi";
-import { ErrorMessage } from "@hookform/error-message";
+import { LuPlus, LuUserCog2, LuUserPlus2 } from "react-icons/lu";
+import { useNavigate, useParams } from "react-router-dom";
+import { DeleteModal } from "../../../../components/DeleteModal";
+import { HeaderItemPageComponent } from "../../../../components/ListPage/HeaderItemPage";
+import { AlertContext } from "../../../../context/AlertContext";
+import { supabase } from "../../../../server/supabase";
 import {
   deleteRow,
   getOneRow,
   insertRow,
   updateRow,
 } from "../../../../server/supabaseQueries";
-import { supabase } from "../../../../server/supabase";
-import { DeleteModal } from "../../../../components/DeleteModal";
-import { AlertContext } from "../../../../context/AlertContext";
 import { ItemResponsiblesModal } from "../../../bookings/items/components/ItemResposiblesModal";
+import { ProjectCategoryModal } from "../components/ProjectCategoryModal";
 
 export default function EditProjectPage() {
   const breadcrumb = [
@@ -79,20 +79,32 @@ export default function EditProjectPage() {
   const { errors, isValid } = formState;
 
   const user = JSON.parse(localStorage.getItem("userLogged")!);
+  const userGroupId = localStorage.getItem("groupSelected")!;
+
+  let showAll: boolean;
+  let userGroup: string | null;
+  let userCreatedBy: string;
 
   useEffect(() => {
     if (user) {
       if (!user.users_roles.rules.tasks.projects.access_module) {
         openAlert("No tienes acceso a esta página", "error");
         navigate("/");
+      } else {
+        userCreatedBy = user.id;
+        user.users_roles.rules.tasks.projects.read_group === true
+          ? (userGroup = "aa15110f-1afd-4408-865a-bd7b6d347719")
+          : (userGroup = null);
+        showAll = user.users_roles.rules.tasks.projects.read_all;
       }
     }
   }, [user]);
 
   useEffect(() => {
-    if (id) {
+    if (id || project) {
       setPageTitle("EDIT_PROJECT");
       getDataFromServer();
+      //getProjectsWithTasksFromServer();
     } else {
       setPageTitle("NEW_PROJECT");
     }
@@ -195,6 +207,22 @@ export default function EditProjectPage() {
     }
   };
 
+  /* const getProjectsWithTasksFromServer = () => {
+    if (id || project) {
+      const projectId = id != undefined ? id : project.id;
+
+      getOneProjectAndRelatedData(
+        projectId,
+        userCreatedBy,
+        showAll,
+        userGroup,
+      ).then(async (result) => {
+        const { data } = result;
+        setTasksCardData(data ? data : []);
+      });
+    }
+  }; */
+
   const openModalAdmin = () => {
     setIsOpenModalAdmin(true);
   };
@@ -249,7 +277,7 @@ export default function EditProjectPage() {
       description: formValues.description,
       enable: formValues.enable,
       org_id: "30f3a4ed-0b43-4489-85a8-244ac94019f5",
-      group_id: user.group_id,
+      group_id: userGroupId,
     };
     if (!project) {
       const createdProject = await insertRow(projectToSave, "tasks_projects");
@@ -328,7 +356,7 @@ export default function EditProjectPage() {
           for await (const admin of admins) {
             if (
               defaultAdminsDb[
-              defaultAdminsDb.findIndex((e) => e.id === admin.id)
+                defaultAdminsDb.findIndex((e) => e.id === admin.id)
               ] === undefined
             ) {
               const newAdmin = {
@@ -344,7 +372,7 @@ export default function EditProjectPage() {
             if (technician.id) {
               if (
                 technicians[
-                technicians.findIndex((e) => e.id === technician.id)
+                  technicians.findIndex((e) => e.id === technician.id)
                 ] === undefined
               ) {
                 await supabase
@@ -360,7 +388,7 @@ export default function EditProjectPage() {
           for await (const technician of technicians) {
             if (
               defaultTechniciansDb[
-              defaultTechniciansDb.findIndex((e) => e.id === technician.id)
+                defaultTechniciansDb.findIndex((e) => e.id === technician.id)
               ] === undefined
             ) {
               const newTech = {
@@ -422,9 +450,9 @@ export default function EditProjectPage() {
                   for await (const tech of category.techniciansSelected) {
                     if (
                       defaultProjectCategoryTechnicians[
-                      defaultProjectCategoryTechnicians.findIndex(
-                        (e) => e === tech,
-                      )
+                        defaultProjectCategoryTechnicians.findIndex(
+                          (e) => e === tech,
+                        )
                       ] === undefined
                     ) {
                       const newTech = {
@@ -442,9 +470,9 @@ export default function EditProjectPage() {
                   for await (const tech of defaultProjectCategoryTechnicians) {
                     if (
                       category.techniciansSelected[
-                      category.techniciansSelected.findIndex(
-                        (e: any) => e === tech,
-                      )
+                        category.techniciansSelected.findIndex(
+                          (e: any) => e === tech,
+                        )
                       ] === undefined
                     ) {
                       await supabase
@@ -496,7 +524,7 @@ export default function EditProjectPage() {
         </div>
       </div>
       <div className="flex gap-4 p-4">
-        <div className="w-2/3">
+        <div className="w-1/2">
           <Card>
             <div>
               <p className="font-bold text-xl">
@@ -571,6 +599,7 @@ export default function EditProjectPage() {
                     closeModal={() => setIsOpenModalAdmin(false)}
                     setTechnicians={setAdmins}
                     selectedTechnicians={admins}
+                    type="roles"
                   />
 
                   <div className="flex flex-col">
@@ -627,6 +656,7 @@ export default function EditProjectPage() {
                     closeModal={() => setIsOpenModalTechnicians(false)}
                     setTechnicians={setTechnicians}
                     selectedTechnicians={technicians}
+                    type="roles"
                   />
 
                   <div className="flex flex-col">
@@ -673,23 +703,15 @@ export default function EditProjectPage() {
                   toastErrorMsg={"Error al eliminar el proyecto"}
                   title="Eliminar proyecto"
                   disableButton={
-                    (!user.users_roles.rules.tasks.projects
-                      .delete_all &&
-                      !user.users_roles.rules.tasks.projects
-                        .delete_group &&
-                      !user.users_roles.rules.tasks.projects
-                        .delete_own) ||
-                    (!user.users_roles.rules.tasks.projects
-                      .delete_all &&
-                      user.users_roles.rules.tasks.projects
-                        .delete_group &&
-                      user.group_id !== project.group_id) ||
-                    (!user.users_roles.rules.tasks.projects
-                      .delete_all &&
-                      !user.users_roles.rules.tasks.projects
-                        .delete_group &&
-                      user.users_roles.rules.tasks.projects
-                        .delete_own &&
+                    (!user.users_roles.rules.tasks.projects.delete_all &&
+                      !user.users_roles.rules.tasks.projects.delete_group &&
+                      !user.users_roles.rules.tasks.projects.delete_own) ||
+                    (!user.users_roles.rules.tasks.projects.delete_all &&
+                      user.users_roles.rules.tasks.projects.delete_group &&
+                      userGroupId !== project.group_id) ||
+                    (!user.users_roles.rules.tasks.projects.delete_all &&
+                      !user.users_roles.rules.tasks.projects.delete_group &&
+                      user.users_roles.rules.tasks.projects.delete_own &&
                       user.id !== project.created_by)
                   }
                 />
@@ -697,8 +719,8 @@ export default function EditProjectPage() {
             </div>
           </Card>
         </div>
-        <div className="w-1/3">
-          <Card>
+        <div className="w-1/2">
+          <Card className=" overflow-auto">
             <div className="flex justify-between items-center">
               <div>
                 <h1 className="text-xl font-semibold">Categorías</h1>
@@ -714,11 +736,8 @@ export default function EditProjectPage() {
                   </a>
                 </div>
               </div>
-              {/* <div>
-                                <Button color="primary" onClick={() => openModalCategory(null, "")}>Añadir categoría</Button>
-                            </div> */}
             </div>
-            <div className="mt-4">
+            <div>
               {projectCategories && projectCategories.length > 0 ? (
                 <>
                   <div className="text-gray-400 font-semibold border-b p-4">
@@ -754,6 +773,50 @@ export default function EditProjectPage() {
               )}
             </div>
           </Card>
+          {/* 
+          <Card className="mt-4 overflow-auto max-h-96">
+            <div className="flex justify-between items-center max-h-">
+              <div>
+                <h1 className="text-xl font-semibold">Incidencias</h1>
+              </div>
+            </div>
+            <div className="overflow-auto">
+              <Table>
+                <Table.Head>
+                  <Table.HeadCell>{t("TITLE")}</Table.HeadCell>
+                  <Table.HeadCell>{t("CATEGORY_TITLE")}</Table.HeadCell>
+                  <Table.HeadCell>{t("STATE")}</Table.HeadCell>
+                </Table.Head>
+                <Table.Body>
+                  {tasksCardData &&
+                    tasksCardData.categories.map(
+                      (category: any, index: number) => (
+                        <React.Fragment key={index}>
+                          {category.tasks &&
+                            category.tasks.map((task: any, idx: number) => (
+                              <Table.Row
+                                key={idx}
+                                className="cursor-pointer font-bold hover:bg-gray-200"
+                                onClick={() => onClickItem(task.id)}
+                              >
+                                <Table.Cell className="max-w-md p-4 text-base font-medium text-gray-900 dark:text-white ">
+                                  {task.title}
+                                </Table.Cell>
+                                <Table.Cell className="max-w-md p-4 text-base font-medium text-gray-900 dark:text-white ">
+                                  {category.title}
+                                </Table.Cell>
+                                <Table.Cell className="max-w-md p-4 text-base font-medium text-gray-900 dark:text-white ">
+                                  <StateComponent state={task.state} />
+                                </Table.Cell>
+                              </Table.Row>
+                            ))}
+                        </React.Fragment>
+                      ),
+                    )}
+                </Table.Body>
+              </Table>
+            </div>
+          </Card> */}
         </div>
       </div>
       {isOpenProjectCategoryModal ? (

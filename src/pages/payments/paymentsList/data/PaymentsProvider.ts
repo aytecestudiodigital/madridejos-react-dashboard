@@ -5,6 +5,9 @@ export const getOrdersAndRelatedData = async (
   count: number,
   orderBy: string,
   orderDir: string,
+  p_created_by: string,
+  access: boolean,
+  p_group_id: string | null,
   search?: string,
   filters_status?: string[],
   filtersModule?: string[],
@@ -13,16 +16,22 @@ export const getOrdersAndRelatedData = async (
   const initRange: number = (page - 1) * count;
   const endRange: number = count * page - 1;
 
-  const { data, error } = await supabase.rpc("payments_orders", {
-    init_range: initRange,
-    end_range: endRange,
-    p_order_by: orderBy,
-    p_order_dir: orderDir,
-    p_search_term: search,
-    filters_status: filters_status,
-    filters_modules: filtersModule,
-    filters_methods: filtersMethods,
-  });
+  const { data, error } = await supabase.rpc(
+    "payments_orders_with_authorization",
+    {
+      init_range: initRange,
+      end_range: endRange,
+      p_order_by: orderBy,
+      p_order_dir: orderDir,
+      p_search_term: search,
+      filters_status: filters_status,
+      filters_modules: filtersModule,
+      filters_methods: filtersMethods,
+      p_created_by: p_created_by,
+      access: access,
+      p_group_id: p_group_id,
+    },
+  );
 
   if (data) {
     return {

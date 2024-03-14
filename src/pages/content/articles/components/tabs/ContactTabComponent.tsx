@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { ErrorMessage } from "@hookform/error-message";
+import * as EmailValidator from "email-validator";
 import { Label, TextInput } from "flowbite-react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import * as EmailValidator from "email-validator";
-import { ErrorMessage } from "@hookform/error-message";
 
 interface ContactTabProps {
   onContact: (contact: any) => void;
@@ -29,7 +29,7 @@ export default function ContactTab({
   const phoneRegex = /^[9|6|7][0-9]{8}$/;
 
   return (
-    <div className="px-4">
+    <div className="p-4">
       <div className="grid grid-cols-12 divide-x">
         <div className="col-span-8 divide-y mr-8">
           <div className="mb-4">

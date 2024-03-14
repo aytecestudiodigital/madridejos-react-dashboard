@@ -30,7 +30,6 @@ export const authSlice = createSlice({
     login: (state, { payload }) => {
       const session = payload.session as Session;
       const user = payload.user;
-
       state.logged = true;
       state.uid = session.user.id;
       state.token = session.access_token;

@@ -64,7 +64,9 @@ export const InscriptionPaymentMethodsCard = (
             <Label>Cuenta de pago</Label>
             <div className="mt-1">
               <Select {...register("payments_account_id")}>
-                <option value="">Seleccionar</option>
+                <option hidden value="">
+                  Seleccionar
+                </option>
                 {paymentAccounts.map((account: any, index: any) => (
                   <option key={index} value={account.id}>
                     {account.title}
@@ -105,7 +107,9 @@ export const InscriptionPaymentMethodsCard = (
                   required: t("FORM_ERROR_MSG_REQUIRED"),
                 })}
               >
-                <option value="">Seleccionar</option>
+                <option hidden value="">
+                  Seleccionar
+                </option>
                 {paymentAccounts.map((account: any, index: any) => (
                   <option key={index} value={account.id}>
                     {account.title}

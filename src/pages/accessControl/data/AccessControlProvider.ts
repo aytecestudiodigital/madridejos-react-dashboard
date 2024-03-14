@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction } from "react";
+/* import { Dispatch, SetStateAction } from "react";
 import { supabase } from "../../../server/supabase";
 
 export const handleButtonClick = async (
@@ -46,7 +46,6 @@ export const handleButtonClick = async (
                 "Basic YXltbzo2QkFIMzI5RDQzUTJkYnRkUjd3UnFNOVk0Rm1qcXZ4Ng==",
             },
           });
-          console.log("response: ", response);
           return response.status;
         } catch (error: any) {
           // Manejar errores
@@ -96,7 +95,6 @@ export const handleButtonClick = async (
               },
               body: JSON.stringify({}),
             });
-            console.log("response: ", response);
             return response.status;
           } catch (error: any) {
             // Manejar errores
@@ -117,19 +115,28 @@ export const getAccessControl = async (
   count: number,
   orderBy: string,
   orderDir: string,
+  p_created_by: string,
+  access: boolean,
+  p_group_id: string | null,
   search?: string,
   filters?: string[],
 ): Promise<{ totalItems: number; data: any[] | null }> => {
   const initRange: number = (page - 1) * count;
   const endRange: number = count * page - 1;
-  const { data, error } = await supabase.rpc("access_control", {
-    init_range: initRange,
-    end_range: endRange,
-    p_order_by: orderBy,
-    p_order_dir: orderDir,
-    p_search_term: search,
-    filters_type: filters,
-  });
+  const { data, error } = await supabase.rpc(
+    "access_control_with_authorization",
+    {
+      init_range: initRange,
+      end_range: endRange,
+      p_order_by: orderBy,
+      p_order_dir: orderDir,
+      p_search_term: search,
+      filters_type: filters,
+      p_created_by: p_created_by,
+      access: access,
+      p_group_id: p_group_id,
+    },
+  );
 
   if (data) {
     return {
@@ -148,3 +155,4 @@ export const getAccessControl = async (
     };
   }
 };
+ */

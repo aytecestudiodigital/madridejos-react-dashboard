@@ -128,7 +128,7 @@ export const CategoryTechniciansModal = (
       </Modal.Body>
       <Modal.Footer>
         {technicians.length > 0 ? (
-          <Button onClick={assignTechs} color="primary">
+          <Button size={"sm"} onClick={assignTechs} color="primary">
             Asignar
           </Button>
         ) : null}

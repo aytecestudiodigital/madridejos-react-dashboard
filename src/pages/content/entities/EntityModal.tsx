@@ -41,8 +41,10 @@ export function EntityPageModal({
         </div>
       </Modal.Body>
       <Modal.Footer>
-        <Button onClick={() => close()}>I accept</Button>
-        <Button color="gray" onClick={() => close()}>
+        <Button size={"sm"} onClick={() => close()}>
+          I accept
+        </Button>
+        <Button size={"sm"} color="gray" onClick={() => close()}>
           Decline
         </Button>
       </Modal.Footer>

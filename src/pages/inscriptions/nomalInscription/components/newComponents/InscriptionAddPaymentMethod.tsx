@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Button, Checkbox, Label, Select, TextInput } from "flowbite-react";
+import { Checkbox, Label, Select, TextInput } from "flowbite-react";
 import { useEffect, useState } from "react";
+import { HiTrash } from "react-icons/hi";
 import { getAll } from "../../../../../server/supabaseQueries";
 
 interface addPaymentMethodProps {
@@ -35,28 +36,6 @@ export const InscriptionAddPaymentMethod = (props: addPaymentMethodProps) => {
     fetchData();
   }, []);
 
-  /* const handleAditionalDeadline = () => {
-        const newDeadline = {
-            payment_percentaje: 0,
-            payment_date_type: "INSCRIPTION_MOMENT",
-            payment_date: null,
-            uuid: crypto.randomUUID()
-        }
-        setAditionalDeadLines([...aditionalDeadLines, newDeadline])
-    }
-
-    const updateAditionalDeadline = (index:any, property:any, data:any) => {
-        const defaultAditionalDeadlines = [...aditionalDeadLines]
-        defaultAditionalDeadlines[index][property] = data
-        setAditionalDeadLines(defaultAditionalDeadlines)
-    }
-
-    const deleteAditionalDeadline = (index: number) => {
-        const deadlines = [...aditionalDeadLines]
-        deadlines.splice(index, 1)
-        setAditionalDeadLines(deadlines)
-    } */
-
   useEffect(() => {
     props.item.title = title;
     props.item.payment_method_id = paymentMethod;
@@ -67,9 +46,9 @@ export const InscriptionAddPaymentMethod = (props: addPaymentMethodProps) => {
 
   return (
     <>
-      <div className="flex gap-8">
-        <div className="w-full">
-          <div>
+      <div className="flex gap-8 p-1">
+        <div className="flex flex-grow mt-4 justify-between gap-4">
+          <div className="w-2/3">
             <Label>Título del método de pago</Label>
             <div className="mt-1">
               <TextInput
@@ -78,14 +57,16 @@ export const InscriptionAddPaymentMethod = (props: addPaymentMethodProps) => {
               />
             </div>
           </div>
-          <div>
+          <div className="w-1/3">
             <Label>Método habilitado</Label>
             <div className="mt-1">
               <Select
                 value={paymentMethod}
                 onChange={(e) => setPaymentMethod(e.currentTarget.value)}
               >
-                <option value="">Seleccionar</option>
+                <option hidden value="">
+                  Seleccionar
+                </option>
                 {paymentMethods.map((method, index) => (
                   <option key={index} value={method.id}>
                     {method.title}
@@ -95,107 +76,35 @@ export const InscriptionAddPaymentMethod = (props: addPaymentMethodProps) => {
             </div>
           </div>
         </div>
-        {/* <div className="w-1/2">
-                    <div className="flex justify-between">
-                        <p>Plazos</p>
-                        <Button onClick={handleAditionalDeadline}>Añadir plazo</Button>
-                    </div>
-                    <div className="flex gap-8 mt-2 max-h-96 overflow-auto">
-                        <div className="w-full">
-                            <Label>Porcentaje del pago</Label>
-                            <div className="mt-1">
-                                <TextInput
-                                    defaultValue={paymentPercentaje}
-                                    onBlur={(e) => setPaymentPercentaje(e.currentTarget.value)}
-                                    type="number"
-                                />
-                            </div>
-                        </div>
-                        <div className="w-full">
-                            <Label>Fecha del pago</Label>
-                            <div className="mt-1">
-                                <Select defaultValue={paymentDateType} onChange={(e) => setPaymentDateType(e.currentTarget.value)}>
-                                    <option value="INSCRIPTION_MOMENT">En el momento de la inscripción</option>
-                                    <option value="SPECIFIC_DATE">En una fecha concreta</option>
-                                    <option value="NO_DATE">No especificar</option>
-                                </Select>
-                            </div>
-                        </div>
-                        {
-                            paymentDateType === "SPECIFIC_DATE" ? (
-                                <div>
-                                    <Label>Fecha del pago</Label>
-                                    <div className="mt-1">
-                                        <TextInput type="date" defaultValue={paymentDate} onBlur={(e) => setPaymentDate(e.currentTarget.value)} />
-                                    </div>
-                                </div>
-                            ) : null
-                        }
-                    </div>
-                    <div className="max-h-[50vh] overflow-auto">
-                        {
-                            aditionalDeadLines.map((deadline, index) => (
-                                <div key={deadline.uuid} className="flex gap-8 mt-2">
-                                    <div className="w-full">
-                                        <Label>Porcentaje del pago</Label>
-                                        <div className="mt-1">
-                                            <TextInput
-                                                defaultValue={deadline.payment_percentaje}
-                                                onBlur={(e) => updateAditionalDeadline(index, 'payment_percentaje', e.currentTarget.value)}
-                                                type="number"
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className="w-full">
-                                        <Label>Fecha del pago</Label>
-                                        <div className="mt-1">
-                                            <Select defaultValue={deadline.payment_date_type} onChange={(e) => updateAditionalDeadline(index, 'payment_percentaje', e.currentTarget.value)}>
-                                                <option value="INSCRIPTION_MOMENT">En el momento de la inscripción</option>
-                                                <option value="SPECIFIC_DATE">En una fecha concreta</option>
-                                                <option value="NO_DATE">No especificar</option>
-                                            </Select>
-                                        </div>
-                                    </div>
-                                    {
-                                        deadline.payment_date_type === "SPECIFIC_DATE" ? (
-                                            <div>
-                                                <Label>Fecha del pago</Label>
-                                                <div className="mt-1">
-                                                    <TextInput type="date" defaultValue={deadline.payment_date} onBlur={(e) => updateAditionalDeadline(index, 'payment_date', e.currentTarget.value)} />
-                                                </div>
-                                            </div>
-                                        ) : null
-                                    }
-                                    <div className="flex items-center mt-6">
-                                        <Button onClick={() => deleteAditionalDeadline(index)} color="failure"><HiTrash /></Button>
-                                    </div>
-                                </div>
-                            ))
-                        }
-                    </div>
-
-                </div> */}
       </div>
-      <div className="flex justify-start gap-20 mt-4">
-        <div className="flex">
+
+      <div className="flex mt-8 border-b-2 border-gray-200 dark:border-gray-700 pb-6">
+        <div className="flex flex-grow items-center">
           <Checkbox
-            defaultChecked={enabled}
-            onChange={(e) => setEnabled(e.currentTarget.checked)}
-          />
-          <Label className="ml-2">Habilitado</Label>
-        </div>
-        <div className="flex">
-          <Checkbox
+            id={`checkbox-enabled-${props.item.id}`}
+            className="w-4 h-4 mr-1 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
             defaultChecked={forTechnicians}
             onChange={(e) => setForTechnicians(e.currentTarget.checked)}
           />
-          <Label className="ml-2">Sólo para técnicos</Label>
+          <Label>Solo para técnicos</Label>
         </div>
-      </div>
-      <div className="flex justify-start mt-4">
-        <Button onClick={() => props.onDelete(props.index)} color="failure">
-          Borrar método
-        </Button>
+
+        <div className="flex flex-grow items-center">
+          <Checkbox
+            id={`checkbox-required-${props.item.id}`}
+            className="w-4 h-4 mr-1 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
+            defaultChecked={enabled}
+            onChange={(e) => setEnabled(e.currentTarget.checked)}
+          />
+          <Label>Habilitado</Label>
+        </div>
+
+        <div className="flex justify-end">
+          <HiTrash
+            className="text-xl  text-red-500"
+            onClick={() => props.onDelete(props.index)}
+          />
+        </div>
       </div>
     </>
   );

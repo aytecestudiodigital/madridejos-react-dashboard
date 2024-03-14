@@ -10,11 +10,13 @@ import { HiOutlineExclamationCircle, HiTrash } from "react-icons/hi";
 interface DeleteCategoryModalProps {
   category: any;
   onCategoryDelete: (role: any) => void;
+  disableButton: boolean;
 }
 
 export function DeleteCategoryModal({
   category: category,
   onCategoryDelete,
+  disableButton,
 }: DeleteCategoryModalProps) {
   const { t } = useTranslation();
   const [isOpen, setOpen] = useState(false);
@@ -28,7 +30,12 @@ export function DeleteCategoryModal({
 
   return (
     <>
-      <Button size="sm" color="failure" onClick={() => setOpen(true)}>
+      <Button
+        disabled={disableButton}
+        size="sm"
+        color="failure"
+        onClick={() => setOpen(true)}
+      >
         <div className="flex gap-x-1 text-white items-center">
           <HiTrash className="text-sm text-white" />
           {t("DELETE")}

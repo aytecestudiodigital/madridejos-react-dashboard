@@ -53,28 +53,6 @@ export const TabItemPayments = (props: PaymentsProps) => {
       }
     };
     fetchData();
-
-    /* props.item
-      ? getRowByColumn(
-        "booking_item_id",
-        props.item.id!,
-        itemsMethodsTableName,
-      ).then((methods: any) => {
-        methods.forEach((method: any) => {
-          getOneRow(
-            "id",
-            method.payments_method_id,
-            paymentMethodsTableName,
-          ).then((row: any) => {
-            console.log('row', row)
-            const defaultSelected = [...selectedMethods]
-            console.log('defaultSelected', defaultSelected)
-            defaultSelected.push(row)
-            setSelectedMethods(defaultSelected)
-          });
-        });
-      })
-      : null; */
   }, [props.item]);
 
   useEffect(() => {
@@ -112,6 +90,7 @@ export const TabItemPayments = (props: PaymentsProps) => {
 
   return (
     <div className="flex flex-col gap-4">
+      <h3 className="text-xl font-bold dark:text-white pt-2">Pagos</h3>
       <div>
         <Label htmlFor="free">{t("FREE")}</Label>
         {/* <Select
@@ -160,7 +139,7 @@ export const TabItemPayments = (props: PaymentsProps) => {
                 onChange={(e) => setSelectedPaymentAcc(e.target.value)}
                 onBlur={() => onChangeInputs()}
               >
-                <option value="" disabled>
+                <option hidden value="" disabled>
                   {t("SELECT")}
                 </option>
                 {props.paymentsAcc.map((method, index) => (

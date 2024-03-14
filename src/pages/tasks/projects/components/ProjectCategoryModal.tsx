@@ -180,7 +180,14 @@ export const ProjectCategoryModal = (props: ProjectCategoryModalProps) => {
         </div>
       </Modal.Body>
       <Modal.Footer className="flex place-content-end">
-        <Button onClick={onSubmit} color="primary">
+        <Button
+          disabled={
+            (autoAssign && selectedTechnicians.length === 0) || title === ""
+          }
+          size={"sm"}
+          onClick={onSubmit}
+          color="primary"
+        >
           Guardar
         </Button>
       </Modal.Footer>

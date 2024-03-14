@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { DeleteModal } from "../../../../components/DeleteModal";
 import { getRowByColumn } from "../../../../server/supabaseQueries";
+import StateComponent from "../../../../components/ListPage/StatesComponent";
 
 interface PaymentListModalProps {
   item: any | null;
@@ -22,6 +23,8 @@ export function PaymentListModal({
   const [isOpen, setOpen] = useState(false);
   const [subItemsWithDates, setSubItemsWithDates] = useState<any>();
 
+  const user = JSON.parse(localStorage.getItem("userLogged")!);
+
   const { reset } = useForm<any>({
     values: item ?? undefined,
     mode: "onBlur",
@@ -31,11 +34,11 @@ export function PaymentListModal({
 
   useEffect(() => {
     const fetch = async () => {
-      if (item.order_module === "BOOKINGS") {
+      if (item.order_module === "payments") {
         const records = await getRowByColumn(
-          "bookings_id",
+          "payments_id",
           item.order_record_id,
-          "bookings_sessions",
+          "payments_sessions",
         );
         const updatedSubItems = subItems.map((element: any, index: any) => {
           const record = index < records.length ? records[index] : null;
@@ -71,60 +74,36 @@ export function PaymentListModal({
           <Modal.Body>
             <div className="max-h-[60vh]">
               {/* DATOS PRINCIPALES */}
-              <div style={{ display: "flex", alignItems: "center" }}>
-                <Label
-                  htmlFor="order_created_at"
-                  style={{ marginRight: "10px" }}
-                >
-                  {t("ORDER_CREATED_AT")}
-                </Label>
-                <p className="flex flex-grow">
-                  {new Date(item.order_created_at).toLocaleString()}
-                </p>
+              <div className="flex justify-between mb-4 mr-4">
+                <div>
+                  <div style={{ display: "flex", alignItems: "center" }}>
+                    <Label
+                      htmlFor="order_created_at"
+                      style={{ marginRight: "10px" }}
+                    >
+                      {t("ORDER_CREATED_AT")}:
+                    </Label>
+                    <p className="flex flex-grow">
+                      {new Date(item.order_created_at).toLocaleString()}
+                    </p>
+                  </div>
 
-                <DeleteModal
-                  data={item}
-                  deleteFn={() => {}}
-                  onlyIcon={false}
-                  toastSuccessMsg={t("PAYMENT_DELETE_OK")}
-                  toastErrorMsg={t("PAYMENT_DELETE_KO")}
-                  title={t("DELETE_PAYMENT")}
-                />
-              </div>
-              <div style={{ display: "flex", alignItems: "center" }}>
-                <Label
-                  htmlFor="order_created_at"
-                  style={{ marginRight: "10px" }}
-                >
-                  {t("ORDERED_BY")}
-                </Label>
-                <p>{item.order_user_name + " " + item.order_user_surname}</p>
-              </div>
+                  <div style={{ display: "flex", alignItems: "center" }}>
+                    <Label
+                      htmlFor="order_created_at"
+                      style={{ marginRight: "10px" }}
+                    >
+                      {t("ORDERED_BY")}:
+                    </Label>
+                    <p>
+                      {item.order_user_name + " " + item.order_user_surname}
+                    </p>
+                  </div>
+                </div>
 
-              <div className="mt-1 pb-4">
-                {item.order_state === "PENDING" ||
-                item.order_state === "IN_PROGRESS" ? (
-                  <div className="container items-center flex flex-row max-w-max px-2 bg-yellow-100 rounded-full">
-                    <label className="font-medium text-yellow-800 text-sm">
-                      {t(item.order_state)}
-                    </label>
-                  </div>
-                ) : item.order_state === "CONFIRMED" ||
-                  item.order_state === "COMPLETED" ? (
-                  <div className="container items-center flex flex-row max-w-max px-2 bg-green-100 rounded-full">
-                    <label className="font-medium text-green-800 text-sm">
-                      {t(item.order_state)}
-                    </label>
-                  </div>
-                ) : item.order_state === "DENIED" ||
-                  item.order_state === "CANCELED" ||
-                  item.order_state === "ERROR" ? (
-                  <div className="container items-center flex flex-row max-w-max px-2 bg-red-100 rounded-full">
-                    <label className="font-medium text-red-800 text-sm">
-                      {t(item.order_state)}
-                    </label>
-                  </div>
-                ) : null}
+                <div>
+                  <StateComponent state={item.order_state} />
+                </div>
               </div>
 
               {/* DATOS DE LA OPERACIÓN */}
@@ -180,40 +159,12 @@ export function PaymentListModal({
                             "PAYMENT",
                           )} ${index + 1}`}</Label>
 
-                          {subItem.payment_state === "PENDING" ||
-                          subItem.payment_state === "IN_PROGRESS" ? (
-                            <div className="container items-center flex flex-row max-w-max px-2 bg-yellow-100 rounded-full">
-                              <label className="font-medium text-yellow-800 text-sm">
-                                {t(subItem.payment_state)}
-                              </label>
-                            </div>
-                          ) : subItem.payment_state === "CONFIRMED" ||
-                            subItem.payment_state === "COMPLETED" ? (
-                            <div className="container items-center flex flex-row max-w-max px-2 bg-green-100 rounded-full">
-                              <label className="font-medium text-green-800 text-sm">
-                                {t(subItem.payment_state)}
-                              </label>
-                            </div>
-                          ) : subItem.payment_state === "DENIED" ||
-                            subItem.payment_state === "CANCELED" ||
-                            subItem.payment_state === "ERROR" ? (
-                            <div className="container items-center flex flex-row max-w-max px-2 bg-red-100 rounded-full">
-                              <label className="font-medium text-red-800 text-sm">
-                                {t(subItem.payment_state)}
-                              </label>
-                            </div>
-                          ) : null}
+                          <StateComponent state={subItem.payment_state} />
                         </div>
-
-                        <div className="flex justify-between items-center mb-4 text-gray-800">
-                          <div className="flex justify-between items-center text-gray-800">
-                            <p className="text-sm mr-2">
-                              {t("EDIT_USER_FORM_ID")}:{" "}
-                              {subItem.payment_redsys_order}
-                            </p>
-                          </div>
-                        </div>
-                        <div style={{ display: "flex", alignItems: "center" }}>
+                        <div
+                          className="mt-1"
+                          style={{ display: "flex", alignItems: "center" }}
+                        >
                           <Label
                             htmlFor="order_created_at"
                             style={{ marginRight: "10px" }}
@@ -227,7 +178,7 @@ export function PaymentListModal({
                           </p>
                         </div>
 
-                        {item.order_module === "BOOKINGS" ? (
+                        {item.order_module === "payments" ? (
                           <div
                             className="pt-4"
                             style={{ display: "flex", alignItems: "center" }}
@@ -252,7 +203,6 @@ export function PaymentListModal({
                           <p>{subItem.payment_amount} €</p>
                         </div>
                       </div>
-                      <div className="border-b border-gray-200 dark:border-gray-700"></div>
                     </div>
                   ))}
               </div>
@@ -300,7 +250,17 @@ export function PaymentListModal({
               </div>
             </div>
           </Modal.Body>
-          <Modal.Footer></Modal.Footer>
+          <Modal.Footer className="flex justify-start">
+            <DeleteModal
+              data={item}
+              deleteFn={() => {}}
+              onlyIcon={false}
+              toastSuccessMsg={t("PAYMENT_DELETE_OK")}
+              toastErrorMsg={t("PAYMENT_DELETE_KO")}
+              title={t("DELETE_PAYMENT")}
+              disableButton={!user.users_roles.rules.payments.payments.delete}
+            />
+          </Modal.Footer>
         </form>
       </Modal>
     </>

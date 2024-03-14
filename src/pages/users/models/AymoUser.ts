@@ -11,4 +11,5 @@ export type AymoUser = {
   password?: string;
   group_id?: string | null;
   role?: string | null;
+  created_by?: string;
 };

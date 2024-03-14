@@ -3,7 +3,7 @@ import { ChangeEvent, useState } from "react";
 import { ColorResult } from "react-color";
 import Circle from "react-color/lib/components/circle/Circle";
 import { useTranslation } from "react-i18next";
-import { HiPlus } from "react-icons/hi";
+import { LuPlus } from "react-icons/lu";
 
 interface NewStateModalProps {
   onSave: (title: string, color: string, bookeable: boolean) => void;
@@ -14,6 +14,8 @@ export const NewStateModal = ({ onSave }: NewStateModalProps) => {
   const [title, setTitle] = useState<string>("");
   const [bookeable, setBookeable] = useState<boolean>(false);
   const [openModal, setOpenModal] = useState<boolean>(false);
+
+  const user = JSON.parse(localStorage.getItem("userLogged")!);
 
   const onChangeColor = (color: ColorResult) => {
     setcurrentColor(color.hex);
@@ -38,11 +40,12 @@ export const NewStateModal = ({ onSave }: NewStateModalProps) => {
   return (
     <>
       <Button
+        disabled={!user.users_roles.rules.bookings.installation_state.create}
         size="xs"
         className="bg-primary"
         onClick={() => setOpenModal(true)}
       >
-        <HiPlus />
+        <LuPlus />
         <div className="ml-1">{t("ADD_BTN")}</div>
       </Button>
       <Modal show={openModal} onClose={() => setOpenModal(false)} size="sm">
@@ -74,7 +77,7 @@ export const NewStateModal = ({ onSave }: NewStateModalProps) => {
           </div>
         </Modal.Body>
         <Modal.Footer className="flex flex-row justify-end">
-          <Button color="primary" onClick={saveState}>
+          <Button size={"sm"} color="primary" onClick={saveState}>
             {t("SAVE")}
           </Button>
         </Modal.Footer>

@@ -12,11 +12,9 @@ export const ItemSessionsCard = ({
   installationStates,
   installation,
 }: ItemSessionsCardProps) => {
-
-
-
   return (
     <div className="mt-2">
+      <h3 className="text-xl font-bold dark:text-white">Reservas</h3>
       <BookingsCalendar
         defaultView="month"
         component="installation_item"
@@ -25,6 +23,5 @@ export const ItemSessionsCard = ({
         installation={installation}
       />
     </div>
-
   );
 };

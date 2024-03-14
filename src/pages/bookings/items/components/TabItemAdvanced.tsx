@@ -22,6 +22,7 @@ import { Category } from "../../../content/categories/models/Category";
 import { Users } from "../../../users/models/Users";
 import { ItemModel } from "../models/ItemModel";
 import { ItemResponsiblesModal } from "./ItemResposiblesModal";
+import { truncateContent } from "../../../../utils/utils";
 
 interface ItemTabProps {
   deleteButtonLabel: string;
@@ -203,6 +204,7 @@ export const TabItemAdvanced = (props: ItemTabProps) => {
 
   return (
     <div className="flex flex-col gap-4">
+      <h3 className="text-xl font-bold dark:text-white pt-2">Avanzado</h3>
       <div>
         <Label htmlFor="title">{t("LEGAL_TEXT")}</Label>
         <div className="flex items-center">
@@ -236,7 +238,9 @@ export const TabItemAdvanced = (props: ItemTabProps) => {
             onBlur={(e) => onChangeLegalCategory(e.currentTarget.value)}
             value={selectedCategory ? selectedCategory : ""}
           >
-            <option value={""}>{t("SELECT")}</option>
+            <option hidden value={""}>
+              {t("SELECT")}
+            </option>
             {contentCategories &&
               contentCategories.map((item) => (
                 <option key={item.id} value={item.id}>
@@ -256,11 +260,13 @@ export const TabItemAdvanced = (props: ItemTabProps) => {
             disabled={!selectedCategory} // Deshabilita el select si no hay una categoría seleccionada
             onBlur={(e) => onChangeLegalContent(e.currentTarget.value)}
           >
-            <option value={""}>{t("SELECT")}</option>
+            <option hidden value={""}>
+              {t("SELECT")}
+            </option>
             {content
               ? content.map((item) => (
                   <option key={item.id} value={item.id}>
-                    {item.title}
+                    {truncateContent(item.title, 100)}
                   </option>
                 ))
               : null}
@@ -450,7 +456,9 @@ export const TabItemAdvanced = (props: ItemTabProps) => {
             {...register("valuable_limit")}
             onBlur={() => onChangeInput()}
           >
-            <option value={""}>{t("SELECT")}</option>
+            <option hidden value={""}>
+              {t("SELECT")}
+            </option>
             <option value={"init"}>{t("INIT")}</option>
             <option value={"end"}>{t("END")}</option>
           </Select>
@@ -468,7 +476,9 @@ export const TabItemAdvanced = (props: ItemTabProps) => {
             onChange={handleSessionTypeChange}
             onBlur={() => onChangeInput()}
           >
-            <option value={""}>{t("SELECT")}</option>
+            <option hidden value={""}>
+              {t("SELECT")}
+            </option>
             <option value={"HOURS"}>{t("HOURS")}</option>
             <option value={"DAYS"}>{t("DAYS")}</option>
           </Select>
@@ -560,6 +570,7 @@ export const TabItemAdvanced = (props: ItemTabProps) => {
             closeModal={closeModal}
             setTechnicians={setTechnicians}
             selectedTechnicians={technicians}
+            type="roles"
           />
 
           <div className="flex flex-col">

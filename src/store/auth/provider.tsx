@@ -14,7 +14,7 @@ export const handleLogin = async (email: string, password: string) => {
     const userDb = await supabase
       .from(tableName)
       .select("*, users_roles!users_role_fkey(*)")
-      .eq("uid", session.user.id)
+      .eq("uid", session.user.id);
     if (userDb) {
       user = userDb.data![0];
       localStorage.setItem("userLogged", JSON.stringify(user));
@@ -23,8 +23,8 @@ export const handleLogin = async (email: string, password: string) => {
 
   if (user === null || (user && !user.users_roles)) {
     return {
-      error
-    }
+      error,
+    };
   } else {
     return {
       error,
@@ -43,6 +43,8 @@ export const handleLogout = async () => {
   }
 
   localStorage.removeItem("accessToken");
+  localStorage.removeItem("userLogged");
+  localStorage.removeItem("groupSelected");
 
   return true;
 };

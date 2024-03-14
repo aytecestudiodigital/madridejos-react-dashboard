@@ -1,15 +1,13 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* import { t } from "i18next";
+/* 
+import { t } from "i18next";
 import { useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import ListPageWithPagination from "../../../components/ListPage/ListPageWithPagination";
 import { AlertContext } from "../../../context/AlertContext";
 import { getAll } from "../../../server/supabaseQueries";
 import { EditDeviceModal } from "../components/EditDeviceModal";
 import { getAccessControl } from "../data/AccessControlProvider";
 import { AccessControl } from "../models/AccessControl";
-import { RootState } from "../../../store/store";
-import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
 
 export default function AccessControlPage() {
   const navigate = useNavigate();
@@ -22,7 +20,8 @@ export default function AccessControlPage() {
     "enabled",
     "created_at",
   ];
-  const columnsFilter = ["title", "status", "provider", "created_at"];
+  const columnsFilter = ["title", "enabled", "created_at"];
+
   const columnsDropdown = ["type"];
   const page_title = "ACCESS_CONTROL";
   const breadcrumb = [
@@ -30,7 +29,6 @@ export default function AccessControlPage() {
       title: "ACCESS_CONTROL",
     },
   ];
-
   const { openAlert } = useContext(AlertContext);
   const [loading, setLoading] = useState<boolean>(false);
   const [data, setData] = useState<any[]>([]);
@@ -59,13 +57,25 @@ export default function AccessControlPage() {
   const [alertMsg] = useState("");
   const [actionAlert] = useState("");
 
-  const user = useSelector((state: RootState) => state.auth.user);
+  const user = JSON.parse(localStorage.getItem("userLogged")!);
+  const userGroupId = localStorage.getItem("groupSelected")!;
+
+  let showAll: boolean;
+  let userGroup: string | null;
+  let userCreatedBy: string;
 
   useEffect(() => {
     if (user) {
       if (!user.users_roles.rules.access_control.devices.access_module) {
         openAlert("No tienes acceso a esta página", "error");
         navigate("/");
+      } else {
+        userCreatedBy = user.id;
+        !user.users_roles.rules.access_control.devices.read_all &&
+        user.users_roles.rules.access_control.devices.read_group
+          ? (userGroup = userGroupId)
+          : (userGroup = null);
+        showAll = user.users_roles.rules.access_control.devices.read_all;
       }
     }
   }, [user]);
@@ -121,7 +131,16 @@ export default function AccessControlPage() {
     size: number,
   ) => {
     setLoading(true);
-    getAccessControl(page, size, orderBy, orderDir, "").then(async (result) => {
+    getAccessControl(
+      page,
+      size,
+      orderBy,
+      orderDir,
+      userCreatedBy,
+      showAll,
+      userGroup,
+      "",
+    ).then(async (result) => {
       const { totalItems, data } = result;
       setData(data ? data : []);
       setTotalItems(totalItems);
@@ -140,6 +159,9 @@ export default function AccessControlPage() {
       pageSize,
       orderBy,
       orderDir,
+      userCreatedBy,
+      showAll,
+      userGroup,
       searchTerm,
       filteredSearchItems,
     );
@@ -211,6 +233,8 @@ export default function AccessControlPage() {
         columnsFilter={columnsFilter}
         columnsDropdown={columnsDropdown}
         dataDropdown={totalTypes}
+        disableAddButton={!user.users_roles.rules.access_control.devices.create}
+        showCleanFilter={false}
       />
       {showEditModal ? (
         <EditDeviceModal
@@ -218,12 +242,14 @@ export default function AccessControlPage() {
           openModal={showEditModal}
           closeModal={closeModal}
           onItem={(device: AccessControl | null | string) => {
+            //Cuando borramos el elemento - actualizar la tabla
             if (device === null) {
               getDataFromServer(orderBy, orderDir, currentPage, pageSize);
               openAlert(t("DEVICE_DELETE_OK"), "delete");
             } else if (typeof device === "string") {
               openAlert(device, "error");
             } else {
+              // Encuentra el índice del dispositivo existente en la lista
               const index = data.findIndex(
                 (device) => device.id === (device as AccessControl)!.id,
               );
@@ -253,4 +279,5 @@ export default function AccessControlPage() {
       ) : null}
     </>
   );
-} */
+}
+ */

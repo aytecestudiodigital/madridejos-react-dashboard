@@ -2,13 +2,13 @@
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ListPageWithPagination from "../../../../components/ListPage/ListPageWithPagination";
+import { AlertContext } from "../../../../context/AlertContext";
 import { CategoriesContext } from "../../context/contentContext";
-import EditContentPage from "./EditContentPage";
 import {
   getCategories,
   getContentWithCategories,
 } from "../data/ContentProvider";
-import { AlertContext } from "../../../../context/AlertContext";
+import EditContentPage from "./EditContentPage";
 
 export default function ContentPage() {
   const navigate = useNavigate();
@@ -66,13 +66,25 @@ export default function ContentPage() {
   const { categories } = useContext(CategoriesContext);
 
   const user = JSON.parse(localStorage.getItem("userLogged")!);
+  const userGroupId = localStorage.getItem("groupSelected")!;
   const { openAlert } = useContext(AlertContext);
+
+  let showAll: boolean;
+  let userGroup: string | null;
+  let userCreatedBy: string;
 
   useEffect(() => {
     if (user) {
       if (!user.users_roles.rules.content.contents.access_module) {
         openAlert("No tienes acceso a esta página", "error");
         navigate("/");
+      } else {
+        userCreatedBy = user.id;
+        !user.users_roles.rules.content.contents.read_all &&
+        user.users_roles.rules.content.contents.read_group
+          ? (userGroup = userGroupId)
+          : (userGroup = null);
+        showAll = user.users_roles.rules.content.contents.read_all;
       }
     }
   }, [user]);
@@ -116,15 +128,22 @@ export default function ContentPage() {
     size: number,
   ) => {
     setLoading(true);
-    getContentWithCategories(page, size, orderBy, orderDir, "").then(
-      async (result) => {
-        const { totalItems, data } = result;
-        setData(data ? data : []);
-        setTotalItems(totalItems);
-        setTotalPages(Math.ceil(totalItems / pageSize));
-        setLoading(false);
-      },
-    );
+    getContentWithCategories(
+      page,
+      size,
+      orderBy,
+      orderDir,
+      userCreatedBy,
+      showAll,
+      userGroup,
+      "",
+    ).then(async (result) => {
+      const { totalItems, data } = result;
+      setData(data ? data : []);
+      setTotalItems(totalItems);
+      setTotalPages(Math.ceil(totalItems / pageSize));
+      setLoading(false);
+    });
     setItemSearch(false);
   };
 
@@ -137,6 +156,9 @@ export default function ContentPage() {
       pageSize,
       orderBy,
       orderDir,
+      userCreatedBy,
+      showAll,
+      userGroup,
       searchTerm,
       filteredSearchItems,
     );
@@ -204,6 +226,8 @@ export default function ContentPage() {
         columnsFilter={columnsFilter}
         columnsDropdown={columnsDropdown}
         dataDropdown={totalCategories}
+        disableAddButton={!user.users_roles.rules.content.contents.create}
+        showCleanFilter={false}
       />
       {showEditPage ? <EditContentPage /> : null}
       {showAddPage ? <EditContentPage /> : null}

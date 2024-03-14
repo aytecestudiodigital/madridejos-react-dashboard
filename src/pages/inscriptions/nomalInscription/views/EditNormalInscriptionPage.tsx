@@ -1,9 +1,11 @@
-/* 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Card, Tabs } from "flowbite-react";
 import { FC, useContext, useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { HeaderItemPageComponent } from "../../../../components/ListPage/HeaderItemPage";
+import { AlertContext } from "../../../../context/AlertContext";
+import { supabase } from "../../../../server/supabase";
 import {
   deleteRow,
   getOneRow,
@@ -16,24 +18,29 @@ import { InscriptionAditionalsCard } from "../components/InscriptionAditionalsCa
 import { InscriptionAuthorizationsCard } from "../components/InscriptionAuthorizationsCard";
 import { InscriptionDiscountsCard } from "../components/InscriptionDiscountsCard";
 import { InscriptionDocumentsCard } from "../components/InscriptionDocumentsCard";
-import { RootState } from "../../../../store/store";
-import { useSelector } from "react-redux";
 import { InscriptionFormCard } from "../components/InscriptionFormCard";
+import { InscriptionPaymentMethodsCard } from "../components/InscriptionPaymentMethodsCard";
+import { InscriptionFormContext } from "../context/InscriptionFormContext";
 import { getDataByColumn } from "../data/NormalInscriptioProvider";
+import { Discount } from "../models/Discounts";
 import { Forms } from "../models/Forms";
 import { NormalInscription } from "../models/NormalInscription";
-import { InscriptionFormContext } from "../context/InscriptionFormContext";
 import { Product } from "../models/Products";
-import { Discount } from "../models/Discounts";
-import { InscriptionPaymentMethodsCard } from "../components/InscriptionPaymentMethodsCard";
-import { supabase } from "../../../../server/supabase";
-import { AlertContext } from "../../../../context/AlertContext";
+import { customThemeTab } from "../../../bookings/items/components/CustomThemeScrollableTabs";
+import { HiOutlineChevronLeft, HiOutlineChevronRight } from "react-icons/hi";
+import React from "react";
 
 export const EditNormalInscriptionsPage: FC = () => {
+  /**
+   * Definición de datos
+   */
   const navigate = useNavigate();
   const location = useLocation();
   const contextMethods = useContext(InscriptionFormContext);
 
+  /**
+   * Configuración de la página
+   */
   const breadcrumb = [
     {
       title: "INSCRIPTIONS",
@@ -71,9 +78,16 @@ export const EditNormalInscriptionsPage: FC = () => {
   const { id } = useParams();
 
   const [enableFormTab, setEnableFormTab] = useState<boolean>(false);
-  const user = useSelector((state: RootState) => state.auth.user);
+  const user = JSON.parse(localStorage.getItem("userLogged")!);
+  const userGroupId = localStorage.getItem("groupSelected")!;
   const [validFormTab, setValidFormTab] = useState(false);
   const [validPayments, setValidPayments] = useState(false);
+  const [isScrollbarVisible, setIsScrollbarVisible] = useState(false);
+  const [tabIndex, setTabIndex] = useState<number>(0);
+
+  useEffect(() => {
+    setFormData(inscription);
+  }, [inscription]);
 
   const selectForms = async () => {
     if (inscription || id) {
@@ -269,7 +283,7 @@ export const EditNormalInscriptionsPage: FC = () => {
         : null,
       date_init: formValues.date_init,
       date_end: formValues.date_end,
-      org_id: "043ec7c2-572a-4199-9aa1-af6af822e76a",
+      org_id: "30f3a4ed-0b43-4489-85a8-244ac94019f5",
       created_by: user?.id,
       updated_by: user?.id,
       enable: formValues.enable,
@@ -307,7 +321,7 @@ export const EditNormalInscriptionsPage: FC = () => {
       period_month_day: null,
       period_init_date: null,
       period_end_date: null,
-      group_id: user?.group_id,
+      group_id: userGroupId,
       payment_title: formValues.payment_title ? formValues.payment_title : null,
       payment_description: formValues.payment_description
         ? formValues.payment_description
@@ -650,83 +664,194 @@ export const EditNormalInscriptionsPage: FC = () => {
     close && onBack();
   };
 
+  const tabsData = [
+    { title: "Detalles" },
+    { title: "Formularios" },
+    { title: "Actividades" },
+    { title: "Adicionales" },
+    { title: "Descuentos" },
+    { title: "Autorizaciones" },
+    { title: "Métodos de pago" },
+    { title: "Documentos" },
+  ];
+
+  const contents = [
+    <IncriptionDetailsCard
+      inscription={inscription}
+      onValidForm={(valid) => setEnableFormTab(valid)}
+    />,
+    <InscriptionFormCard
+      mainForm={mainForm}
+      authForm={authForm}
+      onValidTitle={(value) => setValidFormTab(value)}
+    />,
+    <InscriptionActivitiesCard inscription={inscription} products={products} />,
+    <InscriptionAditionalsCard products={aditionalProducts} />,
+    <InscriptionDiscountsCard discounts={discounts} />,
+    <InscriptionAuthorizationsCard authorizations={authorizations} />,
+    <InscriptionPaymentMethodsCard paymentMethods={paymentMethods} />,
+    <InscriptionDocumentsCard documents={documents} />,
+  ];
+
+  const handleScroll = () => {
+    // Verificar si la barra de desplazamiento es necesaria
+    const container = document.getElementById("Tabs-scroll");
+    if (container) {
+      const isOverflowing = container.scrollWidth > container.clientWidth;
+      setIsScrollbarVisible(isOverflowing);
+    }
+  };
+
+  useEffect(() => {
+    // Verificar inicialmente y al cambiar el tamaño de la pantalla
+    handleScroll();
+    window.addEventListener("resize", handleScroll);
+    return () => {
+      window.removeEventListener("resize", handleScroll);
+    };
+  }, []);
+
+  const [formData, setFormData] = useState<any | null>(
+    inscription ? inscription : null,
+  );
+
+  const handleFormChange = (data: any) => {
+    setFormData(data);
+  };
+
+  const scrollLeft = (
+    event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+  ) => {
+    event.preventDefault(); // Evitar la recarga de la página
+    document.getElementById("Tabs-scroll")!.scrollBy(-100, 0);
+  };
+
+  const scrollRight = (
+    event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+  ) => {
+    event.preventDefault(); // Evitar la recarga de la página
+    document.getElementById("Tabs-scroll")!.scrollBy(100, 0);
+  };
+
+  const handleTabChange = (tab: number) => {
+    // Guardar el estado del formulario al cambiar de tab (si estás en el primer tab)
+    if (tab === 0) {
+      setFormData(contents[0].props.item);
+    }
+
+    setTabIndex(tab);
+  };
+
   return (
     <>
-      <HeaderItemPageComponent
-        title={pageTitle}
-        breadcrumb={breadcrumb}
-        saving={saving}
-        showBackButton={true}
-        showButtonSave={true}
-        showButtonSaveAndClose={true}
-        saveButtonDisabled={!isValid || !validFormTab || !validPayments}
-        onBack={onBack}
-        onSave={onSave}
-      />
-      <form>
-        <div className="p-4 dark:bg-gray-900">
-          <div className="xl:col-auto order-last xl:order-first">
-            <div className=" gap-y-4">
-              <FormProvider {...methods}>
-                <Card>
-                  <>
-                    <Tabs.Group>
-                      <Tabs.Item title="Detalles">
-                        <IncriptionDetailsCard
-                          inscription={inscription}
-                          onValidForm={(valid) => setEnableFormTab(valid)}
-                        />
-                      </Tabs.Item>
-                      <Tabs.Item title="Formularios" disabled={!enableFormTab}>
-                        <InscriptionFormCard
-                          mainForm={mainForm}
-                          authForm={authForm}
-                          onValidTitle={(value) => setValidFormTab(value)}
-                        />
-                      </Tabs.Item>
+      {inscription ? (
+        <HeaderItemPageComponent
+          title={pageTitle}
+          breadcrumb={breadcrumb}
+          saving={saving}
+          showBackButton={true}
+          showButtonSave={true}
+          showButtonSaveAndClose={true}
+          saveButtonDisabled={
+            !isValid ||
+            !validFormTab ||
+            !validPayments ||
+            (!user.users_roles.rules.inscriptions.inscriptions.update_all &&
+              !user.users_roles.rules.inscriptions.inscriptions.update_group &&
+              !user.users_roles.rules.inscriptions.inscriptions.update_own) ||
+            (!user.users_roles.rules.inscriptions.inscriptions.update_all &&
+              user.users_roles.rules.inscriptions.inscriptions.update_group &&
+              userGroupId !== inscription.group_id) ||
+            (!user.users_roles.rules.inscriptions.inscriptions.update_all &&
+              !user.users_roles.rules.inscriptions.inscriptions.update_group &&
+              user.users_roles.rules.inscriptions.inscriptions.update_own &&
+              user.id !== inscription.created_by)
+          }
+          onBack={onBack}
+          onSave={onSave}
+        />
+      ) : (
+        <HeaderItemPageComponent
+          title={pageTitle}
+          breadcrumb={breadcrumb}
+          saving={saving}
+          showBackButton={true}
+          showButtonSave={true}
+          showButtonSaveAndClose={true}
+          saveButtonDisabled={
+            !isValid ||
+            !validFormTab ||
+            !validPayments ||
+            !user.users_roles.rules.inscriptions.inscriptions.create
+          }
+          onBack={onBack}
+          onSave={onSave}
+        />
+      )}
 
-                      <Tabs.Item title="Actividades" disabled={!enableFormTab}>
-                        <InscriptionActivitiesCard
-                          inscription={inscription}
-                          products={products}
-                        />
-                      </Tabs.Item>
-                      <Tabs.Item title="Adicionales" disabled={!enableFormTab}>
-                        <InscriptionAditionalsCard
-                          products={aditionalProducts}
-                        />
-                      </Tabs.Item>
-                      <Tabs.Item title="Descuentos" disabled={!enableFormTab}>
-                        <InscriptionDiscountsCard discounts={discounts} />
-                      </Tabs.Item>
-                      <Tabs.Item
-                        title="Autorizaciones"
-                        disabled={!enableFormTab}
-                      >
-                        <InscriptionAuthorizationsCard
-                          authorizations={authorizations}
-                        />
-                      </Tabs.Item>
-                      <Tabs.Item
-                        title="Métodos de pago"
-                        disabled={!enableFormTab}
-                      >
-                        <InscriptionPaymentMethodsCard
-                          paymentMethods={paymentMethods}
-                        />
-                      </Tabs.Item>
-                      <Tabs.Item title="Documentos" disabled={!enableFormTab}>
-                        <InscriptionDocumentsCard documents={documents} />
-                      </Tabs.Item>
-                    </Tabs.Group>
-                  </>
-                </Card>
-              </FormProvider>
+      <div className="p-4 dark:bg-gray-900">
+        <Card>
+          <div className="mb-5">
+            <div
+              className={`${
+                isScrollbarVisible ? "flex place-items-start" : ""
+              }`}
+            >
+              {isScrollbarVisible && (
+                <button
+                  onClick={scrollLeft}
+                  className="icon-button my-4 py-1 px-1 m-1 text-lg border border-gray-200 rounded-md"
+                >
+                  <HiOutlineChevronLeft />
+                </button>
+              )}
+              <div className="overflow-x-auto no-scrollbar" id={"Tabs-scroll"}>
+                <Tabs.Group
+                  theme={customThemeTab}
+                  style={"fullWidth"}
+                  onActiveTabChange={(tab) => handleTabChange(tab)}
+                >
+                  {tabsData.map((tab, index) => (
+                    <Tabs.Item
+                      disabled={!enableFormTab}
+                      key={index}
+                      title={
+                        <span style={{ whiteSpace: "nowrap" }}>
+                          {tab.title}
+                        </span>
+                      }
+                    ></Tabs.Item>
+                  ))}
+                </Tabs.Group>
+              </div>
+
+              {isScrollbarVisible && (
+                <button
+                  onClick={scrollRight}
+                  className="icon-button my-4 py-1 px-1 m-1 text-lg border border-gray-200 rounded-md"
+                >
+                  <HiOutlineChevronRight />
+                </button>
+              )}
             </div>
+            {contents.map((content, index) => (
+              <div
+                key={index}
+                style={{ display: index === tabIndex ? "block" : "none" }}
+              >
+                <FormProvider {...methods}>
+                  <>
+                    {React.cloneElement(content, {
+                      item: formData,
+                      onFormChange: handleFormChange,
+                    })}
+                  </>
+                </FormProvider>
+              </div>
+            ))}
           </div>
-        </div>
-      </form>
+        </Card>
+      </div>
     </>
   );
 };
- */

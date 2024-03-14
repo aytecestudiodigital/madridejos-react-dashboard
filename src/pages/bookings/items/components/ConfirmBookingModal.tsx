@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Button, Modal } from "flowbite-react";
+import { Button, Modal, Spinner } from "flowbite-react";
 import { t } from "i18next";
 import { useContext, useEffect, useState } from "react";
 import {
@@ -22,10 +22,10 @@ interface ConfirmBookingModalProps {
 export function ConfirmBookingModal({
   openModal,
   closeModal,
-  onSessions: onSessions,
   booking,
   defaultSessions,
   paymentMethod,
+  onSessions,
 }: ConfirmBookingModalProps) {
   const [isOpen, setOpen] = useState(false);
   const [userBooking, setUserBooking] = useState<any>("");
@@ -36,7 +36,9 @@ export function ConfirmBookingModal({
   const tableBookingsItems = import.meta.env.VITE_TABLE_BOOKINGS_ITEMS;
   const [htmlToRender, setHtmlToRender] = useState<any>(null);
   const [paymentActive, setPaymentActive] = useState(false);
+  const [paymentMethodData, setPaymentMethodData] = useState<any>(null);
   const { openAlert } = useContext(AlertContext);
+  const [loading, setLoading] = useState(false);
 
   const close = () => {
     setOpen(false);
@@ -52,6 +54,12 @@ export function ConfirmBookingModal({
         booking.bookings_items_id,
         tableBookingsItems,
       );
+      const paymentDb = await getOneRow(
+        "id",
+        paymentMethod,
+        "payments_methods",
+      );
+      setPaymentMethodData(paymentDb);
       setUserBooking(user);
       setCourtBooking(court);
     };
@@ -100,43 +108,33 @@ export function ConfirmBookingModal({
       };
       const paymentData = await insertRow(payment, "payments");
 
-      const config = {
-        method: "get",
-        maxBodyLength: Infinity,
-        url: `https://europe-west2-aymo-tomelloso.cloudfunctions.net/payments/tpv/redsys/["${paymentData.id}"]`,
-        headers: {},
-      };
+      if (paymentMethodData.type === "TPV") {
+        setPaymentActive(true);
+        setLoading(true);
+        const config = {
+          method: "get",
+          maxBodyLength: Infinity,
+          url: `https://europe-west2-aymo-tomelloso.cloudfunctions.net/payments/tpv/redsys/["${paymentData.id}"]`,
+          headers: {},
+        };
 
-      axios
-        .request(config)
-        .then((response) => {
-          setHtmlToRender(response.data);
-          setPaymentActive(true);
-          openAlert(t("SESSION_BOOKED_OK"), "insert");
-        })
-        .catch((error) => {
-          console.log(error);
-        });
+        axios
+          .request(config)
+          .then((response) => {
+            setHtmlToRender(response.data);
+            setPaymentActive(true);
+            setLoading(false);
+            openAlert(t("SESSION_BOOKED_OK"), "insert");
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      } else {
+        openAlert(t("SESSION_BOOKED_OK"), "insert");
+        onSessions(true);
+        close();
+      }
     }
-    /* const bookingData = await insertRow(booking, tableBookings);
-    defaultSessions.forEach(async (session: any) => {
-      const newSession = {
-        id: session.id,
-        date: session.date,
-        bookings_item_id: session.bookings_item_id,
-        bookings_state_id: session.bookings_state_id,
-        price: session.price,
-        duration: session.duration,
-        bookings_id: bookingData.id,
-        price_light: session.price_light,
-        selected: session.selected,
-        light: session.light,
-      };
-      await updateRow(newSession, tableBookingsSessions);
-    }); */
-    // openAlert(t("SESSION_BOOKED_OK"), "insert");
-    // onSessions(true);
-    // close();
   };
 
   return (
@@ -149,91 +147,103 @@ export function ConfirmBookingModal({
     >
       {!paymentActive ? (
         <>
-          <Modal.Header className="font-bold">
-            {t("RESUME_PAYMENT_OPERATION")}
-          </Modal.Header>
-          <Modal.Body>
-            <div className="">
-              <p className="mb-4">{t("CONFIRM_BOOKING_PAYMENTS")}</p>
-              <div className="divide-y p-2">
-                <div className="flex justify-between p-2">
-                  <div className="font-bold">
-                    <p>{t("STATE")}</p>
-                  </div>
-                  <div>
-                    <p>{t(booking.state)}</p>
+          {!loading ? (
+            <>
+              <Modal.Header className="font-bold">
+                {t("RESUME_PAYMENT_OPERATION")}
+              </Modal.Header>
+              <Modal.Body>
+                <div className="">
+                  <p className="mb-4">{t("CONFIRM_BOOKING_PAYMENTS")}</p>
+                  <div className="divide-y p-2">
+                    <div className="flex justify-between p-2">
+                      <div className="font-bold">
+                        <p>{t("STATE")}</p>
+                      </div>
+                      <div>
+                        <p>{t(booking.state)}</p>
+                      </div>
+                    </div>
+                    <div className="flex justify-between p-2">
+                      <div className="font-bold">
+                        <p>{t("ORDER")}</p>
+                      </div>
+                      <div>
+                        <p>{new Date().valueOf()}</p>
+                      </div>
+                    </div>
+                    <div className="flex justify-between p-2">
+                      <div className="font-bold">
+                        <p>{t("RESPONSIBLE")}</p>
+                      </div>
+                      <div>
+                        <p>
+                          {userBooking.name} {userBooking.surname}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex justify-between p-2">
+                      <div className="font-bold">
+                        <p>{t("ORDER_CONCEPT")}</p>
+                      </div>
+                      <div>
+                        <p>{t("INSTALLATION_BOOKING")}</p>
+                      </div>
+                    </div>
+                    <div className="flex justify-between p-2">
+                      <div className="font-bold">
+                        <p>{t("PRODUCT")}</p>
+                      </div>
+                      <div>
+                        <p>{courtBooking.title}</p>
+                      </div>
+                    </div>
+                    <div className="flex justify-between p-2">
+                      <div className="font-bold">
+                        <p>{t("AMOUNT")}</p>
+                      </div>
+                      <div>
+                        <p>{booking.price} €</p>
+                      </div>
+                    </div>
+                    <div className="flex justify-between p-2">
+                      <div className="font-bold">
+                        <p>{t("ADMINISTRATOR")}</p>
+                      </div>
+                      <div>
+                        <p>{t("ADMINISTRATOR")}</p>
+                      </div>
+                    </div>
+                    <div className="flex justify-between p-2">
+                      <div className="font-bold">
+                        <p>{t("PAYMENT_METHOD")}</p>
+                      </div>
+                      <div>
+                        <p>{paymentMethod}</p>
+                      </div>
+                    </div>
                   </div>
                 </div>
-                <div className="flex justify-between p-2">
-                  <div className="font-bold">
-                    <p>{t("ORDER")}</p>
-                  </div>
-                  <div>
-                    <p>{new Date().valueOf()}</p>
-                  </div>
-                </div>
-                <div className="flex justify-between p-2">
-                  <div className="font-bold">
-                    <p>{t("RESPONSIBLE")}</p>
-                  </div>
-                  <div>
-                    <p>
-                      {userBooking.name} {userBooking.surname}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex justify-between p-2">
-                  <div className="font-bold">
-                    <p>{t("ORDER_CONCEPT")}</p>
-                  </div>
-                  <div>
-                    <p>{t("INSTALLATION_BOOKING")}</p>
-                  </div>
-                </div>
-                <div className="flex justify-between p-2">
-                  <div className="font-bold">
-                    <p>{t("PRODUCT")}</p>
-                  </div>
-                  <div>
-                    <p>{courtBooking.title}</p>
-                  </div>
-                </div>
-                <div className="flex justify-between p-2">
-                  <div className="font-bold">
-                    <p>{t("AMOUNT")}</p>
-                  </div>
-                  <div>
-                    <p>{booking.price} €</p>
-                  </div>
-                </div>
-                <div className="flex justify-between p-2">
-                  <div className="font-bold">
-                    <p>{t("ADMINISTRATOR")}</p>
-                  </div>
-                  <div>
-                    <p>{t("ADMINISTRATOR")}</p>
-                  </div>
-                </div>
-                <div className="flex justify-between p-2">
-                  <div className="font-bold">
-                    <p>{t("PAYMENT_METHOD")}</p>
-                  </div>
-                  <div>
-                    <p>{paymentMethod}</p>
-                  </div>
-                </div>
+              </Modal.Body>
+              <div className="flex justify-end p-4">
+                <Button onClick={confirmBooking}>{t("CONFIRM_PAYMENT")}</Button>
               </div>
-            </div>
-          </Modal.Body>
-          <div className="flex justify-end p-4">
-            <Button onClick={confirmBooking}>{t("CONFIRM_PAYMENT")}</Button>
-          </div>
+            </>
+          ) : null}
         </>
       ) : (
-        <div
-          className="max-h-96 overflow-auto"
-          dangerouslySetInnerHTML={{ __html: htmlToRender }}
-        ></div>
+        <>
+          {loading ? (
+            <div className="flex justify-center p-12">
+              <Spinner />
+            </div>
+          ) : (
+            <div
+              className="max-h-96 overflow-auto"
+              dangerouslySetInnerHTML={{ __html: htmlToRender }}
+            ></div>
+          )}
+        </>
       )}
     </Modal>
   );

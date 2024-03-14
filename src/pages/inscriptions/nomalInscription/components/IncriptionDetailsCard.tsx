@@ -36,6 +36,8 @@ export const IncriptionDetailsCard = ({
   const [dateEnd, setDateEnd] = useState("");
   const [enable, setEnable] = useState(false);
   const [userRegistered, setUserRegistered] = useState(false);
+  const user = JSON.parse(localStorage.getItem("userLogged")!);
+  const userGroupId = localStorage.getItem("groupSelected");
   const [emailChanged, setEmailChanged] = useState(
     inscription ? inscription.report_email : "",
   );
@@ -316,7 +318,7 @@ export const IncriptionDetailsCard = ({
         </div>
       </div>
       {/* ? TODO - ESTO NO ESTÁ EN LA BBDD */}
-      <div className="flex justify-between">
+      <div className="flex justify-between items-center">
         <ToggleSwitch
           className="mt-1"
           checked={userRegistered}
@@ -332,6 +334,22 @@ export const IncriptionDetailsCard = ({
               toastSuccessMsg={"Inscripción eliminada correctamente"}
               toastErrorMsg={"Error al eliminar la inscripción"}
               title="Eliminar inscripción"
+              disableButton={
+                (!user.users_roles.rules.inscriptions.inscriptions.delete_all &&
+                  !user.users_roles.rules.inscriptions.inscriptions
+                    .delete_group &&
+                  !user.users_roles.rules.inscriptions.inscriptions
+                    .delete_own) ||
+                (!user.users_roles.rules.inscriptions.inscriptions.delete_all &&
+                  user.users_roles.rules.inscriptions.inscriptions
+                    .delete_group &&
+                  userGroupId !== inscription.group_id) ||
+                (!user.users_roles.rules.inscriptions.inscriptions.delete_all &&
+                  !user.users_roles.rules.inscriptions.inscriptions
+                    .delete_group &&
+                  user.users_roles.rules.inscriptions.inscriptions.delete_own &&
+                  user.id !== inscription.created_by)
+              }
             />
           ) : null}
         </div>

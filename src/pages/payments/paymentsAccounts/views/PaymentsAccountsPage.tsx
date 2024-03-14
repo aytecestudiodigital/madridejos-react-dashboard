@@ -1,15 +1,16 @@
-/* import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import ListPageWithPagination from "../../../../components/ListPage/ListPageWithPagination";
+import { AlertContext } from "../../../../context/AlertContext";
 import { getEntities } from "../../../../server/supabaseQueries";
 import { EditPaymentAccountModal } from "../components/EditPaymentAccountModal";
 import { PaymentsAccount } from "../models/PaymentsAccounts";
-import { RootState } from "../../../../store/store";
-import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import { AlertContext } from "../../../../context/AlertContext";
 
 export default function PaymentsAccountPage() {
   const navigate = useNavigate();
+  /**
+   * Configuración de la página
+   */
   const entity_table = import.meta.env.VITE_TABLE_PAYMENTS_ACC;
   const columns = ["title", "enable", "created_at"];
   const page_title = "PAYMENTS_ACCOUNTS";
@@ -19,9 +20,15 @@ export default function PaymentsAccountPage() {
     },
   ];
 
+  /**
+   * Definición de datos
+   */
   const [loading, setLoading] = useState<boolean>(false);
   const [data, setData] = useState<any[]>([]);
   const [account, setAccount] = useState<PaymentsAccount | null>(null);
+  /**
+   * Buscador y ordenación
+   */
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [itemSearch, setItemSearch] = useState(false);
 
@@ -42,14 +49,26 @@ export default function PaymentsAccountPage() {
   const [alertMsg] = useState("");
   const [actionAlert] = useState("");
 
-  const user = useSelector((state: RootState) => state.auth.user);
+  const user = JSON.parse(localStorage.getItem("userLogged")!);
+  const userGroupId = localStorage.getItem("groupSelected")!;
   const { openAlert } = useContext(AlertContext);
+
+  let showAll: boolean;
+  let userGroup: string | null;
+  let userCreatedBy: string;
 
   useEffect(() => {
     if (user) {
       if (!user.users_roles.rules.payments.payments_accounts.access_module) {
         openAlert("No tienes acceso a esta página", "error");
         navigate("/");
+      } else {
+        userCreatedBy = user.id;
+        !user.users_roles.rules.payments.payments_accounts.read_all &&
+        user.users_roles.rules.payments.payments_accounts.read_group
+          ? (userGroup = userGroupId)
+          : (userGroup = null);
+        showAll = user.users_roles.rules.payments.payments_accounts.read_all;
       }
     }
   }, [user]);
@@ -82,15 +101,23 @@ export default function PaymentsAccountPage() {
     size: number,
   ) => {
     setLoading(true);
-    getEntities(entity_table, page, size, orderBy, orderDir, "").then(
-      (result) => {
-        const { totalItems, data } = result;
-        setData(data ? data : []);
-        setTotalItems(totalItems);
-        setTotalPages(Math.ceil(totalItems / pageSize));
-        setLoading(false);
-      },
-    );
+    getEntities(
+      entity_table,
+      page,
+      size,
+      orderBy,
+      orderDir,
+      userCreatedBy,
+      showAll,
+      userGroup,
+      "",
+    ).then((result) => {
+      const { totalItems, data } = result;
+      setData(data ? data : []);
+      setTotalItems(totalItems);
+      setTotalPages(Math.ceil(totalItems / pageSize));
+      setLoading(false);
+    });
     setItemSearch(false);
   };
 
@@ -103,6 +130,9 @@ export default function PaymentsAccountPage() {
       pageSize,
       orderBy,
       orderDir,
+      userCreatedBy,
+      showAll,
+      userGroup,
       searchTerm,
     );
 
@@ -172,6 +202,10 @@ export default function PaymentsAccountPage() {
         isOpen={null}
         alertMsg={alertMsg}
         action={actionAlert}
+        disableAddButton={
+          !user.users_roles.rules.payments.payments_accounts.create
+        }
+        showCleanFilter={false}
       />
       {showEditModal ? (
         <EditPaymentAccountModal
@@ -196,4 +230,3 @@ export default function PaymentsAccountPage() {
     </>
   );
 }
- */

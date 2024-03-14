@@ -56,17 +56,6 @@ export const InscriptionDiscountsModal = (
   const { isValid } = formState;
 
   const getTotalMethods = async () => {
-    /* const result = await getAll(entity_table);
-
-    if (result.data) {
-      const uniqueTypesSet: { title: string; id: number }[] = [];
-      result.data.forEach((element: PaymentsMethod) => {
-        console.log(element);
-        uniqueTypesSet.push({ title: element.title, id: element.id! });
-      });
-
-      const uniqueTypesArray = Array.from(uniqueTypesSet); */
-
     const methodsSelected = contextMethods.getPaymentMethods();
     const methodsBd: any[] = [];
     if (methodsSelected.length > 0) {
@@ -313,7 +302,7 @@ export const InscriptionDiscountsModal = (
                     value={selectedType}
                     onChange={(e) => setSelectedType(e.target.value)}
                   >
-                    <option disabled value="">
+                    <option hidden disabled value="">
                       {t("SELECT")}
                     </option>
                     {methodsTypes &&
@@ -329,11 +318,13 @@ export const InscriptionDiscountsModal = (
           </>
         </Modal.Body>
         <Modal.Footer>
-          <div className="flex flex-grow justify-end gap-4">
-            <Button onClick={() => close()} color="light">
-              {t("CANCEL")}
-            </Button>
-            <Button disabled={!isValid} type="submit" color="primary">
+          <div className="flex flex-grow justify-end">
+            <Button
+              size={"sm"}
+              disabled={!isValid}
+              type="submit"
+              color="primary"
+            >
               {t("SAVE")}
             </Button>
           </div>

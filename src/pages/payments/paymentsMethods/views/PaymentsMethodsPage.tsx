@@ -1,16 +1,17 @@
-/* import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import ListPageWithPagination from "../../../../components/ListPage/ListPageWithPagination";
+import { AlertContext } from "../../../../context/AlertContext";
 import { getAll } from "../../../../server/supabaseQueries";
 import { EditPaymentMethodModal } from "../components/EditPaymentMethodModal";
 import { getPaymentsOrdersAndRelatedData } from "../data/PaymentsMethodsProvider";
 import { PaymentsMethod } from "../models/PaymentsMethods";
-import { RootState } from "../../../../store/store";
-import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import { AlertContext } from "../../../../context/AlertContext";
 
 export default function PaymentsMethodsPage() {
   const navigate = useNavigate();
+  /**
+   * Configuración de la página
+   */
   const entity_table = import.meta.env.VITE_TABLE_PAYMENTS_METHOD;
   const columns = ["title", "type", "enable", "created_at"];
   const columnsFilter = ["title", "enable", "created_at"];
@@ -22,9 +23,15 @@ export default function PaymentsMethodsPage() {
     },
   ];
 
+  /**
+   * Definición de datos
+   */
   const [loading, setLoading] = useState<boolean>(false);
   const [data, setData] = useState<any[]>([]);
   const [method, setMethod] = useState<PaymentsMethod | null>(null);
+  /**
+   * Buscador y ordenación
+   */
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [itemSearch, setItemSearch] = useState(false);
 
@@ -47,14 +54,26 @@ export default function PaymentsMethodsPage() {
 
   const [totalTypes, setTotalTypes] = useState<any[]>([]);
 
-  const user = useSelector((state: RootState) => state.auth.user);
+  const user = JSON.parse(localStorage.getItem("userLogged")!);
+  const userGroupId = localStorage.getItem("groupSelected")!;
   const { openAlert } = useContext(AlertContext);
+
+  let showAll: boolean;
+  let userGroup: string | null;
+  let userCreatedBy: string;
 
   useEffect(() => {
     if (user) {
       if (!user.users_roles.rules.payments.method_payments.access_module) {
         openAlert("No tienes acceso a esta página", "error");
         navigate("/");
+      } else {
+        userCreatedBy = user.id;
+        !user.users_roles.rules.payments.method_payments.read_all &&
+        user.users_roles.rules.payments.method_payments.read_group
+          ? (userGroup = userGroupId)
+          : (userGroup = null);
+        showAll = user.users_roles.rules.payments.method_payments.read_all;
       }
     }
   }, [user]);
@@ -112,15 +131,22 @@ export default function PaymentsMethodsPage() {
     size: number,
   ) => {
     setLoading(true);
-    getPaymentsOrdersAndRelatedData(page, size, orderBy, orderDir, "").then(
-      (result) => {
-        const { totalItems, data } = result;
-        setData(data ? data : []);
-        setTotalItems(totalItems);
-        setTotalPages(Math.ceil(totalItems / pageSize));
-        setLoading(false);
-      },
-    );
+    getPaymentsOrdersAndRelatedData(
+      page,
+      size,
+      orderBy,
+      orderDir,
+      userCreatedBy,
+      showAll,
+      userGroup,
+      "",
+    ).then((result) => {
+      const { totalItems, data } = result;
+      setData(data ? data : []);
+      setTotalItems(totalItems);
+      setTotalPages(Math.ceil(totalItems / pageSize));
+      setLoading(false);
+    });
     setItemSearch(false);
   };
 
@@ -132,6 +158,9 @@ export default function PaymentsMethodsPage() {
       pageSize,
       orderBy,
       orderDir,
+      userCreatedBy,
+      showAll,
+      userGroup,
       searchTerm,
       filteredSearchItems,
     );
@@ -204,6 +233,10 @@ export default function PaymentsMethodsPage() {
         columnsDropdown={columnsDropdown}
         dataDropdown={totalTypes}
         columnsFilter={columnsFilter}
+        disableAddButton={
+          !user.users_roles.rules.payments.method_payments.create
+        }
+        showCleanFilter={false}
       />
       {showEditModal ? (
         <EditPaymentMethodModal
@@ -230,4 +263,3 @@ export default function PaymentsMethodsPage() {
     </>
   );
 }
- */

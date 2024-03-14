@@ -7,4 +7,6 @@ export type Category = {
   created_at?: string;
   content_type?: "ARTICLES" | "PLACES" | "EVENTS";
   tags?: string | null;
+  group_id?: string;
+  created_by?: string;
 };

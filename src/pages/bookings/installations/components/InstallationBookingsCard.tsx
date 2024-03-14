@@ -18,7 +18,7 @@ export const InstallationBookingsCard = ({
       <h3 className="text-xl font-bold dark:text-white mb-4 p-1">
         {t("INSTALLATION_PAGE_BOOKING_CARD_TITLE")}
       </h3>
-      <div className="overflow-auto p-1">
+      <div className="h-full p-1 ">
         {items.length > 0 ? (
           <>
             <div>

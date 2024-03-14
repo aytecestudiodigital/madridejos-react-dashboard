@@ -36,6 +36,8 @@ export function EditPaymentMethodModal({
   const [selectedType, setSelectedType] = useState("");
   const [loading, setLoading] = useState(false);
   const [switchEnable, setSwitchEnable] = useState(false);
+  const userGroupId = localStorage.getItem("groupSelected")!;
+  const user = JSON.parse(localStorage.getItem("userLogged")!);
 
   const { handleSubmit, register, formState, reset } = useForm<any>({
     values: item ?? undefined,
@@ -64,6 +66,7 @@ export function EditPaymentMethodModal({
               ...data,
               org_id: orgId,
               enable: switchEnable,
+              group_id: userGroupId,
             },
             "payments_methods",
           )) as PaymentsMethod)
@@ -72,6 +75,7 @@ export function EditPaymentMethodModal({
               ...data,
               org_id: orgId,
               enable: switchEnable,
+              group_id: userGroupId,
             },
             "payments_methods",
           )) as PaymentsMethod);
@@ -129,7 +133,7 @@ export function EditPaymentMethodModal({
 
   return (
     <>
-      <Modal size={"lg"} dismissible onClose={() => close(null)} show={isOpen}>
+      <Modal dismissible onClose={() => close(null)} show={isOpen}>
         <form onSubmit={handleSubmit(onSubmit)}>
           <Modal.Header className="border-b border-gray-200 !p-6 dark:border-gray-700">
             {item ? (
@@ -139,19 +143,6 @@ export function EditPaymentMethodModal({
             )}
           </Modal.Header>
           <Modal.Body>
-            {item && item.id && (
-              <div className="flex justify-end items-center text-gray-800">
-                <DeleteModal
-                  data={item}
-                  deleteFn={deletePaymentMethod}
-                  onlyIcon={false}
-                  toastSuccessMsg={t("METHOD_DELETE_OK")}
-                  toastErrorMsg={t("METHOD_DELETE_KO")}
-                  title={t("DELETE_METHOD")}
-                />
-              </div>
-            )}
-
             <div className="max-h-[60vh]">
               <div className="pb-4">
                 <Label htmlFor="title">{t("TITLE")}</Label>
@@ -178,7 +169,7 @@ export function EditPaymentMethodModal({
                     color={errors.type && "failure"}
                     onChange={selectedTypeTitle}
                   >
-                    <option disabled value="">
+                    <option hidden disabled value="">
                       {t("SELECT")}
                     </option>
                     {types &&
@@ -222,7 +213,9 @@ export function EditPaymentMethodModal({
                     defaultValue={item ? item.enviroment : ""}
                     color={errors.enviroment && "failure"}
                   >
-                    <option value="">{t("SELECT")}</option>
+                    <option hidden value="">
+                      {t("SELECT")}
+                    </option>
                     <option value="PRODUCTION">{t("PRODUCTION")}</option>
                     <option value="DEVELOP">{t("DEVELOP")}</option>
                   </Select>
@@ -319,16 +312,86 @@ export function EditPaymentMethodModal({
               />
             </div>
           </Modal.Body>
-          <Modal.Footer className="flex place-content-end">
-            <Button
-              disabled={!isValid}
-              color="primary"
-              type="submit"
-              isProcessing={loading}
-            >
-              {loading ? t("LOADING") : t("SAVE_METHOD")}
-            </Button>
-          </Modal.Footer>
+          {item && item.id ? (
+            <Modal.Footer className="flex justify-between">
+              <div>
+                <DeleteModal
+                  data={item}
+                  deleteFn={deletePaymentMethod}
+                  onlyIcon={false}
+                  toastSuccessMsg={t("METHOD_DELETE_OK")}
+                  toastErrorMsg={t("METHOD_DELETE_KO")}
+                  title={t("DELETE")}
+                  disableButton={
+                    (!user.users_roles.rules.payments.method_payments
+                      .delete_all &&
+                      !user.users_roles.rules.payments.method_payments
+                        .delete_group &&
+                      !user.users_roles.rules.payments.method_payments
+                        .delete_own) ||
+                    (!user.users_roles.rules.payments.method_payments
+                      .delete_all &&
+                      user.users_roles.rules.payments.method_payments
+                        .delete_group &&
+                      userGroupId !== item.group_id) ||
+                    (!user.users_roles.rules.payments.method_payments
+                      .delete_all &&
+                      !user.users_roles.rules.payments.method_payments
+                        .delete_group &&
+                      user.users_roles.rules.payments.method_payments
+                        .delete_own &&
+                      user.id !== item.created_by)
+                  }
+                />
+              </div>
+
+              <div>
+                <Button
+                  disabled={
+                    !isValid ||
+                    (!user.users_roles.rules.payments.method_payments
+                      .update_all &&
+                      !user.users_roles.rules.payments.method_payments
+                        .update_group &&
+                      !user.users_roles.rules.payments.method_payments
+                        .update_own) ||
+                    (!user.users_roles.rules.payments.method_payments
+                      .update_all &&
+                      user.users_roles.rules.payments.method_payments
+                        .update_group &&
+                      userGroupId !== item.group_id) ||
+                    (!user.users_roles.rules.payments.method_payments
+                      .update_all &&
+                      !user.users_roles.rules.payments.method_payments
+                        .update_group &&
+                      user.users_roles.rules.payments.method_payments
+                        .update_own &&
+                      user.id !== item.created_by)
+                  }
+                  color="primary"
+                  type="submit"
+                  isProcessing={loading}
+                >
+                  {loading ? t("LOADING") : t("SAVE_METHOD")}
+                </Button>
+              </div>
+            </Modal.Footer>
+          ) : (
+            <Modal.Footer className="flex place-payments-end">
+              <Button
+                size={"sm"}
+                disabled={
+                  !isValid ||
+                  !user.users_roles.rules.payments.method_payments.create
+                }
+                color="primary"
+                type="submit"
+                isProcessing={loading}
+              >
+                {loading ? t("LOADING") : t("SAVE_METHOD")}
+              </Button>
+            </Modal.Footer>
+          )}
         </form>
       </Modal>
     </>

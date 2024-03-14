@@ -128,7 +128,9 @@ export function ShellyData(props: ShellyDetailsProps) {
               color={errors.provider && "failure"}
               onChange={onFieldChange("provider")}
             >
-              <option value="">{t("SELECT")}</option>
+              <option hidden value="">
+                {t("SELECT")}
+              </option>
               <option value="RAIXER">RAIXER</option>
               <option value="SHELLY">SHELLY</option>
               <option value="AKILES">AKILES</option>
@@ -200,7 +202,9 @@ export function ShellyData(props: ShellyDetailsProps) {
               color={errors.type && "failure"}
               onChange={onFieldChange("type")}
             >
-              <option value="">{t("SELECT")}</option>
+              <option hidden value="">
+                {t("SELECT")}
+              </option>
               <option value="DOOR">{t("DOOR")}</option>
               <option value="LIGHT">{t("LIGHT")}</option>
             </Select>
@@ -234,7 +238,9 @@ export function ShellyData(props: ShellyDetailsProps) {
               disabled={props.item !== null}
               onChange={onFieldChange("model_name")}
             >
-              <option value="">{t("SELECT")}</option>
+              <option hidden value="">
+                {t("SELECT")}
+              </option>
               <option value="DOOR 2">DOOR 2</option>
               <option value="PRO 2 PM">PRO 2 PM</option>
               <option value="PRO 4 PM">PRO 4 PM</option>
@@ -301,7 +307,9 @@ export function ShellyData(props: ShellyDetailsProps) {
                   >
                     {channel === "2PM" ? (
                       <>
-                        <option value="">{t("SELECT")}</option>
+                        <option hidden value="">
+                          {t("SELECT")}
+                        </option>
                         <option
                           disabled={
                             props.asignedChannels.includes("0") ||
@@ -323,7 +331,9 @@ export function ShellyData(props: ShellyDetailsProps) {
                       </>
                     ) : channel === "4PM" ? (
                       <>
-                        <option value="">{t("SELECT")}</option>
+                        <option hidden value="">
+                          {t("SELECT")}
+                        </option>
                         <option
                           disabled={
                             props.asignedChannels.includes("0") ||
@@ -363,7 +373,9 @@ export function ShellyData(props: ShellyDetailsProps) {
                       </>
                     ) : (
                       <>
-                        <option value="">{t("SELECT")}</option>
+                        <option hidden value="">
+                          {t("SELECT")}
+                        </option>
                         <option value="0">0</option>
                       </>
                     )}
@@ -412,7 +424,9 @@ export function ShellyData(props: ShellyDetailsProps) {
                   color={errors.enabled && "failure"}
                   onChange={onFieldChange("enabled")}
                 >
-                  <option value="">{t("SELECT")}</option>
+                  <option hidden value="">
+                    {t("SELECT")}
+                  </option>
                   <option value="true">{t("YES")}</option>
                   <option value="false">{t("NO")}</option>
                 </Select>
@@ -447,7 +461,9 @@ export function ShellyData(props: ShellyDetailsProps) {
                   onBlur={onFieldChange("auto_off")}
                   onChange={props.autoOffEnabled}
                 >
-                  <option value="">{t("SELECT")}</option>
+                  <option hidden value="">
+                    {t("SELECT")}
+                  </option>
                   <option value="true">{t("YES")}</option>
                   <option value="false">{t("NO")}</option>
                 </Select>
@@ -527,7 +543,9 @@ export function ShellyData(props: ShellyDetailsProps) {
                   >
                     {channel === "2PM" ? (
                       <>
-                        <option value="">{t("SELECT")}</option>
+                        <option hidden value="">
+                          {t("SELECT")}
+                        </option>
                         <option
                           disabled={
                             props.asignedChannels.includes("0") ||
@@ -549,7 +567,9 @@ export function ShellyData(props: ShellyDetailsProps) {
                       </>
                     ) : channel === "4PM" ? (
                       <>
-                        <option value="">{t("SELECT")}</option>
+                        <option hidden value="">
+                          {t("SELECT")}
+                        </option>
                         <option
                           disabled={
                             props.asignedChannels.includes("0") ||
@@ -589,7 +609,9 @@ export function ShellyData(props: ShellyDetailsProps) {
                       </>
                     ) : (
                       <>
-                        <option value="">{t("SELECT")}</option>
+                        <option hidden value="">
+                          {t("SELECT")}
+                        </option>
                         <option value="0">0</option>
                       </>
                     )}
@@ -640,7 +662,9 @@ export function ShellyData(props: ShellyDetailsProps) {
                   color={errors.enabled && "failure"}
                   onChange={onFieldChange("enabled")}
                 >
-                  <option value="">{t("SELECT")}</option>
+                  <option hidden value="">
+                    {t("SELECT")}
+                  </option>
                   <option value="true">{t("YES")}</option>
                   <option value="false">{t("NO")}</option>
                 </Select>

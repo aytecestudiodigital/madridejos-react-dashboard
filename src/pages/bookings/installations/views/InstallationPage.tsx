@@ -1,9 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { Card, Tabs } from "flowbite-react";
 import { FC, useContext, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { HeaderItemPageComponent } from "../../../../components/ListPage/HeaderItemPage";
+import { AlertContext } from "../../../../context/AlertContext";
+import { getOneRow } from "../../../../server/supabaseQueries";
+import { ItemModel } from "../../items/models/ItemModel";
 import { InstallationBookingsCard } from "../components/InstallationBookingsCard";
 import { InstallationDetailsCard } from "../components/InstallationDetailsCard";
 import { InstallationItemsCard } from "../components/InstallationItemsCard";
@@ -15,12 +19,6 @@ import {
 } from "../data/InstallationProvider";
 import { InstallationModel } from "../models/InstallationModel";
 import { InstallationStatesModel } from "../models/InstallationStatesModel";
-import { getOneRow } from "../../../../server/supabaseQueries";
-import { ItemModel } from "../../items/models/ItemModel";
-import { Card, Tabs } from "flowbite-react";
-import { AlertContext } from "../../../../context/AlertContext";
-import { RootState } from "../../../../store/store";
-import { useSelector } from "react-redux";
 
 export const InstallationPage: FC = () => {
   /**
@@ -66,7 +64,8 @@ export const InstallationPage: FC = () => {
   );
   const { id } = useParams();
 
-  const user = useSelector((state: RootState) => state.auth.user);
+  const user = JSON.parse(localStorage.getItem("userLogged")!);
+  const userGroupId = localStorage.getItem("groupSelected")!;
 
   useEffect(() => {
     if (user) {
@@ -117,7 +116,7 @@ export const InstallationPage: FC = () => {
     if (isValid) {
       const data = getValues();
       const result = await updateOrCreateInstallation(
-        { ...data, org_id: orgId },
+        { ...data, org_id: orgId, group_id: userGroupId },
         installationStates,
       );
 
@@ -142,7 +141,26 @@ export const InstallationPage: FC = () => {
             showBackButton={true}
             showButtonSave={true}
             showButtonSaveAndClose={true}
-            saveButtonDisabled={!isValid}
+            saveButtonDisabled={
+              installation
+                ? !isValid ||
+                  (!user.users_roles.rules.bookings.installations.update_all &&
+                    !user.users_roles.rules.bookings.installations
+                      .update_group &&
+                    !user.users_roles.rules.bookings.installations
+                      .update_own) ||
+                  (!user.users_roles.rules.bookings.installations.update_all &&
+                    user.users_roles.rules.bookings.installations
+                      .update_group &&
+                    userGroupId !== installation.group_id) ||
+                  (!user.users_roles.rules.bookings.installations.update_all &&
+                    !user.users_roles.rules.bookings.installations
+                      .update_group &&
+                    user.users_roles.rules.bookings.installations.update_own &&
+                    user.id !== installation.created_by)
+                : !isValid ||
+                  !user.users_roles.rules.bookings.installations.create
+            }
             onBack={onBack}
             onSave={onSave}
           />
@@ -166,7 +184,15 @@ export const InstallationPage: FC = () => {
                           states={installationStates}
                         />
                       </Tabs.Item>
-                      <Tabs.Item title="Items">
+                      <Tabs.Item
+                        title={
+                          installation?.type === "INSTALLATION"
+                            ? t(
+                                "INSTALLATION_PAGE_ITEMS_DEPENDENCIES_CARD_TITLE",
+                              )
+                            : t("INSTALLATION_PAGE_ITEMS_SERVICES_CARD_TITLE")
+                        }
+                      >
                         <InstallationItemsCard
                           type={installation?.type ?? "INSTALLATION"}
                           installation={installation ? installation : null}
@@ -201,17 +227,6 @@ export const InstallationPage: FC = () => {
                           form={form}
                         />
                       </Tabs.Item>
-                      {/* <Tabs.Item title="Items">
-                        <InstallationItemsCard
-                          type={installation?.type ?? "INSTALLATION"}
-                          installation={installation ? installation : null}
-                          initialInstallationItems={
-                            installationItems.length > 0
-                              ? installationItems
-                              : null
-                          }
-                        />
-                      </Tabs.Item> */}
                       <Tabs.Item title="Estados">
                         <InstallationStatesCard
                           states={installationStates}

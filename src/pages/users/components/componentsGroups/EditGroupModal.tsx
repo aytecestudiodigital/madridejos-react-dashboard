@@ -30,9 +30,11 @@ export function EditGroupModal({
   });
 
   const { errors, isValid } = formState;
+
   const tableName = import.meta.env.VITE_TABLE_USER_GROUPS;
 
   const user = JSON.parse(localStorage.getItem("userLogged")!);
+  const userGroupId = localStorage.getItem("groupSelected")!;
 
   const closeAfterDelete = () => {
     reset();
@@ -43,7 +45,7 @@ export function EditGroupModal({
   const onSubmit: SubmitHandler<GroupUsers> = async (data) => {
     if (isValid) {
       setLoading(true);
-      data.group_id = user.group_id;
+      data.group_id = userGroupId;
       const groupUpdated = data.id
         ? ((await updateRow(data, tableName)) as GroupUsers)
         : ((await insertRow(data, tableName)) as GroupUsers);
@@ -76,8 +78,8 @@ export function EditGroupModal({
             )}
           </Modal.Header>
           <Modal.Body>
-            <div>
-              <div className="pb-4">
+            <div className="flex justify-between">
+              <div className="pb-4 w-full">
                 <Label htmlFor="name" color={errors.title && "failure"}>
                   {t("TITLE")}
                 </Label>
@@ -107,7 +109,7 @@ export function EditGroupModal({
                       !user.users_roles.rules.mod_users.groups.delete_own) ||
                     (!user.users_roles.rules.mod_users.groups.delete_all &&
                       user.users_roles.rules.mod_users.groups.delete_group &&
-                      user.group_id !== item.group_id) ||
+                      userGroupId !== item.group_id) ||
                     (!user.users_roles.rules.mod_users.groups.delete_all &&
                       !user.users_roles.rules.mod_users.groups.delete_group &&
                       user.users_roles.rules.mod_users.groups.delete_own &&
@@ -117,6 +119,7 @@ export function EditGroupModal({
               </div>
               <div>
                 <Button
+                  size={"sm"}
                   disabled={
                     !isValid ||
                     (!user.users_roles.rules.mod_users.groups.update_all &&
@@ -124,7 +127,7 @@ export function EditGroupModal({
                       !user.users_roles.rules.mod_users.groups.update_own) ||
                     (!user.users_roles.rules.mod_users.groups.update_all &&
                       user.users_roles.rules.mod_users.groups.update_group &&
-                      user.group_id !== item.group_id) ||
+                      userGroupId !== item.group_id) ||
                     (!user.users_roles.rules.mod_users.groups.update_all &&
                       !user.users_roles.rules.mod_users.groups.update_group &&
                       user.users_roles.rules.mod_users.groups.update_own &&
@@ -141,6 +144,7 @@ export function EditGroupModal({
           ) : (
             <Modal.Footer className="flex place-content-end">
               <Button
+                size={"sm"}
                 disabled={
                   !isValid || !user.users_roles.rules.mod_users.groups.create
                 }

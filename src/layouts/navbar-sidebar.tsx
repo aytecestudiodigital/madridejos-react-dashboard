@@ -24,7 +24,7 @@ export default function NavbarSidebarLayout({
 }
 
 function MainContent({
-  children
+  children,
 }: PropsWithChildren<NavbarSidebarLayoutProps>) {
   const { isOpenOnSmallScreens: isSidebarOpen } = useSidebarContext();
 
