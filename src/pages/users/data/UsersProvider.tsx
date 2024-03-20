@@ -133,7 +133,7 @@ export const updateUser = async (data: any) => {
       let config = {
         method: "patch",
         maxBodyLength: Infinity,
-        url: `https://europe-west2-aymo-tomelloso.cloudfunctions.net/auth/${
+        url: `https://europe-west2-aymo-madridejos.cloudfunctions.net/auth/${
           session.data.session!.user.id
         }?email=${data.email}&phone=${data.phone}`,
         headers: {

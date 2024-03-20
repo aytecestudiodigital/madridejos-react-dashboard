@@ -132,7 +132,7 @@ export const NotificationsModal = (props: NotificationsModalProps) => {
     await insertRow(newNotification, "notifications");
 
     const dataNoti = {
-      toppics: ["16a027fc-4807-4e17-b9e7-d828992352c6"],
+      toppics: ["30f3a4ed-0b43-4489-85a8-244ac94019f5"],
       message: {
         title: formValues.title,
         body: formValues.content,
@@ -140,6 +140,8 @@ export const NotificationsModal = (props: NotificationsModalProps) => {
         contentId: isNavigable ? formValues.content_id : null,
       },
     };
+
+    console.log(dataNoti)
 
     const config = {
       method: "post",

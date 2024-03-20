@@ -74,7 +74,6 @@ export default function SignInPage() {
     setLoading(true);
 
     const result = await dispatch(checkingAuth(email, password));
-    console.log('result',result)
     if (result.payload?.error) {
       setLoading(false);
       return setError(true);

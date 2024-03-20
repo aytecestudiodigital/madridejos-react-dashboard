@@ -406,7 +406,7 @@ export const TaskDetailsPage = () => {
                               <div className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full font-semibold">
                                 Abierta
                               </div>
-                            ) : actualTask.state === "IN_PROGRESS" ? (
+                            ) : actualTask.state === "INPROCESS" ? (
                               <div className="bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded-full font-semibold">
                                 En progreso
                               </div>
@@ -414,11 +414,11 @@ export const TaskDetailsPage = () => {
                               <div className="bg-green-100 text-green-800 px-2 py-0.5 rounded-full font-semibold">
                                 Validada
                               </div>
-                            ) : actualTask.state === "REOPEN" ? (
+                            ) : actualTask.state === "REOPENED" ? (
                               <div className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full font-semibold">
                                 Reabierta
                               </div>
-                            ) : actualTask.state === "CANCELLED" ? (
+                            ) : actualTask.state === "CANCELED" ? (
                               <div className="bg-red-100 text-red-800 px-2 py-0.5 rounded-full font-semibold">
                                 Cancelada
                               </div>
@@ -444,15 +444,15 @@ export const TaskDetailsPage = () => {
                           actualTask.state === "ASSIGNED" ? (
                             <Button
                               onClick={() =>
-                                handleChangeStateButtons("IN_PROGRESS")
+                                handleChangeStateButtons("INPROCESS")
                               }
                               color="warning"
                             >
                               Iniciar
                             </Button>
                           ) : null}
-                          {actualTask.state === "IN_PROGRESS" ||
-                          actualTask.state === "REOPEN" ? (
+                          {actualTask.state === "INPROCESS" ||
+                          actualTask.state === "REOPENED" ? (
                             <Button
                               onClick={() => handleChangeStateButtons("CLOSED")}
                               color="purple"
@@ -464,7 +464,7 @@ export const TaskDetailsPage = () => {
                             <>
                               <Button
                                 onClick={() =>
-                                  handleChangeStateButtons("REOPEN")
+                                  handleChangeStateButtons("REOPENED")
                                 }
                                 color="warning"
                               >

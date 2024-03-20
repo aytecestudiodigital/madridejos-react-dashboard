@@ -58,7 +58,7 @@ export default function StateComponent({ state }: StateComponentProps) {
         <div className="container items-center flex flex-row max-w-max px-4 bg-blue-100 text-blue-800 rounded-full">
           <label className="font-medium">Abierta</label>
         </div>
-      ) : state === "IN_PROGRESS" ? (
+      ) : state === "INPROCESS" ? (
         <div className="container items-center flex flex-row max-w-max px-4 bg-yellow-100 text-yellow-800 rounded-full">
           <label className="font-medium">En proceso</label>
         </div>
@@ -78,11 +78,11 @@ export default function StateComponent({ state }: StateComponentProps) {
         <div className="container items-center flex flex-row max-w-max px-4 bg-green-100 text-green-800 rounded-full">
           <label className="font-medium">Completada</label>
         </div>
-      ) : state === "REOPEN" ? (
+      ) : state === "REOPENED" ? (
         <div className="container items-center flex flex-row max-w-max px-4 bg-blue-100 text-blue-800 rounded-full">
           <label className="font-medium">Reabierta</label>
         </div>
-      ) : state === "CANCELLED" || state === "CANCELED" ? (
+      ) : state === "CANCELED" || state === "CANCELED" ? (
         <div className="container items-center flex flex-row max-w-max px-4 bg-red-100 text-red-800 rounded-full">
           <label className="font-medium">Cancelada</label>
         </div>

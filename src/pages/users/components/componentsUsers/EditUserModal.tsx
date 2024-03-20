@@ -132,6 +132,7 @@ export function EditUserModal({
       const userUpdated = data.id
         ? ((await updateUser(data)) as AymoUser)
         : ((await newUser(data, selectedGroups)) as AymoUser);
+        console.log('userUpdated', userUpdated)
       if (data.id) {
         if (groupsDefault.length > 0) {
           for await (const group of groupsDefault) {
@@ -144,6 +145,7 @@ export function EditUserModal({
             }
           }
         }
+        console.log('selectedGroups', selectedGroups)
         if (selectedGroups.length > 0) {
           for await (const group of selectedGroups) {
             if (groupsDefault[groupsDefault.indexOf(group)] === undefined) {
@@ -457,7 +459,7 @@ export function EditUserModal({
                 />
               </div>
               <div>
-                <Label htmlFor="role">Perfil del usuario</Label>
+                <Label htmlFor="role">Permisos del usuario</Label>
                 <div className="mt-1">
                   <Select
                     id="role"
